@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "509042484961",
+    "firebase_url": "https://adminiq-e827c.firebaseio.com",
+    "project_id": "adminiq-e827c",
+    "storage_bucket": "adminiq-e827c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:509042484961:android:96428f32112a9291",
+        "android_client_info": {
+          "package_name": "com.systemmanager"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "509042484961-h6ftn7g3qbkhun7j1caiqf9ga5pt326e.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDCth4tMflLcSPQSIsJsy9uIjWAqr8xS3w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "509042484961-h6ftn7g3qbkhun7j1caiqf9ga5pt326e.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
