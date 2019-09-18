@@ -1,14 +1,14 @@
 import React, {Component} from 'react';
-import {Text, View, ScrollView, StyleSheet, Alert, ImageBackground,StatusBar,Image, TextInput} from 'react-native';
+import {Text, View, ScrollView, StyleSheet, Alert, ImageBackground,StatusBar,Image, TextInput, FlatList} from 'react-native';
 import Button from 'react-native-button';
-import {Login, Home, info} from 'SystemManager/Navigation/screenName';
+import {Login, Home, info, math} from 'SystemManager/Navigation/screenName';
 import AsyncStorage from '@react-native-community/async-storage';
  import firebase from 'react-native-firebase';
- import {setItemToAsyncStorage,getItemFromAsyncStorage} from 'SystemManager/Function/function';
+ import {setItemToAsyncStorage,getItemFromAsyncStorage,setItemToAsyncStorage1} from 'SystemManager/Function/function';
 /* import OfflineNotice from 'PhanAnh/miniComponent/OfflineNotice';*/
 import Header from 'SystemManager/subComponent/Header';
 import FooterSub from 'SystemManager/subComponent/footerSub';
-import ListquesHeaderComponent from 'SystemManager/subComponent/ListquesHeader'
+import ListquesComponent from 'SystemManager/subComponent/Listques'
 
 const quesRef = firebase.database().ref('Manager/Question/Math/Exam1');
 export default class MathComponent extends Component{
@@ -18,15 +18,12 @@ export default class MathComponent extends Component{
             loading: false,
             email: '',
 			currentItemId: '',
-			currentItemId1: '',
             itemData: {},
             typedEmail: '',
             shortEmail: '',
             userData: {},
 			pickerDisplayed: false,
-			currentUser: null,
-			userData: {},
-			count : 5
+			count: 5
         });
 	}
 	getItemFromDataFromDB(){
@@ -71,13 +68,11 @@ export default class MathComponent extends Component{
 		this.setState({ currentUser })
 		await setItemToAsyncStorage('currentScreen', Home);
 		const currentItemId = await getItemFromAsyncStorage('currentItemId');
-		const currentItemId1 = await getItemFromAsyncStorage('currentItemId1');
     	await AsyncStorage.getItem('userData').then((value) => {
         const userData = JSON.parse(value);
         this.setState({
             currentItemId: currentItemId,
 			userData: userData,
-			currentItemId1: currentItemId1
         });
         const shortEmail = this.state.userData.email.split('@').shift();
         this.setState({
@@ -86,7 +81,7 @@ export default class MathComponent extends Component{
         });
 		});
 		this.getItemFromDataFromDB();
-		console.log('userdata', this.state.userData)
+		console.log('currentItemId of Math', currentItemId)
 
 	  } 
     render(){
@@ -101,7 +96,7 @@ export default class MathComponent extends Component{
 						justifyContent: 'flex-start',
 						justifyContent: 'space-between',
 						width:'100%',
-						backgroundColor: '#1E90FF' 
+						backgroundColor: '#1E90FF',
 					}}
 					>
 				<Button
@@ -158,16 +153,201 @@ export default class MathComponent extends Component{
 						{' '}
 					</Text>
 				</View>
-				 <ListquesHeaderComponent {...this.props} />  
+
+				<View style = {{
+						borderBottomWidth: 2,
+						borderColor:'#1E90FF',
+					}}>
+				 <ScrollView
+				horizontal = {true}
+				>
+				 <View style = {{
+					height: 60,
+                    justifyContent: 'center',
+					alignItems: 'center',
+					flexDirection:'row',
+				}}>
+					<Button
+                        containerStyle={{
+                            width: 40,
+                            height: 40,
+                            backgroundColor: '#1E90FF',
+							borderRadius: 50,
+							justifyContent:'center',
+							alignItems:'center'
+                        }}
+						onPress = {() => Alert.alert('Thông báo','hello')}
+						style = {{
+                            fontSize: 13,
+							color:'white',
+                        }}>
+                        01
+                    </Button>
+					<Button
+                        containerStyle={{
+                            width: 40,
+                            height: 40,
+                            backgroundColor: '#1E90FF',
+							borderRadius: 50,
+							justifyContent:'center',
+							alignItems:'center'
+                        }}
+						onPress = {() => Alert.alert('Thông báo','hello')}
+						style = {{
+                            fontSize: 13,
+							color:'white',
+                        }}
+                        >
+                        02
+                    </Button>
+					<Button
+                        containerStyle={{
+                            width: 40,
+                            height: 40,
+                            backgroundColor: '#1E90FF',
+							borderRadius: 50,
+							justifyContent:'center',
+							alignItems:'center'
+                        }}
+						onPress = {() => Alert.alert('Thông báo','hello')}
+						style = {{
+                            fontSize: 13,
+							color:'white',
+                        }}
+                        >
+                        03
+                    </Button>
+					<Button
+                        containerStyle={{
+                            width: 40,
+                            height: 40,
+                            backgroundColor: '#1E90FF',
+							borderRadius: 50,
+							justifyContent:'center',
+							alignItems:'center'
+                        }}
+						onPress = {() => Alert.alert('Thông báo','hello')}
+						style = {{
+                            fontSize: 13,
+							color:'white',
+                        }}
+                        >
+                        04
+                    </Button>
+					<Button
+                        containerStyle={{
+                            width: 40,
+                            height: 40,
+                            backgroundColor: '#1E90FF',
+							borderRadius: 50,
+							justifyContent:'center',
+							alignItems:'center'
+                        }}
+						onPress = {() => Alert.alert('Thông báo','hello')}
+						style = {{
+                            fontSize: 13,
+							color:'white',
+                        }}
+                        >
+                        05
+                    </Button>
+					<Button
+                        containerStyle={{
+                            width: 40,
+                            height: 40,
+                            backgroundColor: '#1E90FF',
+							borderRadius: 50,
+							justifyContent:'center',
+							alignItems:'center'
+                        }}
+						onPress = {() => Alert.alert('Thông báo','hello')}
+						style = {{
+                            fontSize: 13,
+							color:'white',
+                        }}
+                        >
+                        06
+                    </Button>
+					<Button
+                        containerStyle={{
+                            width: 40,
+                            height: 40,
+                            backgroundColor: '#1E90FF',
+							borderRadius: 50,
+							justifyContent:'center',
+							alignItems:'center'
+                        }}
+						onPress = {() => Alert.alert('Thông báo','hello')}
+						style = {{
+                            fontSize: 13,
+							color:'white',
+                        }}
+                        >
+                        07
+                    </Button>
+					<Button
+                        containerStyle={{
+                            width: 40,
+                            height: 40,
+                            backgroundColor: '#1E90FF',
+							borderRadius: 50,
+							justifyContent:'center',
+							alignItems:'center'
+                        }}
+						onPress = {() => Alert.alert('Thông báo','hello')}
+						style = {{
+                            fontSize: 13,
+							color:'white',
+                        }}
+                        >
+                        08
+                    </Button>
+					<Button
+                        containerStyle={{
+                            width: 40,
+                            height: 40,
+                            backgroundColor: '#1E90FF',
+							borderRadius: 50,
+							justifyContent:'center',
+							alignItems:'center'
+                        }}
+						onPress = {() => Alert.alert('Thông báo','hello')}
+						style = {{
+                            fontSize: 13,
+							color:'white',
+                        }}
+                        >
+                        09
+                    </Button>
+					<Button
+                        containerStyle={{
+                            width: 40,
+                            height: 40,
+                            backgroundColor: '#1E90FF',
+							borderRadius: 50,
+							justifyContent:'center',
+							alignItems:'center'
+                        }}
+						onPress = {() => Alert.alert('Thông báo','hello')}
+						style = {{
+                            fontSize: 13,
+							color:'white',
+                        }}
+                        >
+                        10
+                    </Button>
+				 </View> 
+				 </ScrollView>
+				 </View>
+
                 <ScrollView>
                 <View style = {{alignItems:'center', justifyContent:'center'}}>
-                <Text
+                 <Text
 					style={{
 						fontSize: 22,
 						fontWeight: 'bold',
 						textAlign: 'center',
                         color: 'black',
-                        marginTop: '1%'
 					}}>
 					Toán học
 				</Text>
@@ -177,7 +357,7 @@ export default class MathComponent extends Component{
 						fontWeight: 'bold',
 						alignSelf:'flex-start',
                         color: 'black',
-						marginTop: '1%',
+						/* marginTop: '1%', */
 						marginLeft:'2%'
 					}}>
 					Câu hỏi số {this.state.itemData.sen}
@@ -258,7 +438,7 @@ export default class MathComponent extends Component{
 				</Button>
                 </View>
                 </ScrollView>
-				<FooterSub {...this.props} />
+				 <FooterSub {...this.props} />
 				{/* </ImageBackground> */}
             </View>
         );

@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Text, View, ScrollView, StyleSheet, Alert, ImageBackground,StatusBar} from 'react-native';
+import {Text, View, ScrollView, StyleSheet, Alert, ImageBackground,StatusBar, Image} from 'react-native';
 import Button from 'react-native-button';
 import {Login, Home, lite, math, eng, listques} from 'SystemManager/Navigation/screenName';
 import AsyncStorage from '@react-native-community/async-storage';
@@ -91,7 +91,6 @@ export default class homeComponent extends Component{
 				<OfflineNotice/>*/}
 				 <Header {...this.props} />
                 <ScrollView>
-                <View style = {{alignItems:'center', justifyContent:'center'}}>
                 <Text
 					style={{
 						fontSize: 22,
@@ -101,18 +100,63 @@ export default class homeComponent extends Component{
 						marginTop: '1%',
 						fontStyle:'italic'
 					}}>
-					MCOP
+					M.C.O.P
+				</Text>
+				<Text
+					style={{
+						fontSize: 16,
+						fontWeight: 'bold',
+						textAlign: 'center',
+                        color: '#1E90FF',
+						margin: '1%',
+						fontStyle:'italic'
+					}}>
+					Thi trắc nghiệm online
 				</Text>
 					<View style ={{
-						flexDirection:'row'
+						flexDirection:'row',
+						width:'100%',
+						flexWrap: 'wrap',
+						justifyContent: 'center'
 					}}>
+						<View style = {{
+								width: 150,
+								height: 200,
+								backgroundColor: 'white',
+								borderColor: '#1E90FF',
+								borderWidth: 2,
+								margin: '2%',
+								alignItems:'center',
+								justifyContent:'center',
+								borderRadius: 10,
+						}}>
+							<Image style = {{
+								width: 50,
+								height: 50,
+								tintColor: '#1E90FF'
+							}}
+							source = {require('SystemManager/icons/icons8-coordinate-system-80.png')}
+							/>
+							<Text style = {{
+								fontWeight:'bold',
+								fontSize: 18
+							}}>
+								Toán
+							</Text>
+							<Text style = {{
+								fontSize: 13,
+								color:'grey',
+								marginBottom:'2%'
+							}}>
+								10 câu, 90 phút
+							</Text>
 						<Button
 						containerStyle={{
-							margin: '5%',
-							padding: '3%',
+							margin: '2%',
+							padding: '2%',
 							backgroundColor: '#F1F1F1',
                             borderRadius: 50 ,
-							width: 150,
+							width: 120,
 							borderColor: '#1E90FF',
 							borderWidth: 3,
 						}}
@@ -121,18 +165,50 @@ export default class homeComponent extends Component{
 							color: 'grey'
 						}}
 						onPress= { async () => {
-							  this.props.navigation.navigate(listques); 
-							Alert.alert('','Trang toán học')
+							  this.props.navigation.navigate(listques);
 						}} >
-						Toán học
-					</Button>
-					<Button
+						Thi ngay
+						</Button>
+						</View>
+
+						<View style = {{
+								width: 150,
+								height: 200,
+								backgroundColor: 'white',
+								borderColor: '#1E90FF',
+								borderWidth: 2,
+								margin: '2%',
+								alignItems:'center',
+								justifyContent:'center',
+								borderRadius: 10
+						}}>
+							<Image style = {{
+								width: 50,
+								height: 50,
+								tintColor: '#1E90FF'
+							}}
+							source = {require('SystemManager/icons/icons8-earth-planet-64.png')}
+							/>
+							<Text style = {{
+								fontWeight:'bold',
+								fontSize: 18
+							}}>
+								Tiếng anh
+							</Text>
+							<Text style = {{
+								fontSize: 13,
+								color:'grey',
+								marginBottom:'2%'
+							}}>
+								15 câu, 10 phút
+							</Text>
+							<Button
 						containerStyle={{
-							margin: '5%',
-							padding: '3%',
+							margin: '2%',
+							padding: '2%',
 							backgroundColor: '#F1F1F1',
                             borderRadius: 50 ,
-							width: 150,
+							width: 120,
 							borderColor: '#1E90FF',
 							borderWidth: 3,
 						}}
@@ -140,33 +216,82 @@ export default class homeComponent extends Component{
 							fontSize: 16,
 							color: 'grey'
 						}}
-						onPress= {  async () => {
-							 this.props.navigation.navigate(eng);
-							Alert.alert('','Trang tiếng anh')
+						onPress= { async () => {
+							  this.props.navigation.navigate(eng);
 						}} >
-						Tiếng anh
-					</Button>
+						Thi ngay
+						</Button>
+						</View>
+						<View style = {{
+								width: 150,
+								height: 200,
+								backgroundColor: 'white',
+								borderColor: '#1E90FF',
+								borderWidth: 2,
+								margin: '2%',
+								alignItems:'center',
+								justifyContent:'center',
+								borderRadius: 10
+						}}>
+							<Image style = {{
+								width: 50,
+								height: 50,
+								tintColor: '#1E90FF'
+							}}
+							source = {require('SystemManager/icons/icons8-literature-80.png')}
+							/>
+							<Text style = {{
+								fontWeight:'bold',
+								fontSize: 18
+							}}>
+								Văn học
+							</Text>
+							<Text style = {{
+								fontSize: 13,
+								color:'grey',
+								marginBottom:'2%'
+							}}>
+								20 câu, 15 phút
+							</Text>
+							<Button
+						containerStyle={{
+							margin: '2%',
+							padding: '2%',
+							backgroundColor: '#F1F1F1',
+                            borderRadius: 50 ,
+							width: 120,
+							borderColor: '#1E90FF',
+							borderWidth: 3,
+						}}
+						style={{
+							fontSize: 16,
+							color: 'grey'
+						}}
+						onPress= { async () => {
+							  this.props.navigation.navigate(lite);
+						}} >
+						Thi ngay
+						</Button>
+						</View>
+						<View style = {{
+								width: 150,
+								height: 200,
+								backgroundColor: 'white',
+								borderColor: '#1E90FF',
+								borderWidth: 2,
+								margin: '2%',
+								alignItems:'center',
+								justifyContent:'center',
+								borderRadius: 10
+						}}>
+							<Text style = {{
+								fontWeight:'bold',
+								fontSize: 18
+							}}>
+								...
+							</Text>
+						</View>
 					</View>
-					<Button
-						containerStyle={{
-							margin: '5%',
-							padding: '3%',
-							backgroundColor: '#F1F1F1',
-                            borderRadius: 50 ,
-							width: 150,
-							borderColor: '#1E90FF',
-							borderWidth: 3,
-						}}
-						style={{
-							fontSize: 16,
-							color: 'grey'
-						}}
-						onPress= { async () => {
-							 this.props.navigation.navigate(lite);
-							Alert.alert('','Trang văn học')
-						}} >
-						Văn học
-					</Button>
                {/*  <Button
 						containerStyle={{
 							margin: '5%',
@@ -242,7 +367,6 @@ export default class homeComponent extends Component{
 				>
                     Xóa tài khoản
 				</Button> */}
-                </View>
                 </ScrollView>
 				<Footer {...this.props} />
 				{/* </ImageBackground> */}
@@ -253,7 +377,7 @@ export default class homeComponent extends Component{
 const styles = StyleSheet.create({
     contain: {
         flex: 1,
-        backgroundColor:'white'
+        backgroundColor:'#F1F1F1'
     },
     multilineBox: {
 		width: '96%',

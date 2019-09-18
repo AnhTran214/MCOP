@@ -2,11 +2,12 @@ import React, {Component} from 'react';
 import {Text, View, ScrollView, StyleSheet, Alert, TextInput, FlatList, Image} from 'react-native';
 import Button from 'react-native-button';
 /* import OfflineNotice from 'PhanAnh/miniComponent/OfflineNotice'; */
-import { Home, info,math} from 'SystemManager/Navigation/screenName'; 
+import { Home, info,math, listques} from 'SystemManager/Navigation/screenName'; 
 import AsyncStorage from '@react-native-community/async-storage';
 import firebase from 'react-native-firebase';
 import {setItemToAsyncStorage,getItemFromAsyncStorage,setItemToAsyncStorage1} from 'SystemManager/Function/function';
 import Header from 'SystemManager/subComponent/Header';
+import Footer from 'SystemManager/subComponent/footer';
 
 const quesRef = firebase.database().ref('Manager/Question/Math/Exam1');
 export default class ListquesComponent extends Component {
@@ -14,7 +15,7 @@ export default class ListquesComponent extends Component {
 		let drawerLabel = 'Danh sách câu hỏi';
 		let drawerIcon = () => (
 			<Image 
-			source = {require('SystemManager/icons/icons8-list-64.png')}
+			source = {require('SystemManager/icons/icons8-summary-list-100.png')}
 			style = {{ width: 26, height: 26, tintColor:'#1E90FF'}}
 	   >
 	   </Image>
@@ -76,15 +77,45 @@ export default class ListquesComponent extends Component {
 async setItemId(currentItemId) {
     await setItemToAsyncStorage1('currentItemId', currentItemId);
     console.log(`set currentItemId = ${currentItemId}`);
-    this.props.navigation.navigate(math);
+     this.props.navigation.navigate(math);
+    /* this.refs.FlatListtest.open(); */
 }
     render(){
 		const { currentUser } = this.state
         return(
-            <View style = {{ /* flex: 1, marginTop: Platform.OS === 'ios' ? 34:0, */backgroundColor:'#F1F1F1' }}>
-                <Header {...this.props} /> 
-				 <View style = {{
-            backgroundColor: '#1E90FF',
+            <View style = {{ flex: 1, marginTop: Platform.OS === 'ios' ? 34:0, backgroundColor:'#F1F1F1' }}>
+                <View
+					style = {{
+						flexDirection: 'row',
+						justifyContent: 'flex-start',
+						justifyContent: 'space-between',
+						width:'100%',
+						backgroundColor: '#1E90FF' 
+					}}
+					>
+				<Button
+                        containerStyle={{
+                            width: 30,
+							margin: '2%',
+							marginTop: '5%',
+							alignSelf: 'flex-start',
+                    }}
+						onPress={async () => {
+							this.props.navigation.goBack();
+						}}>
+                            <Image
+						style={{
+							width: 30,
+                            height: 30,
+                            margin: '2%',
+                            tintColor: 'white'
+						}}
+						source={require('SystemManager/icons/back.png')}
+					/>
+					</Button>
+				</View>
+			<View style = {{
+            backgroundColor: 'white',
             justifyContent: 'center',
             alignItems:'center',
             height: 64,
@@ -93,15 +124,14 @@ async setItemId(currentItemId) {
             <Text style = {{
               justifyContent: 'center',
               alignItems:'center',
-              //marginBottom: '2%',
-              color:'white',
+              color:'#1E90FF',
               fontSize:16,
               fontWeight:'bold'
             }}>
               Danh sách câu hỏi
             </Text>
           </View>
-                <FlatList 
+                 <FlatList 
                  horizontal = {true} 
                 data = {this.state.arrayQues}
                 renderItem = {({item, index}) => {
@@ -110,27 +140,169 @@ async setItemId(currentItemId) {
                         containerStyle={{
                             width: 50,
                             height: 50,
-                            marginTop: '1%',
-                            marginBottom: '1%',
                             backgroundColor: '#1E90FF',
-                            /* alignSelf: 'center',
-                            justifyContent: 'center',
-                            alignItems: 'center', */
-                            borderRadius: 50,
+							borderRadius: 50,
+							justifyContent:'center',
+							alignItems:'center'
                         }}
-                        onPress = {() =>     this.setItemId(item.id)      /* Alert.alert('Thông báo',item.question ) */}
-                        >
-                        <Text style = {{
+                        onPress = {() =>     this.setItemId(item.id)       /* Alert.alert('Thông báo',item.question ) */}
+                        style = {{
                             fontSize: 13,
-                            margin:'2%',
-                            textAlign:'center',
-                            color:'white' 
-                        }}>{item.sen}</Text>
+							color:'white',
+                        }}
+                        >
+                        {item.sen}
                         </Button>
                     );
                 }}
                 >
                 </FlatList>
+                {/* <FlatList 
+                ref = {'FlatListtest'}
+                horizontal = {true}
+                data = {this.state.arrayQues}
+                renderItem = {({item, index}) => {
+                    return(
+                        
+                        <View
+                        style={{
+                            width: 450,
+                            height: 300,
+                            marginTop: '1%',
+                            marginBottom: '1%',
+                            backgroundColor: 'white',
+                            borderRadius: 50,
+                            flexDirection:'column'
+                        }}
+                        >
+                         <View style = {{flexDirection:'column',margin:'5%', justifyContent: 'center'}}>
+                        <Text style = {{
+                            fontSize: 13,
+                            marginLeft: '2%',
+                            
+                        }}>
+                        <Text style = {{fontSize:14, color: '#1E90FF'}}>Câu hỏi thứ {item.sen}: </Text></Text>
+                        <Text style = {{
+                            fontSize: 13,
+                            marginLeft: '2%',
+                            
+                        }}>{item.question}</Text>
+                        <Text style = {{
+                            fontSize: 13,
+                            marginLeft: '2%',
+                            
+                        }}>
+                        <Text style = {{fontSize:14, color: '#1E90FF'}}>Trả lời: </Text></Text>
+                        <Button
+					containerStyle={{
+						width: 150,
+						height: 20,
+                        backgroundColor: 'white',
+                        borderColor: '#1E90FF',
+                        borderWidth:2,
+						justifyContent: 'center',
+						alignItems: 'center',
+                        borderRadius: 50,
+                        margin: '1%'
+					}}
+					style={{
+						fontSize: 13,
+						fontWeight: 'bold',
+						color: 'grey',
+						alignSelf:'flex-start',
+						margin: '1%'
+					}}
+					onPress={() => {
+                         Alert.alert('Câu trả lời',item.a)
+					}}
+					>
+					{item.a}
+				</Button>
+                <Button
+					containerStyle={{
+						width: 150,
+						height: 20,
+                        backgroundColor: 'white',
+                        borderColor: '#1E90FF',
+                        borderWidth:2,
+						justifyContent: 'center',
+						alignItems: 'center',
+                        borderRadius: 50,
+                        margin: '1%'
+					}}
+					style={{
+						fontSize: 13,
+						fontWeight: 'bold',
+						color: 'grey',
+						alignSelf:'flex-start',
+						margin: '1%'
+					}}
+					onPress={() => {
+                         Alert.alert('Câu trả lời',item.b)
+					}}
+					>
+					{item.b}
+				</Button>
+                <Button
+					containerStyle={{
+						width: 150,
+						height: 20,
+                        backgroundColor: 'white',
+                        borderColor: '#1E90FF',
+                        borderWidth:2,
+						justifyContent: 'center',
+						alignItems: 'center',
+                        borderRadius: 50,
+                        margin: '1%'
+					}}
+					style={{
+						fontSize: 13,
+						fontWeight: 'bold',
+						color: 'grey',
+						alignSelf:'flex-start',
+						margin: '1%'
+					}}
+					onPress={() => {
+                         Alert.alert('Câu trả lời',item.c)
+					}}
+					>
+					{item.c}
+				</Button>
+                <Button
+					containerStyle={{
+						width: 150,
+						height: 20,
+                        backgroundColor: 'white',
+                        borderColor: '#1E90FF',
+                        borderWidth:2,
+						justifyContent: 'center',
+						alignItems: 'center',
+                        borderRadius: 50,
+                        margin: '1%'
+					}}
+					style={{
+						fontSize: 13,
+						fontWeight: 'bold',
+						color: 'grey',
+						alignSelf:'flex-start',
+						margin: '1%'
+					}}
+					onPress={() => {
+                         Alert.alert('Câu trả lời',item.d)
+					}}
+					>
+					{item.d}
+				</Button>
+                            <View style={{ borderBottomColor: 'grey', borderBottomWidth: 1, alignSelf: 'stretch', width:'70%', alignSelf:'center',
+                        marginBottom:'2%', marginTop:'2%'}} />
+                         </View> 
+                        </View>
+                        
+                    );
+                }}
+                >
+                </FlatList> */}
+            <Footer {...this.props} />
             </View>
         );
     }

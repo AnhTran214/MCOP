@@ -18,7 +18,7 @@ export default class addquesComponent extends Component{
 		let drawerLabel = 'Thêm câu hỏi';
 		let drawerIcon = () => (
 			<Image 
-			source = {require('SystemManager/icons/icons8-question-mark-80.png')}
+			source = {require('SystemManager/icons/icons8-question-mark-64.png')}
 			style = {{ width: 26, height: 26, tintColor:'#1E90FF'}}
 	   >
 	   </Image>

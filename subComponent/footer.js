@@ -46,7 +46,7 @@ export default class Footer extends Component{
                 justifyContent: 'flex-start',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                backgroundColor: '#F1F1F1'
+                backgroundColor: '#1E90FF'
             }}>
                 <Button
                         containerStyle={{
@@ -62,7 +62,7 @@ export default class Footer extends Component{
 							width: 30,
                             height: 30,
                             margin: '2%',
-                            tintColor: '#1E90FF'
+                            tintColor: 'white'
 						}}
 						source={require('SystemManager/icons/icons8-home-100.png')}
 					/>
@@ -81,28 +81,9 @@ export default class Footer extends Component{
 							width: 30,
                             height: 30,
                             margin: '2%',
-                            tintColor: '#1E90FF'
+                            tintColor: 'white'
 						}}
-						source={require('SystemManager/icons/icons8-question-mark-80.png')}
-					/>
-					</Button>
-                    <Button
-                        containerStyle={{
-                            width: 30,
-							margin: '2%',
-							alignSelf: 'flex-start',
-                    }}
-						onPress={async () => {
-							this.props.navigation.navigate(listques);
-						}}>
-                            <Image
-						style={{
-							width: 30,
-                            height: 30,
-                            margin: '2%',
-                            tintColor: '#1E90FF'
-						}}
-						source={require('SystemManager/icons/icons8-list-64.png')}
+						source={require('SystemManager/icons/icons8-question-mark-64.png')}
 					/>
 					</Button>
                     <Button
@@ -119,7 +100,7 @@ export default class Footer extends Component{
 							width: 30,
                             height: 30,
                             margin: '2%',
-                            tintColor: '#1E90FF'
+                            tintColor: 'white'
 						}}
 						source={require('SystemManager/icons/user.png')}
 					/>

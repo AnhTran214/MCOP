@@ -14,7 +14,7 @@ import MathComponent from 'SystemManager/Subject/Math';
 import liteComponent from 'SystemManager/Subject/Literature';
 import engComponent from 'SystemManager/Subject/English';
 import addquesComponent from 'SystemManager/Main/Addques';
-import ListquesComponent from 'SystemManager/subComponent/Listques'
+import ListquesComponent from 'SystemManager/subComponent/Listques';
 //---------------------------------------------------------------
 import {Login, SignUp, Home, AuthLoading, info, math, lite, eng, addques, listques} from 'SystemManager/Navigation/screenName';
 //---------------------------------------------------------------
@@ -23,7 +23,8 @@ const HomeStack = createStackNavigator({
     Home: homeComponent,
     math: MathComponent,
     lite: liteComponent,
-    eng: engComponent
+    eng: engComponent,
+    listques: ListquesComponent
 }, 
     { headerMode: 'none' });
 const MathStack = createStackNavigator({
@@ -44,16 +45,6 @@ let routeConfig = {
     },
     info: infoAccComponent,
     addques: addquesComponent,
-    listques: {
-        screen: MathStack,
-        navigationOptions: {
-            drawerLabel: 'Danh sách câu hỏi toán',
-            drawerIcon: 
-            <Image source = {require('SystemManager/icons/icons8-list-64.png')}
-            style = {{width:26, height: 26, tintColor:'#1E90FF'}}
-            />
-        }
-    },
 };
 let drawerNavConfig = {
     unmountInactiveRoutes: true,
