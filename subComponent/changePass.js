@@ -18,15 +18,15 @@ import firebase from 'react-native-firebase';
 import Button from 'react-native-button';
 import { setItemToAsyncStorage, getItemFromAsyncStorage, getStatusColor } from 'SystemManager/Function/function';
 import AsyncStorage from '@react-native-community/async-storage';
-import { Home, info, changePass } from 'SystemManager/Navigation/screenName';
+import { Home, info } from 'SystemManager/Navigation/screenName';
 import Header from 'SystemManager/subComponent/Header';
 import Footer from 'SystemManager/subComponent/footer';
 import LinearGradient from 'react-native-linear-gradient';
 
 //tham chieu den root
 const LearnAppUser = firebase.database().ref('Manager/User');
-export default class infoAccComponent extends Component {
-    static navigationOptions = ({ navigation }) => {
+export default class changePassComponent extends Component {
+    /*  static navigationOptions = ({ navigation }) => {
         let drawerLabel = 'Thông tin cá nhân';
         let drawerIcon = () => (
             <Image
@@ -36,7 +36,7 @@ export default class infoAccComponent extends Component {
         );
 
         return { drawerLabel, drawerIcon };
-    };
+    }; */
     constructor(props) {
         super(props);
         this.state = {
@@ -52,7 +52,9 @@ export default class infoAccComponent extends Component {
             phone: '',
             address: '',
             birthday: '',
-            status: ''
+            status: '',
+            newpassword: '',
+            renewpassword: ''
         };
     }
     getItemFromDataFromDB() {
@@ -160,13 +162,15 @@ export default class infoAccComponent extends Component {
     AlertUpdate = () => {
         Alert.alert(
             'Thông báo',
-            'Bạn muốn cập nhật thông tin ?',
+            'Bạn muốn đổi mật khẩu ?',
             [
                 { text: 'Không', onPress: () => console.log('Cancel Pressed'), style: 'cancel' },
                 {
                     text: 'Có',
                     onPress: () => {
-                        this.update();
+                        /* this.update(); */
+                        Alert.alert('Thông báo', 'Đổi mật khẩu thành công');
+                        this.props.navigation.navigate(info);
                     }
                 }
             ],
@@ -204,7 +208,7 @@ export default class infoAccComponent extends Component {
                                     fontSize: 13
                                 }}
                             >
-                                Thông tin cá nhân
+                                Mật khẩu
                             </Text>
                         </View>
                         <View
@@ -235,7 +239,7 @@ export default class infoAccComponent extends Component {
                                         alignSelf: 'flex-start'
                                     }}
                                 >
-                                    Tài khoản:
+                                    Mật khẩu cũ:
                                 </Text>
                                 <View style={[ styles.propertyValueRowView ]}>
                                     <TextInput
@@ -243,59 +247,12 @@ export default class infoAccComponent extends Component {
                                         keyboardType='default'
                                         underlineColorAndroid='transparent'
                                         placeholderTextColor='grey'
-                                        editable={false}
-                                        placeholder={this.state.itemData.email}
-                                        autoCapitalize='none'
-                                        onChangeText={(text) => {
-                                            this.setState({
-                                                name: text
-                                            });
-                                        }}
-                                    />
-                                </View>
-                                <Text
-                                    style={{
-                                        marginLeft: '2%',
-                                        alignSelf: 'flex-start'
-                                    }}
-                                >
-                                    Họ và tên:
-                                </Text>
-                                <View style={[ styles.propertyValueRowView ]}>
-                                    <TextInput
-                                        style={styles.multilineBox}
-                                        keyboardType='default'
-                                        underlineColorAndroid='transparent'
-                                        placeholderTextColor='grey'
-                                        placeholder={this.state.itemData.name}
-                                        autoCapitalize='none'
-                                        onChangeText={(text) => {
-                                            this.setState({
-                                                name: text
-                                            });
-                                        }}
-                                    />
-                                </View>
-                                <Text
-                                    style={{
-                                        marginLeft: '2%',
-                                        alignSelf: 'flex-start'
-                                    }}
-                                >
-                                    Ngày sinh:
-                                </Text>
-                                <View style={[ styles.propertyValueRowView ]}>
-                                    <TextInput
-                                        style={styles.multilineBox}
-                                        keyboardType='default'
-                                        underlineColorAndroid='transparent'
-                                        placeholderTextColor='grey'
-                                        placeholder={this.state.itemData.birthday}
+                                        placeholder='Nhập mật khẩu cũ'
                                         autoCapitalize='none'
                                         maxLength={10}
                                         onChangeText={(text) => {
                                             this.setState({
-                                                birthday: text
+                                                password: text
                                             });
                                         }}
                                     />
@@ -306,20 +263,20 @@ export default class infoAccComponent extends Component {
                                         alignSelf: 'flex-start'
                                     }}
                                 >
-                                    Số điện thoại:
+                                    Nhập mật khẩu mới:
                                 </Text>
                                 <View style={[ styles.propertyValueRowView ]}>
                                     <TextInput
                                         style={styles.multilineBox}
-                                        keyboardType='numeric'
+                                        keyboardType='default'
                                         underlineColorAndroid='transparent'
                                         placeholderTextColor='grey'
-                                        placeholder={this.state.itemData.phone}
+                                        placeholder='Nhập mật khẩu mới'
                                         autoCapitalize='none'
                                         maxLength={10}
                                         onChangeText={(text) => {
                                             this.setState({
-                                                phone: text
+                                                newpassword: text
                                             });
                                         }}
                                     />
@@ -330,20 +287,19 @@ export default class infoAccComponent extends Component {
                                         alignSelf: 'flex-start'
                                     }}
                                 >
-                                    Địa chỉ:
+                                    Nhập lại mật khẩu mới:
                                 </Text>
                                 <View style={[ styles.propertyValueRowView ]}>
                                     <TextInput
-                                        style={[ styles.multilineBox, { height: 100 } ]}
+                                        style={[ styles.multilineBox ]}
                                         underlineColorAndroid='transparent'
                                         placeholderTextColor='grey'
-                                        placeholder={this.state.itemData.address}
+                                        placeholder='Nhập lại mật khẩu mới'
                                         autoCapitalize='none'
-                                        multilineBox={true}
-                                        maxLength={100}
+                                        maxLength={10}
                                         onChangeText={(text) => {
                                             this.setState({
-                                                address: text
+                                                renewpassword: text
                                             });
                                         }}
                                     />
@@ -355,7 +311,7 @@ export default class infoAccComponent extends Component {
                             end={{ x: 1, y: 0 }}
                             colors={[ 'rgb(86, 123, 248)', 'rgb(95,192,255)' ]}
                             style={{
-                                width: '75%',
+                                width: '70%',
                                 height: 60,
                                 marginTop: '1%',
                                 marginBottom: '1%',
@@ -375,30 +331,9 @@ export default class infoAccComponent extends Component {
                                 }}
                                 onPress={this.AlertUpdate}
                             >
-                                CẬP NHẬT THÔNG TIN
+                                ĐỔI MẬT KHẨU
                             </Button>
                         </LinearGradient>
-                        <Button
-                            containerStyle={{
-                                padding: '3%',
-                                borderRadius: 5,
-                                alignSelf: 'center'
-                            }}
-                            onPress={() => {
-                                const { navigate } = this.props.navigation; //chu y
-                                navigate(changePass);
-                            }}
-                        >
-                            <Text
-                                style={{
-                                    fontSize: 11,
-                                    color: '#1E90FF',
-                                    fontStyle: 'italic'
-                                }}
-                            >
-                                Đổi mật khẩu
-                            </Text>
-                        </Button>
                     </ScrollView>
                     <Footer {...this.props} />
                 </ImageBackground>

@@ -16,6 +16,7 @@ import {Login} from 'SystemManager/Navigation/screenName';
  import AsyncStorage from '@react-native-community/async-storage';
 import {setItemToAsyncStorage} from 'SystemManager/Function/function';
 /*import OfflineNotice from 'Demon/Democode/infor/OfflineNotice' */
+import LinearGradient from 'react-native-linear-gradient';
 
  
  const LearnAppRefUsers = firebase.database().ref('Manager/User');
@@ -33,9 +34,6 @@ export default class signupComponent extends Component {
 			user: '',
 			role: 'Người dùng',
 			isUploading: false,
-			code: '',
-			pickerSelection: 'Chọn quyền',// gia tri ban dau cua chu
-			pickerDisplayed: false,
 			name: ''  
 		};
 	}
@@ -71,7 +69,11 @@ export default class signupComponent extends Component {
                     email: this.state.typedEmail,
                     password: this.state.typedPassword,
 					role: this.state.role,
-					name: this.state.name
+					name: this.state.name,
+					phone:'',
+					address:'',
+					birthday:'',
+					status:'',
                 };
 
                 LearnAppRefUsers.push(userData); // Đẩy lên Database
@@ -221,14 +223,16 @@ export default class signupComponent extends Component {
 					}}
 				/>
 				</View>
-				<View style={{ flexDirection: 'row' }}>
+				<LinearGradient  start={{x: 0, y: 0}} end={{x: 1, y: 0}} 
+				colors = {['rgb(86, 123, 248)', 'rgb(95,192,255)']}
+				style = {{
+					margin: '3%',
+					padding: '3%',
+					width: 250,
+					borderRadius: 20 ,
+				}}
+				>
 					<Button
-						containerStyle={{
-							margin: '5%',
-							padding: '3%',
-							backgroundColor: '#1E90FF',
-							borderRadius: 50 ,
-						}}
 						style={{
 							fontSize: 16,
 							color: 'white'
@@ -243,9 +247,9 @@ export default class signupComponent extends Component {
 						resizeMode : 'stretch',
 						marginRight: '2%'
 				}} /> */}
-						Đăng Ký
+						ĐĂNG KÝ
 					</Button>
-				</View>
+				</LinearGradient>
 				<Text style = {{
                                 fontSize: 16,
                                 fontWeight: 'bold',
@@ -295,7 +299,7 @@ const styles = StyleSheet.create({
 		height: 50,
 		marginTop: 20,
 		borderColor: '#1E90FF',
-		borderBottomWidth: 5,
+		borderBottomWidth: 1,
         textAlignVertical: 'top',
         marginLeft: '2%',
         marginRight: '2%',

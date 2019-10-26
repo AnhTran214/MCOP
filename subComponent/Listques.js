@@ -1,31 +1,37 @@
-import React, {Component} from 'react';
-import {Text, View, ScrollView, StyleSheet, Alert, TextInput, FlatList, Image} from 'react-native';
+import React, { Component } from 'react';
+import { Text, View, ScrollView, StyleSheet, Alert, TextInput, FlatList, Image } from 'react-native';
 import Button from 'react-native-button';
 /* import OfflineNotice from 'PhanAnh/miniComponent/OfflineNotice'; */
-import { Home, info,math, listques} from 'SystemManager/Navigation/screenName'; 
+import { Home, info, math, listques } from 'SystemManager/Navigation/screenName';
 import AsyncStorage from '@react-native-community/async-storage';
 import firebase from 'react-native-firebase';
-import {setItemToAsyncStorage,getItemFromAsyncStorage,setItemToAsyncStorage1} from 'SystemManager/Function/function';
+import {
+    setItemToAsyncStorage,
+    getItemFromAsyncStorage,
+    setItemToAsyncStorage1
+} from 'SystemManager/Function/function';
 import Header from 'SystemManager/subComponent/Header';
 import Footer from 'SystemManager/subComponent/footer';
+import { TouchableHighlight } from 'react-native-gesture-handler';
+
+/* import ScrollableTabView, { DefaultTabBar } from 'react-native-scrollable-tab-view'; */
 
 const quesRef = firebase.database().ref('Manager/Question/Math/Exam1');
 export default class ListquesComponent extends Component {
     static navigationOptions = ({ navigation }) => {
-		let drawerLabel = 'Danh sách câu hỏi';
-		let drawerIcon = () => (
-			<Image 
-			source = {require('SystemManager/icons/icons8-summary-list-100.png')}
-			style = {{ width: 26, height: 26, tintColor:'#1E90FF'}}
-	   >
-	   </Image>
-		);
-		
-        return { drawerLabel,drawerIcon};
-        }; 
-    constructor(props){
+        let drawerLabel = 'Danh sách câu hỏi';
+        let drawerIcon = () => (
+            <Image
+                source={require('SystemManager/icons/icons8-summary-list-100.png')}
+                style={{ width: 26, height: 26, tintColor: '#1E90FF' }}
+            />
+        );
+
+        return { drawerLabel, drawerIcon };
+    };
+    constructor(props) {
         super(props);
-        this.state = ({
+        this.state = {
             currentItemId: '',
             typedEmail: '',
             shortEmail: '',
@@ -33,130 +39,92 @@ export default class ListquesComponent extends Component {
             arrayQues: [],
             user: '',
             loading: false,
-            userData: {},
+            userData: {}
+        };
+    }
+    getDataFromDB() {
+        quesRef.on('value', (childSnapshot) => {
+            const arrayQues = [];
+            childSnapshot.forEach((doc) => {
+                arrayQues.push({
+                    key: doc.key,
+                    id: doc.toJSON().id,
+                    sen: doc.toJSON().sen,
+                    question: doc.toJSON().question,
+                    a: doc.toJSON().A,
+                    b: doc.toJSON().B,
+                    c: doc.toJSON().C,
+                    d: doc.toJSON().D
+                });
+            });
+            this.setState({
+                arrayQues: arrayQues,
+                loading: false
+            });
         });
     }
-    getDataFromDB(){
-        quesRef.on('value',(childSnapshot) =>{
-           const arrayQues = [];
-           childSnapshot.forEach((doc) => {
-            arrayQues.push({
-                   key: doc.key,
-                   id: doc.toJSON().id,
-                   sen: doc.toJSON().sen,
-                   question: doc.toJSON().question,
-                   a: doc.toJSON().A,
-                   b: doc.toJSON().B,
-                   c: doc.toJSON().C,
-                   d: doc.toJSON().D,
-               });
-           });
-               this.setState({
-                arrayQues : arrayQues,
-                   loading: false,
-               });
-       });
-   }
-   async componentDidMount(){
-    await setItemToAsyncStorage('currentScreen', Home);
-    await AsyncStorage.getItem('userData').then(async (value) => {
-    const userData = JSON.parse(value);
-    await this.setState({userData: userData});
-    console.log(this.state.userData);
-    const shortEmail = this.state.userData.email.split('@').shift();
-    await this.setState({
-    typedEmail: this.state.userData.email,
-        shortEmail: shortEmail
-    });
-});
+    async componentDidMount() {
+        await setItemToAsyncStorage('currentScreen', Home);
+        await AsyncStorage.getItem('userData').then(async (value) => {
+            const userData = JSON.parse(value);
+            await this.setState({ userData: userData });
+            console.log(this.state.userData);
+            const shortEmail = this.state.userData.email.split('@').shift();
+            await this.setState({
+                typedEmail: this.state.userData.email,
+                shortEmail: shortEmail
+            });
+        });
 
-    const { currentUser } = firebase.auth()
-    this.setState({ currentUser })
-   this.getDataFromDB();
-}
-async setItemId(currentItemId) {
-    await setItemToAsyncStorage1('currentItemId', currentItemId);
-    console.log(`set currentItemId = ${currentItemId}`);
-     this.props.navigation.navigate(math);
-    /* this.refs.FlatListtest.open(); */
-}
-    render(){
-		const { currentUser } = this.state
-        return(
-            <View style = {{ flex: 1, marginTop: Platform.OS === 'ios' ? 34:0, backgroundColor:'#F1F1F1' }}>
-                <View
-					style = {{
-						flexDirection: 'row',
-						justifyContent: 'flex-start',
-						justifyContent: 'space-between',
-						width:'100%',
-						backgroundColor: '#1E90FF' 
-					}}
-					>
-				<Button
-                        containerStyle={{
-                            width: 30,
-							margin: '2%',
-							marginTop: '5%',
-							alignSelf: 'flex-start',
+        const { currentUser } = firebase.auth();
+        this.setState({ currentUser });
+        this.getDataFromDB();
+    }
+    async setItemId(currentItemId) {
+        await setItemToAsyncStorage1('currentItemId', currentItemId);
+        console.log(`set currentItemId = ${currentItemId}`);
+        this.props.navigation.navigate(math);
+        /* this.refs.FlatListtest.open(); */
+    }
+
+    render() {
+        const { currentUser } = this.state;
+        return (
+            <View style={{ width: '100%', marginTop: Platform.OS === 'ios' ? 34 : 0, backgroundColor: '#F1F1F1' }}>
+                <FlatList
+                    horizontal={true}
+                    data={this.state.arrayQues}
+                    renderItem={({ item, index }) => {
+                        return (
+                            <View>
+                                <Button onPress={this.props.pressCauHoi}>
+                                    <Button
+                                        containerStyle={{
+                                            width: 50,
+                                            height: 50,
+                                            backgroundColor: '#1E90FF',
+                                            borderRadius: 50,
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
+                                            margin: 5
+                                        }}
+                                        onPress={async () => {
+                                            alert('setItemSen = ' + item.sen);
+                                            await setItemToAsyncStorage('currentSen', item.sen);
+                                        }}
+                                        style={{
+                                            fontSize: 13,
+                                            color: 'white'
+                                        }}
+                                    >
+                                        {item.sen}
+                                    </Button>
+                                </Button>
+                            </View>
+                        );
                     }}
-						onPress={async () => {
-							this.props.navigation.goBack();
-						}}>
-                            <Image
-						style={{
-							width: 30,
-                            height: 30,
-                            margin: '2%',
-                            tintColor: 'white'
-						}}
-						source={require('SystemManager/icons/back.png')}
-					/>
-					</Button>
-				</View>
-			<View style = {{
-            backgroundColor: 'white',
-            justifyContent: 'center',
-            alignItems:'center',
-            height: 64,
-            
-          }}>
-            <Text style = {{
-              justifyContent: 'center',
-              alignItems:'center',
-              color:'#1E90FF',
-              fontSize:16,
-              fontWeight:'bold'
-            }}>
-              Danh sách câu hỏi
-            </Text>
-          </View>
-                 <FlatList 
-                 horizontal = {true} 
-                data = {this.state.arrayQues}
-                renderItem = {({item, index}) => {
-                    return(
-                        <Button
-                        containerStyle={{
-                            width: 50,
-                            height: 50,
-                            backgroundColor: '#1E90FF',
-							borderRadius: 50,
-							justifyContent:'center',
-							alignItems:'center'
-                        }}
-                        onPress = {() =>     this.setItemId(item.id)       /* Alert.alert('Thông báo',item.question ) */}
-                        style = {{
-                            fontSize: 13,
-							color:'white',
-                        }}
-                        >
-                        {item.sen}
-                        </Button>
-                    );
-                }}
-                >
-                </FlatList>
+                />
+
                 {/* <FlatList 
                 ref = {'FlatListtest'}
                 horizontal = {true}
@@ -302,7 +270,7 @@ async setItemId(currentItemId) {
                 }}
                 >
                 </FlatList> */}
-            <Footer {...this.props} />
+                {/* <Footer {...this.props} /> */}
             </View>
         );
     }
@@ -310,22 +278,22 @@ async setItemId(currentItemId) {
 const styles = StyleSheet.create({
     contain: {
         flex: 1,
-        backgroundColor:'#F1F1F1'
+        backgroundColor: '#F1F1F1'
     },
     multilineBox: {
-		width: '96%',
-		height: 50,
-		marginTop: 20,
-		borderColor: '#66CDAA',
+        width: '96%',
+        height: 50,
+        marginTop: 20,
+        borderColor: '#66CDAA',
         textAlignVertical: 'top',
         marginLeft: '2%',
         marginRight: '2%',
         borderBottomWidth: 2
-  },
-  propertyValueRowView: {
-		flexDirection: 'row',
+    },
+    propertyValueRowView: {
+        flexDirection: 'row',
         justifyContent: 'flex-start',
-		marginTop: 0,
-		marginBottom: 0
-  },
-})
+        marginTop: 0,
+        marginBottom: 0
+    }
+});

@@ -3,7 +3,7 @@ import { Text, View, TouchableHighlight, Image, Alert} from 'react-native';
 import Button from 'react-native-button';
 import AsyncStorage from '@react-native-community/async-storage';
 import firebase from "react-native-firebase";
-import {Home,info, addques, listques} from 'SystemManager/Navigation/screenName';
+import {Home,info, addques, listques, charts} from 'SystemManager/Navigation/screenName';
 import {setItemToAsyncStorage,getItemFromAsyncStorage} from 'SystemManager/Function/function';
 
 export default class Footer extends Component{
@@ -67,7 +67,7 @@ export default class Footer extends Component{
 						source={require('SystemManager/icons/icons8-home-100.png')}
 					/>
 					</Button>
-                    <Button
+                    {/* <Button
                         containerStyle={{
                             width: 30,
 							margin: '2%',
@@ -84,6 +84,24 @@ export default class Footer extends Component{
                             tintColor: 'white'
 						}}
 						source={require('SystemManager/icons/icons8-question-mark-64.png')}
+					/>
+					</Button> */}
+                    <Button
+                        containerStyle={{
+                            width: 30,
+							margin: '2%',
+							alignSelf: 'flex-start',
+                    }}
+						onPress={async () => {
+							this.props.navigation.navigate(charts);
+						}}>
+                            <Image
+						style={{
+							width: 30,
+                            height: 30,
+                            margin: '2%',
+						}}
+						source={require('SystemManager/icons/icons8-medieval-crown-96.png')}
 					/>
 					</Button>
                     <Button

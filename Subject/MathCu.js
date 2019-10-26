@@ -12,7 +12,7 @@ import {
 	FlatList
 } from 'react-native';
 import Button from 'react-native-button';
-import { Login, Home, info, math,result } from 'SystemManager/Navigation/screenName';
+import { Login, Home, info, math } from 'SystemManager/Navigation/screenName';
 import AsyncStorage from '@react-native-community/async-storage';
 import firebase from 'react-native-firebase';
 import {
@@ -29,7 +29,7 @@ import CountDown from 'react-native-countdown-component';
 
 const quesRef = firebase.database().ref('Manager/Question/Math/Exam1');
 
-export default class MathComponent extends Component {
+export default class MathCuComponent extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
@@ -41,33 +41,17 @@ export default class MathComponent extends Component {
 			userData: {},
 			pickerDisplayed: false,
 			count: 5,
-			change:[true,true,true,true],
-			quesNumArray: [],
-			clickedSen: '01',
-			ls: []
+			change: true
 		};
 		this.onPressAdd = this.onPressAdd.bind(this);
 	}
-
-	changeAw = (cauHoiThu,id) => {
-		console.log(cauHoiThu);
-		console.log(id);
-			var arr= [true,true,true,true];	
-			var res= this.state.ls;
-			if (id<4)
-			{
-				arr[id]=false;		
-				var stt=parseInt(cauHoiThu);
-				res[stt]=id;		
-			}		
-			console.log(res);
-			this.setState({
-				ls:res
-			});
-	
-			this.setState({
-				change:arr
-			});
+	changeAw = () => {
+		if (this.state.change === true) {
+			this.setState({ change: false });
+		}
+		else {
+			this.setState({ change: true });
+		}
 	};
 	onPressAdd = () => {
 		Alert.alert(
@@ -78,14 +62,13 @@ export default class MathComponent extends Component {
 				{
 					text: 'Có',
 					onPress: () => {
-						this.props.navigation.navigate(result);
+						this.refs.Result.showAddModal();
 					}
 				}
 			],
 			{ cancelable: true }
 		);
 	};
-
 	onPressBack = () => {
 		Alert.alert(
 			'Thông báo',
@@ -102,37 +85,7 @@ export default class MathComponent extends Component {
 			{ cancelable: true }
 		);
 	};
-
-	startclock = async () => {
-		var t = 5;
-		var temp = await setInterval(() => {
-			if (t != 0) {
-				t--;
-				this.setState({ count: t });
-			}
-			else {
-				Alert.alert('Thông báo', 'Cuộc thi kết thúc');
-				clearInterval(temp);
-			}
-		}, 1000);
-	};
-
-	getQuesNum() {
-        quesRef.on('value', (childSnapshot) => {
-            const quesNumArray = [];
-            childSnapshot.forEach((doc) => {
-                quesNumArray.push({
-                    sen: doc.toJSON().sen,
-                });
-            });
-            this.setState({
-                quesNumArray: quesNumArray,
-                loading: false
-            });
-        });
-    }
-
-	 getCauHoiDetail (cauHoiThu) {
+	getItemFromDataFromDB(cauHoiThu) {
 		quesRef.orderByChild('sen').equalTo(cauHoiThu).on('value', (childSnapshot) => {
 			var itemData = {};
 			childSnapshot.forEach((doc) => {
@@ -151,18 +104,21 @@ export default class MathComponent extends Component {
 				});
 			});
 		});
-		var stt=parseInt(cauHoiThu);
-		
-		if (this.state.ls[stt]>=0 && this.state.ls[stt]<=3) 
-		{
-			this.changeAw(cauHoiThu,this.state.ls[stt])
-		}
-		else
-		{
-			this.changeAw(cauHoiThu,4);
-		}
 	}
 
+	startclock = async () => {
+		var t = 5;
+		var temp = await setInterval(() => {
+			if (t != 0) {
+				t--;
+				this.setState({ count: t });
+			}
+			else {
+				Alert.alert('Thông báo', 'Cuộc thi kết thúc');
+				clearInterval(temp);
+			}
+		}, 1000);
+	};
 	async componentDidMount() {
 		const { currentUser } = firebase.auth();
 		this.setState({ currentUser });
@@ -180,10 +136,17 @@ export default class MathComponent extends Component {
 				shortEmail: shortEmail
 			});
 		});
-		this.getQuesNum();
-		this.getCauHoiDetail('01');
+		this.getItemFromDataFromDB('01');
 		console.log('currentItemId of Math', currentItemId);
 	}
+
+	onClickCauHoi = async () => {
+			let cauHoiMoi = await getItemFromAsyncStorage('currentSen');
+			alert('getItemSen = ' + cauHoiMoi);
+			await this.getItemFromDataFromDB(cauHoiMoi);
+
+		
+	};
 
 	render() {
 		const { currentUser } = this.state;
@@ -238,7 +201,7 @@ export default class MathComponent extends Component {
 										{
 											text: 'Chấm điểm',
 											onPress: () => {
-												this.props.navigation.navigate(result);
+												this.refs.Result.showAddModal();
 											}
 										}
 									],
@@ -253,55 +216,19 @@ export default class MathComponent extends Component {
 					</View>
 					<Text> </Text>
 				</View>
-				{/* ListCauHoi */}
+
 				<View
 					style={{
 						borderBottomWidth: 2,
 						borderColor: '#1E90FF'
 					}}
 				>
-
-					<FlatList
-                    horizontal={true}
-					data={this.state.quesNumArray}
-					
-                    renderItem={({ item, index }) => {
-                        return (
-                            <View>
-                                    <Button
-                                        containerStyle={{
-                                            width: 50,
-                                            height: 50,
-                                            backgroundColor: '#1E90FF',
-                                            borderRadius: 50,
-                                            justifyContent: 'center',
-                                            alignItems: 'center',
-                                            margin: 5
-                                        }}
-                                        onPress={async () => {
-											await this.setState({clickedSen: item.sen});
-											this.getCauHoiDetail(this.state.clickedSen);
-                                        }}
-                                        style={{
-                                            fontSize: 13,
-                                            color: 'white'
-                                        }}
-                                    >
-                                        {item.sen}
-                                    </Button>
-
-                            </View>
-						);
-					}}
-					keyExtractor={(item) => item.sen}
-                />
-
-
+					<ListquesComponent pressCauHoi={this.onClickCauHoi} />
 				</View>
 
 				<ScrollView>
 					<View style={{ alignItems: 'center', justifyContent: 'center' }}>
-						{/* <Text
+						<Text
 							style={{
 								fontSize: 22,
 								fontWeight: 'bold',
@@ -310,7 +237,7 @@ export default class MathComponent extends Component {
 							}}
 						>
 							Toán học
-						</Text> */}
+						</Text>
 						<Text
 							style={{
 								fontSize: 16,
@@ -325,14 +252,16 @@ export default class MathComponent extends Component {
 						<Button
 							containerStyle={{
 								width: '98%',
-								height: 30,
+								height: 60,
+								backgroundColor: '#1E90FF',
 								justifyContent: 'center',
 								alignItems: 'center',
+								borderRadius: 50
 							}}
 							style={{
 								fontSize: 13,
-								fontStyle:'italic',
-								color: 'black',
+								fontWeight: 'bold',
+								color: 'white',
 								alignSelf: 'flex-start',
 								marginLeft: '1%'
 							}}
@@ -354,124 +283,119 @@ export default class MathComponent extends Component {
 						>
 							Trả lời:
 						</Text>
-						<View style = {{
-							width:'95%',
-							borderColor:'grey',
-							borderWidth:2
-						}}>
-						
-						<View style = {{flexDirection:'row', marginTop:'2%'}}>
 						<Button
 							containerStyle={[
 								styles.stylerepButton,
-								{ backgroundColor: this.state.change[0] === true ? 'white' : 'grey', borderColor:'white' }
+								{ backgroundColor: this.state.change === true ? 'white' : 'grey' }
 							]}
-							style={[ styles.repButton, { color: this.state.change[0] === true ? 'black' : 'white' } ]}
-							onPress={()=>this.changeAw(this.state.clickedSen,0)}
+							style={[ styles.repButton, { color: this.state.change === true ? 'black' : 'white' } ]}
+							onPress={this.changeAw.bind(this.state.change)}
 						>
-							A
+							{this.state.itemData.a}
 						</Button>
-						<Text style = {{
-							alignSelf:'center',
-							marginLeft:'2%'
-						}}>
-						{this.state.itemData.a}
-						</Text>
-						</View>
-
-						<View style = {{borderBottomWidth:1, borderColor:'gey', marginBottom:'2%', marginTop:'2%'}}/>
-						<View style = {{flexDirection:'row'}}>
 						<Button
-							containerStyle={[
-								styles.stylerepButton,
-								{ backgroundColor: this.state.change[1] === true ? 'white' : 'grey' }
-							]}
-							style={[ styles.repButton, { color: this.state.change[1] === true ? 'black' : 'white' } ]}
-							onPress={()=>this.changeAw(this.state.clickedSen,1)}
+							containerStyle={styles.stylerepButton}
+							style={styles.repButton}
+							onPress={() => {
+								Alert.alert('Đáp án', 'Sai');
+							}}
 						>
-							B
+							{this.state.itemData.b}
 						</Button>
-						<Text style = {{
-							alignSelf:'center',
-							marginLeft:'2%'
-						}}>
-						{this.state.itemData.b}
-						</Text>
-						</View>
-						<View style = {{borderBottomWidth:1, borderColor:'gey', marginBottom:'2%', marginTop:'2%'}}/>
-						<View style = {{flexDirection:'row'}}>
 						<Button
-							containerStyle={[
-								styles.stylerepButton,
-								{ backgroundColor: this.state.change[2] === true ? 'white' : 'grey' }
-							]}
-							style={[ styles.repButton, { color: this.state.change[2] === true ? 'black' : 'white' } ]}
-							onPress={()=>this.changeAw(this.state.clickedSen,2)}
+							containerStyle={styles.stylerepButton}
+							style={styles.repButton}
+							onPress={() => {
+								Alert.alert('Đáp án', 'Sai');
+							}}
 						>
-							C
+							{this.state.itemData.c}
 						</Button>
-						<Text style = {{
-							alignSelf:'center',
-							marginLeft:'2%'
-						}}>
-						{this.state.itemData.c}
-						</Text>
-						</View>
-						<View style = {{borderBottomWidth:1, borderColor:'gey', marginBottom:'2%', marginTop:'2%'}}/>
-						<View style = {{flexDirection:'row', marginBottom:'2%'}}>
 						<Button
-							containerStyle={[
-								styles.stylerepButton,
-								{ backgroundColor: this.state.change[3] === true ? 'white' : 'grey', borderColor:'white' }
-							]}
-							style={[ styles.repButton, { color: this.state.change[3] === true ? 'black' : 'white' } ]}
-							onPress={()=>this.changeAw(this.state.clickedSen,3)}
+							containerStyle={styles.stylerepButton}
+							style={styles.repButton}
+							onPress={() => {
+								Alert.alert('Đáp án', 'Sai');
+							}}
 						>
-							D
+							{this.state.itemData.d}
 						</Button>
-						<Text style = {{
-							alignSelf:'center',
-							marginLeft:'2%'
-						}}>
-						{this.state.itemData.d}
-						</Text>
-						</View>
-					</View>
 					</View>
 				</ScrollView>
 
 				<View
 					style={{
-						height: 70,
+						height: 50,
 						flexDirection: 'row',
-						justifyContent: 'center',
+						justifyContent: 'flex-start',
 						alignItems: 'center',
+						justifyContent: 'space-between',
 						backgroundColor: 'white'
 					}}
 				>
 					<Button
 						containerStyle={{
-							width: 120,
-							height: 60,
+							width: 100,
+							margin: '2%',
+							alignSelf: 'flex-start',
 							backgroundColor: '#1E90FF',
-							borderRadius: 20,
-							 alignSelf:'center',
+							borderRadius: 50,
 							borderColor: '#1E90FF',
-							borderWidth: 3,
-							justifyContent:'center',
-							alignItems:'center'
+							borderWidth: 3
+						}}
+						style={{
+							fontSize: 16,
+							color: 'white'
+						}}
+						onPress={async () => {
+							Alert.alert('Thông báo', 'Câu trước');
+						}}
+					>
+						Trước
+					</Button>
+					<Button
+						containerStyle={{
+							width: 120,
+							height: 120,
+							alignSelf: 'flex-start',
+							backgroundColor: '#1E90FF',
+							borderRadius: 50,
+							borderColor: '#1E90FF',
+							borderWidth: 3
 						}}
 						style={{
 							fontSize: 16,
 							color: 'white',
+							marginTop: '5%'
 						}}
 						onPress={this.onPressAdd}
 					>
 						Nộp bài
 					</Button>
+					<Button
+						containerStyle={{
+							width: 100,
+							margin: '2%',
+							alignSelf: 'flex-start',
+							backgroundColor: '#1E90FF',
+							borderRadius: 50,
+							borderColor: '#1E90FF',
+							borderWidth: 3
+						}}
+						style={{
+							fontSize: 16,
+							color: 'white'
+						}}
+						onPress={async () => {
+							Alert.alert('Thông báo', 'Câu sau');
+						}}
+					>
+						Sau
+					</Button>
 				</View>
 
 				<Result ref={'Result'} gotoHome={() => this.props.navigation.navigate(Home)} />
+				{/*  <FooterSub {...this.props} /> */}
 				{/* </ImageBackground> */}
 			</View>
 		);
@@ -485,14 +409,17 @@ const styles = StyleSheet.create({
 	repButton: {
 		fontSize: 13,
 		fontWeight: 'bold',
-		alignSelf: 'center',
+		alignSelf: 'flex-start',
 		marginLeft: '1%'
 	},
 	stylerepButton: {
-		width: 50,
-		height: 50,
+		width: '98%',
+		height: 60,
 		justifyContent: 'center',
 		alignItems: 'center',
-		borderRadius:50
+		borderRadius: 5,
+		margin: '1%',
+		borderColor: '#1E90FF',
+		borderBottomWidth: 5
 	}
 });

@@ -8,4 +8,7 @@ const lite = 'lite';
 const eng = 'eng';
 const addques = 'addques';
 const listques = 'listques';
-export {SignUp, Login, Home, AuthLoading, info, math, lite, eng, addques, listques};
+const charts = 'charts';
+const changePass = 'changePass';
+const result = 'result';
+export { SignUp, Login, Home, AuthLoading, info, math, lite, eng, addques, listques, charts, changePass, result };

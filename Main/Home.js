@@ -8,8 +8,9 @@ import AsyncStorage from '@react-native-community/async-storage';
 /* import OfflineNotice from 'PhanAnh/miniComponent/OfflineNotice';*/
 import Header from 'SystemManager/subComponent/Header';
 import Footer from 'SystemManager/subComponent/footer';
+import LinearGradient from 'react-native-linear-gradient';
 
-/* const LearnAppRef = firebase.database().ref('LearnApp/Users'); */
+const LearnAppUser = firebase.database().ref('Manager/User');
 export default class homeComponent extends Component{
 	constructor(props){
         super(props);
@@ -24,8 +25,34 @@ export default class homeComponent extends Component{
 			pickerDisplayed: false,
 			currentUser: null,
 			userData: {},
-			count : 5
+			count : 5,
+			history:{}
         });
+	}
+	async test() {
+        try {
+            await LearnAppUser.orderByChild('id').equalTo(this.state.userData.id).on('child_added', (data) => {
+				data.key;
+				const history = {
+					id: require('random-string')({ length: 10 }),
+                    time: '',
+                    date: '',
+                    rightSen: 0,
+                    score: 0
+				};
+                LearnAppUser.child(data.key).child('History')
+                    .push(
+						history
+					)
+					this.setState({
+						history: history
+					})
+					console.log(this.state.history)
+			});
+			this.props.navigation.navigate(math)
+        } catch (error) {
+            alert(error);
+        }
     }
      startclock = async () => {
 		 var t = 5;
@@ -62,7 +89,15 @@ export default class homeComponent extends Component{
 				Alert.alert(`${error.toString().replace('Error: ', '')}`);
 			});
 	};
-	
+	playtoMath = () => {
+		Alert.alert('Thông báo','Bạn đã sẵn sàng làm bài?',
+		[
+			{text: 'Để sau', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+			{text: 'Sẵn sàng', onPress: async () => {this.test()}},
+		],
+		{cancelable: true}
+		)
+	}
 	 async componentDidMount() {
 		const { currentUser } = firebase.auth()
 		this.setState({ currentUser })
@@ -87,8 +122,8 @@ export default class homeComponent extends Component{
 		const { currentUser } = this.state
         return(
             <View style = {styles.contain}>
-				{/* <ImageBackground source = {require('PhanAnh/Image/blue-technology-4669.jpg')} style={{width: '100%', height: '100%'}}>
-				<OfflineNotice/>*/}
+				 <ImageBackground source = {require('SystemManager/img/70331284_752704455184910_2392173157533351936_n.jpg')} style={{width: '100%', height: '100%'}}>
+				{/*<OfflineNotice/>*/}
 				 <Header {...this.props} />
                 <ScrollView>
                 <Text
@@ -150,25 +185,26 @@ export default class homeComponent extends Component{
 							}}>
 								10 câu, 90 phút
 							</Text>
-						<Button
-						containerStyle={{
+							<LinearGradient  start={{x: 0, y: 0}} end={{x: 1, y: 0}} 
+							colors = {['rgb(86, 123, 248)', 'rgb(95,192,255)']}
+							style = {{
 							margin: '2%',
 							padding: '2%',
-							backgroundColor: '#F1F1F1',
                             borderRadius: 50 ,
 							width: 120,
-							borderColor: '#1E90FF',
-							borderWidth: 3,
-						}}
+							}}
+						>
+						<Button
 						style={{
 							fontSize: 16,
-							color: 'grey'
+							color: 'white'
 						}}
-						onPress= { async () => {
-							  this.props.navigation.navigate(listques);
+						onPress= {/*  this.playtoMath */ ()=>{
+							this.props.navigation.navigate(math)
 						}} >
 						Thi ngay
 						</Button>
+						</LinearGradient>
 						</View>
 
 						<View style = {{
@@ -202,25 +238,26 @@ export default class homeComponent extends Component{
 							}}>
 								15 câu, 10 phút
 							</Text>
-							<Button
-						containerStyle={{
+							<LinearGradient  start={{x: 0, y: 0}} end={{x: 1, y: 0}} 
+							colors = {['rgb(86, 123, 248)', 'rgb(95,192,255)']}
+							style = {{
 							margin: '2%',
 							padding: '2%',
-							backgroundColor: '#F1F1F1',
                             borderRadius: 50 ,
 							width: 120,
-							borderColor: '#1E90FF',
-							borderWidth: 3,
-						}}
+							}}
+						>
+							<Button
 						style={{
 							fontSize: 16,
-							color: 'grey'
+							color: 'white'
 						}}
 						onPress= { async () => {
 							  this.props.navigation.navigate(eng);
 						}} >
 						Thi ngay
 						</Button>
+						</LinearGradient>
 						</View>
 						<View style = {{
 								width: 150,
@@ -253,25 +290,26 @@ export default class homeComponent extends Component{
 							}}>
 								20 câu, 15 phút
 							</Text>
-							<Button
-						containerStyle={{
+							<LinearGradient  start={{x: 0, y: 0}} end={{x: 1, y: 0}} 
+							colors = {['rgb(86, 123, 248)', 'rgb(95,192,255)']}
+							style = {{
 							margin: '2%',
 							padding: '2%',
-							backgroundColor: '#F1F1F1',
                             borderRadius: 50 ,
 							width: 120,
-							borderColor: '#1E90FF',
-							borderWidth: 3,
-						}}
+							}}
+						>
+							<Button
 						style={{
 							fontSize: 16,
-							color: 'grey'
+							color: 'white'
 						}}
 						onPress= { async () => {
 							  this.props.navigation.navigate(lite);
 						}} >
 						Thi ngay
 						</Button>
+						</LinearGradient>
 						</View>
 						<View style = {{
 								width: 150,
@@ -285,7 +323,14 @@ export default class homeComponent extends Component{
 								borderRadius: 10
 						}}>
 							<Text style = {{
+								color: 'grey',
+								fontSize: 13
+							}}>
+								Chờ cập nhật
+							</Text>
+							<Text style = {{
 								fontWeight:'bold',
+								color: 'grey',
 								fontSize: 18
 							}}>
 								...
@@ -369,7 +414,7 @@ export default class homeComponent extends Component{
 				</Button> */}
                 </ScrollView>
 				<Footer {...this.props} />
-				{/* </ImageBackground> */}
+				 </ImageBackground> 
             </View>
         );
     }

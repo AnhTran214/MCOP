@@ -6,6 +6,7 @@ import firebase from "react-native-firebase";
 /* import OfflineNotice from 'PhanAnh/miniComponent/OfflineNotice.js'; */
 import {Login, Home} from 'SystemManager/Navigation/screenName';
 import {setItemToAsyncStorage,getItemFromAsyncStorage} from 'SystemManager/Function/function';
+import LinearGradient from 'react-native-linear-gradient';
 
 export default class Header extends Component{
     constructor(props){
@@ -18,6 +19,18 @@ export default class Header extends Component{
             userData: {},
             currentUser: null
         });
+    }
+    logout = () => {
+        Alert.alert('Thông báo','Bạn muốn đăng xuất?',
+        [
+            {text: 'Không', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+			{text: 'Có', onPress: async () => {  
+            Alert.alert('Thông báo', 'Đăng xuất thành công');
+            await AsyncStorage.clear();
+            this.props.navigation.navigate(Login); }},
+        ],
+        {cancelable: true}
+        )
     }
   async componentDidMount() {
     const { currentUser } = firebase.auth()
@@ -55,7 +68,6 @@ export default class Header extends Component{
             }}>
                  <TouchableHighlight style = {{
                     marginLeft: 10,
-                    //marginTop: 20,
                 }}
                 underlayColor = '#F1F1F1'
                 onPress = {() => {
@@ -66,36 +78,15 @@ export default class Header extends Component{
                     style = {{ width: 32, height: 32, tintColor:'white'}}
                />
                 </TouchableHighlight>
-                {/* <Button
-                        containerStyle={{
-                            width: 30,
-							margin: '2%',
-							alignSelf: 'flex-start',
-                    }}
-						onPress={async () => {
-							this.props.navigation.goBack();
-						}}>
-                            <Image
-						style={{
-							width: 30,
-                            height: 30,
-                            margin: '2%',
-						}}
-						source={require('SystemManager/icons/icons8-long-arrow-left-80.png')}
-					/>
-					</Button> */}
-                <Text style = {{color: 'white'}}>
+                <Text style = {{color: 'white', fontStyle:'italic', fontWeight:'bold'}}>
                  {this.state.userData.name}
+                {/*  M.C.O.P */}
                 </Text>
                 <TouchableHighlight style = {{
                     marginRight: 10,
                     //marginTop: 20,
                 }}
-                onPress = { async () => {
-                    Alert.alert('Thông báo', 'Đăng xuất thành công');
-                    await AsyncStorage.clear();
-                    this.props.navigation.navigate(Login);
-                }}>
+                onPress = { this.logout}>
                     <Image 
                     source = {require('SystemManager/icons/icons8-export-40.png')}
                     style = {{ width: 32, height: 32}}

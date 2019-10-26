@@ -5,6 +5,7 @@ import Button from 'react-native-button';
 import {SignUp, Home} from 'SystemManager/Navigation/screenName';
  import {setItemToAsyncStorage} from 'SystemManager/Function/function';
 /*import OfflineNotice from 'PhanAnh/miniComponent/OfflineNotice' */
+import LinearGradient from 'react-native-linear-gradient';
 
 const LearnAppRefUsers = firebase.database().ref('Manager/User');
 export default class loginComponent extends Component{
@@ -112,7 +113,6 @@ export default class loginComponent extends Component{
 						keyboardType='email-address'
 						autoCapitalize='none'
 						placeholder='Tài khoản'
-						multiline={true}
 						editable={true}
 						maxLength={50}
 						onChangeText={(text) => {
@@ -120,7 +120,7 @@ export default class loginComponent extends Component{
 						}}
 					/>
                     </View> 
-                <View style={[styles.propertyValueRowView]}>
+                <View style={[styles.propertyValueRowView,{marginBottom:'5%'}]}>
 				<Image 
 				style = {{width:30, height:30, tintColor: 'white',position : 'absolute',top:'40%'}}
 				source = {require('SystemManager/icons/56255.png')}/>
@@ -157,20 +157,24 @@ export default class loginComponent extends Component{
 				}
 				</Button>
                 </View> 
+				<LinearGradient  start={{x: 0, y: 0}} end={{x: 1, y: 0}} 
+				colors = {['rgb(86, 123, 248)', 'rgb(95,192,255)']}
+				style = {{
+					margin: '3%',
+					padding: '3%',
+					borderRadius: 20 ,
+					width: 250
+				}}
+				>
                 <Button
-						containerStyle={{
-							margin: '5%',
-							padding: '3%',
-							backgroundColor: '#1E90FF',
-							borderRadius: 50 ,
-						}}
 						style={{
 							fontSize: 16,
 							color: 'white'
 						}}
 						onPress= {this.onLogin}>
-						Đăng nhập
+						ĐĂNG NHẬP
 					</Button>
+					</LinearGradient>
                     <Button
 						containerStyle={{
 							padding: '3%',
@@ -182,7 +186,7 @@ export default class loginComponent extends Component{
 							navigate(SignUp);
 						}}>
 						<Text style={{
-							fontSize: 16,
+							fontSize: 11,
 							color: 'white',
 							fontStyle: 'italic'
 						}}>
@@ -215,7 +219,7 @@ const styles = StyleSheet.create({
 		height: 50,
 		marginTop: 20,
 		borderColor: '#1E90FF',
-		borderBottomWidth: 5,
+		borderBottomWidth: 1,
         textAlignVertical: 'top',
         marginLeft: '10%',
         marginRight: '2%',
