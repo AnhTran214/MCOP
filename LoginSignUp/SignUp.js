@@ -176,7 +176,7 @@ export default class signupComponent extends Component {
 						textAlign: 'center',
 						color: 'white',
 					}}>
-					ĐĂNG KÝ TÀI KHOẢN
+					ĐĂNG KÝ
 				</Text>
 				<View style={[styles.propertyValueRowView]}>
 				<TextInput
@@ -199,7 +199,7 @@ export default class signupComponent extends Component {
 					underlineColorAndroid="transparent"
 					placeholderTextColor = "white"
 					keyboardType='email-address'
-					placeholder='Nhập tài khoản'
+					placeholder='Nhập email'
 					autoCapitalize='none' // khong tu dong viet hoa
 					onChangeText={(text) => {
 						this.setState({
@@ -250,37 +250,6 @@ export default class signupComponent extends Component {
 						ĐĂNG KÝ
 					</Button>
 				</LinearGradient>
-				<Text style = {{
-                                fontSize: 16,
-                                fontWeight: 'bold',
-                                fontStyle: 'italic',
-								color: 'white',
-								alignSelf: 'flex-start',  
-								marginLeft: '2%'
-                            }}>
-								Chú ý:
-				</Text>
-				<Text style = {{
-                                fontSize: 16,
-                                fontWeight: 'bold',
-                                fontStyle: 'italic',
-								color: 'white',
-								alignSelf: 'flex-start', 
-								marginLeft: '5%'
-                            }}>
-								 1. Tài khoản đăng ký phải theo quy tắc: (Tên tự do)@gmail.com và không viết hoa các chữ cái (bắt buộc).
-				</Text>
-				<Text style = {{
-                                fontSize: 16,
-                                fontWeight: 'bold',
-                                fontStyle: 'italic',
-								color: 'white',
-								alignSelf: 'flex-start', 
-								marginLeft: '5%',
-								marginBottom: '5%'
-                            }}>
-								 2. Mật khẩu đăng ký phải có 6 ký tự gồm cả chữ (không viết hoa các chữ cái) và số (bắt buộc).
-				</Text>
 				</View>
 			</View>
 			</ScrollView>
@@ -298,7 +267,7 @@ const styles = StyleSheet.create({
 		width: '96%',
 		height: 50,
 		marginTop: 20,
-		borderColor: '#1E90FF',
+		borderColor: 'rgba(255,255,255,0.7)',
 		borderBottomWidth: 1,
         textAlignVertical: 'top',
         marginLeft: '2%',

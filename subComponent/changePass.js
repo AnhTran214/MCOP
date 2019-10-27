@@ -26,17 +26,6 @@ import LinearGradient from 'react-native-linear-gradient';
 //tham chieu den root
 const LearnAppUser = firebase.database().ref('Manager/User');
 export default class changePassComponent extends Component {
-    /*  static navigationOptions = ({ navigation }) => {
-        let drawerLabel = 'Thông tin cá nhân';
-        let drawerIcon = () => (
-            <Image
-                source={require('SystemManager/icons/user.png')}
-                style={{ width: 26, height: 26, tintColor: '#1E90FF' }}
-            />
-        );
-
-        return { drawerLabel, drawerIcon };
-    }; */
     constructor(props) {
         super(props);
         this.state = {

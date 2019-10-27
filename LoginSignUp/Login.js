@@ -218,7 +218,7 @@ const styles = StyleSheet.create({
 		width: '80%',
 		height: 50,
 		marginTop: 20,
-		borderColor: '#1E90FF',
+		borderColor: 'rgba(255,255,255,0.7)',
 		borderBottomWidth: 1,
         textAlignVertical: 'top',
         marginLeft: '10%',
