@@ -12,20 +12,21 @@ import {
 	FlatList
 } from 'react-native';
 import Button from 'react-native-button';
-import { Login, Home, info, math,result } from 'SystemManager/Navigation/screenName';
+import { Login, Home, info, math,result } from 'thitracnghiem/Navigation/screenName';
 import AsyncStorage from '@react-native-community/async-storage';
 import firebase from 'react-native-firebase';
 import {
 	setItemToAsyncStorage,
 	getItemFromAsyncStorage,
 	setItemToAsyncStorage1
-} from 'SystemManager/Function/function';
+} from 'thitracnghiem/Function/function';
 /* import OfflineNotice from 'PhanAnh/miniComponent/OfflineNotice';*/
-import Header from 'SystemManager/subComponent/Header';
-import FooterSub from 'SystemManager/subComponent/footerSub';
-import ListquesComponent from 'SystemManager/subComponent/Listques';
-import Result from 'SystemManager/Subject/Result';
+import Header from 'thitracnghiem/subComponent/Header';
+import FooterSub from 'thitracnghiem/subComponent/footerSub';
+import ListquesComponent from 'thitracnghiem/subComponent/Listques';
+import Result from 'thitracnghiem/Subject/Result';
 import CountDown from 'react-native-countdown-component';
+import { thisExpression } from '@babel/types';
 
 const quesRef = firebase.database().ref('Manager/Question/Math/Exam1');
 const topic = firebase.database().ref('Topic');
@@ -46,14 +47,16 @@ export default class MathComponent extends Component {
 			count: 5,
 			change:[true,true,true,true],
 			quesNumArray: [],
-			clickedSen: '01',
 			ls: [],
 			id:'',
 			idtopic: {},
 			questitem:{},
 			questArray : [],
-			con:'con1',
-			TTQuest : []
+			con:1,
+			currentid:0,
+			timeleft: 90,
+			TTQuest : [],
+			right:0
 		};
 		this.onPressAdd = this.onPressAdd.bind(this);
 	}
@@ -61,18 +64,27 @@ export default class MathComponent extends Component {
 	changeAw = (index,id) => {
 			var arr= [true,true,true,true];	
 			var res= this.state.ls;
+			var count=this.state.right;
 			if (id<4)
 			{
 				arr[id]=false;		
 				res[index]=id;		
+				console.log("test");
+				console.log(this.state.questitem.a);
+				console.log(id);
+				console.log(this.state.ls[index]);
+				if ((id+1)==this.state.questitem.a)
+				count++;
+				else
+				if (this.state.questitem.a==this.state.ls[index]+1)
+				count--;
 			}		
 			this.setState({
-				ls:res
+				ls:res,
+				change:arr,
+				right:count
 			});
-	
-			this.setState({
-				change:arr
-			});
+			console.log(this.state.right);
 	};
 	onPressAdd = () => {
 		Alert.alert(
@@ -123,25 +135,53 @@ export default class MathComponent extends Component {
 	};
 	 getInclude = async() =>{
 		var arr=[];
-		arr.length=0;
+		var kt=true;
 	await inc.orderByChild('id_con').equalTo(this.state.con).on('value',async(childSnapshot)=>{
-			childSnapshot.forEach((doc)=>{
-				if (doc.toJSON().status==1)
-				{
-		
+			childSnapshot.forEach(async(doc)=>{
 					arr.push(doc.toJSON().id_quest);
-				}
+					if(kt)
+					{
+						kt=false;
+						await this.getquestfirst(doc.toJSON().id_quest);					
+					}	
+				
 			});
 		});
-		await	this.setState(
+			this.setState(
 			{
 				TTQuest: arr
-			}
-		);
+			});
+
+			
 	
 	}
+	getquestfirst= async(id)=>{
+
+		await quest.orderByChild('id').equalTo(id).on('value', async(childSnapshot)=>{
+				var questitem={};
+				childSnapshot.forEach((doc)=>{
+					if (doc.toJSON().status==1)
+					questitem = {
+						
+						id: doc.toJSON().id,
+						id_top: doc.toJSON().id_top,
+						status: doc.toJSON().status,
+						content_ques: doc.toJSON().content_ques,
+						a1: doc.toJSON().a1,
+						a2: doc.toJSON().a2,
+						a3: doc.toJSON().a3,
+						a4: doc.toJSON().a4,
+						a: doc.toJSON().a,
+					};
+				});
+				
+				await  this.setState({
+					currentid: 0,
+					questitem: questitem
+				});
+			});
+		}
 	 getquestwithid= async(index)=>{
-		 console.log(this.state.TTQuest[index]);
 	await quest.orderByChild('id').equalTo(this.state.TTQuest[index]).on('value', async(childSnapshot)=>{
 			var questitem={};
 			childSnapshot.forEach((doc)=>{
@@ -152,14 +192,15 @@ export default class MathComponent extends Component {
 					id_top: doc.toJSON().id_top,
 					status: doc.toJSON().status,
 					content_ques: doc.toJSON().content_ques,
-					a1: doc.toJSON().a1,
-					a2: doc.toJSON().a2,
-					a3: doc.toJSON().a3,
-					a4: doc.toJSON().a4,
-					a: doc.toJSON().a,
+					answer1: doc.toJSON().answer1,
+					answer2: doc.toJSON().answer2,
+					answer3: doc.toJSON().answer3,
+					answer4: doc.toJSON().answer4,
+					answer: doc.toJSON().answer,
 				};
 			});
 			await  this.setState({
+				currentid: index,
 				questitem: questitem
 			});
 		});
@@ -178,6 +219,7 @@ export default class MathComponent extends Component {
 		this.setState({ currentUser });
 		await setItemToAsyncStorage('currentScreen', Home);
 		const id = await getItemFromAsyncStorage('id');
+			await this.getInclude();
 		await AsyncStorage.getItem('userData').then((value) => {
 			const userData = JSON.parse(value);
 			this.setState({
@@ -190,11 +232,10 @@ export default class MathComponent extends Component {
 				shortEmail: shortEmail
 			});
 		});
-		 this.getInclude().then(()=>
-		 this.getquestwithid(0)
-		 )
 	}
 	render() {
+		if (this.state.TTQuest.length>0)
+		{
 		return (
 			<View style={styles.contain}>
 				{/* <ImageBackground source = {require('PhanAnh/Image/blue-technology-4669.jpg')} style={{width: '100%', height: '100%'}}>
@@ -223,7 +264,7 @@ export default class MathComponent extends Component {
 								margin: '2%',
 								tintColor: 'white'
 							}}
-							source={require('SystemManager/icons/back.png')}
+							source={require('thitracnghiem/icons/back.png')}
 						/>
 					</Button>
 					<View
@@ -232,11 +273,11 @@ export default class MathComponent extends Component {
 						}}
 					>
 						<Image
-							source={require('SystemManager/icons/icons8-alarm-clock-64.png')}
+							source={require('thitracnghiem/icons/icons8-alarm-clock-64.png')}
 							style={{ width: 30, height: 30, alignItems: 'center', tintColor: 'white', marginTop: '2%' }}
 						/>
 						<CountDown
-							until={60 * 0 + 30}
+							until={this.state.timeleft?this.state.timeleft:60}
 							size={15}
 							onFinish={() =>
 								Alert.alert(
@@ -268,15 +309,15 @@ export default class MathComponent extends Component {
 					 <FlatList
                     horizontal={true}
 					data={this.state.TTQuest}
-					
                     renderItem={({ item, index }) => {
                         return (
                             <View>
+									{this.state.ls[index]>=0 && this.state.ls[index]<=3?  //khi chọn sẽ màu khác
                                     <Button
                                         containerStyle={{
-                                            width: 50,
-                                            height: 50,
-                                            backgroundColor: '#1E90FF',
+                                            width: 30,
+                                            height: 30,
+                                            backgroundColor: 'dray',
                                             borderRadius: 50,
                                             justifyContent: 'center',
                                             alignItems: 'center',
@@ -290,13 +331,34 @@ export default class MathComponent extends Component {
                                             color: 'white'
                                         }}
                                     >
-                                        {item.sen}
+                                        {index+1}
                                     </Button>
-
+									:
+									<Button
+									containerStyle={{
+										width: 50,
+										height: 50,
+										backgroundColor: '#1E90FF',
+										borderRadius: 50,
+										justifyContent: 'center',
+										alignItems: 'center',
+										margin: 5
+									}}
+									onPress={async () => {
+										this.getquestwithid(index);
+									}}
+									style={{
+										fontSize: 13,
+										color: 'white'
+									}}
+								>
+									{index+1}
+								</Button> 
+									}
                             </View>
 						);
 					}}
-					keyExtractor={(item) => item.sen}
+				
                 /> 
 
 
@@ -323,28 +385,25 @@ export default class MathComponent extends Component {
 								marginLeft: '2%'
 							}}
 						>
-							Câu hỏi số {this.state.itemData.id}
+							Câu hỏi số {this.state.currentid+1}
 						</Text>
-						<Button
-							containerStyle={{
-								width: '98%',
-								height: 30,
-								justifyContent: 'center',
-								alignItems: 'center',
-							}}
+						<View
 							style={{
+								width: '98%',
+								height: 70,
+								margin:'2%'
+							}}
+						>
+							<Text style={{
 								fontSize: 13,
 								fontStyle:'italic',
 								color: 'black',
 								alignSelf: 'flex-start',
 								marginLeft: '1%'
-							}}
-							onPress={() => {
-								Alert.alert('Câu hỏi', this.state.itemData.question);
-							}}
-						>
+							}}>
 							{this.state.questitem.content_ques}
-						</Button>
+							</Text>
+						</View>
 						<Text
 							style={{
 								fontSize: 16,
@@ -363,14 +422,14 @@ export default class MathComponent extends Component {
 							borderWidth:2
 						}}>
 						
-						<View style = {{flexDirection:'row', marginTop:'2%'}}>
+						<View style = {{flexDirection:'row', marginTop:'2%', width:"80%"}}>
 						<Button
 							containerStyle={[
 								styles.stylerepButton,
 								{ backgroundColor: this.state.change[0] === true ? 'white' : 'grey', borderColor:'white' }
 							]}
 							style={[ styles.repButton, { color: this.state.change[0] === true ? 'black' : 'white' } ]}
-							onPress={()=>this.changeAw(this.state.clickedSen,0)}
+							onPress={()=>this.changeAw(this.state.currentid,0)}
 						>
 							A
 						</Button>
@@ -378,19 +437,19 @@ export default class MathComponent extends Component {
 							alignSelf:'center',
 							marginLeft:'2%'
 						}}>
-						{this.state.questitem.a1}
+						{this.state.questitem.answer1}
 						</Text>
 						</View>
 
 						<View style = {{borderBottomWidth:1, borderColor:'gey', marginBottom:'2%', marginTop:'2%'}}/>
-						<View style = {{flexDirection:'row'}}>
+						<View style = {{flexDirection:'row', width:"80%"}}>
 						<Button
 							containerStyle={[
 								styles.stylerepButton,
 								{ backgroundColor: this.state.change[1] === true ? 'white' : 'grey' }
 							]}
 							style={[ styles.repButton, { color: this.state.change[1] === true ? 'black' : 'white' } ]}
-							onPress={()=>this.changeAw(this.state.clickedSen,1)}
+							onPress={()=>this.changeAw(this.state.currentid,1)}
 						>
 							B
 						</Button>
@@ -398,18 +457,18 @@ export default class MathComponent extends Component {
 							alignSelf:'center',
 							marginLeft:'2%'
 						}}>
-						{this.state.questitem.a2}
+						{this.state.questitem.answer2}
 						</Text>
 						</View>
 						<View style = {{borderBottomWidth:1, borderColor:'gey', marginBottom:'2%', marginTop:'2%'}}/>
-						<View style = {{flexDirection:'row'}}>
+						<View style = {{flexDirection:'row', width:"80%"}}>
 						<Button
 							containerStyle={[
 								styles.stylerepButton,
 								{ backgroundColor: this.state.change[2] === true ? 'white' : 'grey' }
 							]}
 							style={[ styles.repButton, { color: this.state.change[2] === true ? 'black' : 'white' } ]}
-							onPress={()=>this.changeAw(this.state.clickedSen,2)}
+							onPress={()=>this.changeAw(this.state.currentid,2)}
 						>
 							C
 						</Button>
@@ -417,18 +476,18 @@ export default class MathComponent extends Component {
 							alignSelf:'center',
 							marginLeft:'2%'
 						}}>
-						{this.state.questitem.a3}
+						{this.state.questitem.answer3}
 						</Text>
 						</View>
 						<View style = {{borderBottomWidth:1, borderColor:'gey', marginBottom:'2%', marginTop:'2%'}}/>
-						<View style = {{flexDirection:'row', marginBottom:'2%'}}>
+						<View style = {{flexDirection:'row', marginBottom:'2%', width:"80%"}}>
 						<Button
 							containerStyle={[
 								styles.stylerepButton,
 								{ backgroundColor: this.state.change[3] === true ? 'white' : 'grey', borderColor:'white' }
 							]}
 							style={[ styles.repButton, { color: this.state.change[3] === true ? 'black' : 'white' } ]}
-							onPress={()=>this.changeAw(this.state.clickedSen,3)}
+							onPress={()=>this.changeAw(this.state.currentid,3)}
 						>
 							D
 						</Button>
@@ -436,7 +495,7 @@ export default class MathComponent extends Component {
 							alignSelf:'center',
 							marginLeft:'2%'
 						}}>
-						{this.state.questitem.a4}
+						{this.state.questitem.answer4}
 						</Text>
 						</View>
 					</View>
@@ -478,6 +537,8 @@ export default class MathComponent extends Component {
 				{/* </ImageBackground> */}
 			</View>
 		);
+					}
+					else return null;
 	}
 }
 const styles = StyleSheet.create({

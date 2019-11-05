@@ -16,11 +16,11 @@ import {
 } from 'react-native';
 import firebase from 'react-native-firebase';
 import Button from 'react-native-button';
-import { setItemToAsyncStorage, getItemFromAsyncStorage, getStatusColor } from 'SystemManager/Function/function';
+import { setItemToAsyncStorage, getItemFromAsyncStorage, getStatusColor } from 'thitracnghiem/Function/function';
 import AsyncStorage from '@react-native-community/async-storage';
-import { Home, info } from 'SystemManager/Navigation/screenName';
-import Header from 'SystemManager/subComponent/Header';
-import Footer from 'SystemManager/subComponent/footer';
+import { Home, info } from 'thitracnghiem/Navigation/screenName';
+import Header from 'thitracnghiem/subComponent/Header';
+import Footer from 'thitracnghiem/subComponent/footer';
 import LinearGradient from 'react-native-linear-gradient';
 
 //tham chieu den root
@@ -170,7 +170,7 @@ export default class changePassComponent extends Component {
         return (
             <View style={{ flex: 1, marginTop: Platform.OS === 'ios' ? 34 : 0 }}>
                 <ImageBackground
-                    source={require('SystemManager/img/70331284_752704455184910_2392173157533351936_n.jpg')}
+                    source={require('thitracnghiem/img/70331284_752704455184910_2392173157533351936_n.jpg')}
                     style={{ width: '100%', height: '100%' }}
                 >
                     <Header {...this.props} />

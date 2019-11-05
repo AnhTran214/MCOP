@@ -2,11 +2,11 @@ import React, { Component } from 'react';
 import { FlatList, StyleSheet, Text, View, Image, Alert, TextInput, ScrollView } from 'react-native';
 import firebase from 'react-native-firebase';
 import Button from 'react-native-button';
-import { Home, info, listques } from 'SystemManager/Navigation/screenName';
-import { setItemToAsyncStorage, getItemFromAsyncStorage } from 'SystemManager/Function/function';
+import { Home, info, listques } from 'thitracnghiem/Navigation/screenName';
+import { setItemToAsyncStorage, getItemFromAsyncStorage } from 'thitracnghiem/Function/function';
 import AsyncStorage from '@react-native-community/async-storage';
-import Header from 'SystemManager/subComponent/Header';
-import Footer from 'SystemManager/subComponent/footer';
+import Header from 'thitracnghiem/subComponent/Header';
+import Footer from 'thitracnghiem/subComponent/footer';
 
 //tham chieu den root
 const quesRef = firebase.database().ref('Manager/Question/Math/Exam1');
@@ -15,7 +15,7 @@ export default class addquesComponent extends Component {
         let drawerLabel = 'Thêm câu hỏi';
         let drawerIcon = () => (
             <Image
-                source={require('SystemManager/icons/icons8-question-mark-64.png')}
+                source={require('thitracnghiem/icons/icons8-question-mark-64.png')}
                 style={{ width: 26, height: 26, tintColor: '#1E90FF' }}
             />
         );

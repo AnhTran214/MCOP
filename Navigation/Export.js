@@ -4,20 +4,20 @@ import { createAppContainer, createBottomTabNavigator, createSwitchNavigator } f
 import { createStackNavigator } from 'react-navigation-stack';
 import { createDrawerNavigator, DrawerNavigatorItems } from 'react-navigation-drawer';
 //---------------------------------------------------------------
-import loginComponent from 'SystemManager/LoginSignUp/Login';
-import signupComponent from 'SystemManager/LoginSignUp/SignUp';
-import homeComponent from 'SystemManager/Main/Home';
-import AuthLoadingScreen from 'SystemManager/subComponent/Loading';
-import infoAccComponent from 'SystemManager/Main/infoAcc';
-import MathComponent from 'SystemManager/Subject/Math';
-import liteComponent from 'SystemManager/Subject/Literature';
-import engComponent from 'SystemManager/Subject/English';
-import addquesComponent from 'SystemManager/Main/Addques';
-import ListquesComponent from 'SystemManager/subComponent/Listques';
-import HeaderDrawer from 'SystemManager/Navigation/HeaderDrawer';
-import chartsComponent from 'SystemManager/Main/Charts';
-import changePassComponent from 'SystemManager/subComponent/changePass';
-import Resultmain from 'SystemManager/Subject/resultmain';
+import loginComponent from 'thitracnghiem/LoginSignUp/Login';
+import signupComponent from 'thitracnghiem/LoginSignUp/SignUp';
+import homeComponent from 'thitracnghiem/Main/Home';
+import AuthLoadingScreen from 'thitracnghiem/subComponent/Loading';
+import infoAccComponent from 'thitracnghiem/Main/infoAcc';
+import MathComponent from 'thitracnghiem/Subject/Math';
+import liteComponent from 'thitracnghiem/Subject/Literature';
+import engComponent from 'thitracnghiem/Subject/English';
+import addquesComponent from 'thitracnghiem/Main/Addques';
+import ListquesComponent from 'thitracnghiem/subComponent/Listques';
+import HeaderDrawer from 'thitracnghiem/Navigation/HeaderDrawer';
+import chartsComponent from 'thitracnghiem/Main/Charts';
+import changePassComponent from 'thitracnghiem/subComponent/changePass';
+import Resultmain from 'thitracnghiem/Subject/resultmain';
 //---------------------------------------------------------------
 import {
     Login,
@@ -33,7 +33,7 @@ import {
     charts,
     changePass,
     result
-} from 'SystemManager/Navigation/screenName';
+} from 'thitracnghiem/Navigation/screenName';
 //---------------------------------------------------------------
 
 //---------------------------------------------------------------
@@ -57,7 +57,7 @@ const MathStack = createStackNavigator(
 );
 const DrawerContent = (props) => (
     <ImageBackground
-        source={require('SystemManager/img/70331284_752704455184910_2392173157533351936_n.jpg')}
+        source={require('thitracnghiem/img/70331284_752704455184910_2392173157533351936_n.jpg')}
         style={{ width: '100%', height: '100%' }}
     >
         <ScrollView>
@@ -80,7 +80,7 @@ let routeConfig = {
             drawerLabel: 'Trang chủ',
             drawerIcon: (
                 <Image
-                    source={require('SystemManager/icons/icons8-home-100.png')}
+                    source={require('thitracnghiem/icons/icons8-home-100.png')}
                     style={{ width: 26, height: 26, tintColor: '#1E90FF' }}
                 />
             )
@@ -92,7 +92,7 @@ let routeConfig = {
             drawerLabel: 'Thông tin cá nhân',
             drawerIcon: (
                 <Image
-                    source={require('SystemManager/icons/user.png')}
+                    source={require('thitracnghiem/icons/user.png')}
                     style={{ width: 26, height: 26, tintColor: '#1E90FF' }}
                 />
             )

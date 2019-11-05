@@ -14,9 +14,9 @@ import {
 import Button from 'react-native-button';
 import AsyncStorage from '@react-native-community/async-storage';
 import firebase from 'react-native-firebase';
-import { setItemToAsyncStorage, getItemFromAsyncStorage } from 'SystemManager/Function/function';
-import Header from 'SystemManager/subComponent/Header';
-import Footer from 'SystemManager/subComponent/footer';
+import { setItemToAsyncStorage, getItemFromAsyncStorage } from 'thitracnghiem/Function/function';
+import Header from 'thitracnghiem/subComponent/Header';
+import Footer from 'thitracnghiem/subComponent/footer';
 import LinearGradient from 'react-native-linear-gradient';
 
 export default class chartsComponent extends Component {
@@ -24,7 +24,7 @@ export default class chartsComponent extends Component {
         let drawerLabel = 'Xếp hạng';
         let drawerIcon = () => (
             <Image
-                source={require('SystemManager/icons/icons8-medieval-crown-96.png')}
+                source={require('thitracnghiem/icons/icons8-medieval-crown-96.png')}
                 style={{ width: 26, height: 26 }}
             />
         );
@@ -58,7 +58,7 @@ export default class chartsComponent extends Component {
                 }}
             >
                 <ImageBackground
-                    source={require('SystemManager/img/70331284_752704455184910_2392173157533351936_n.jpg')}
+                    source={require('thitracnghiem/img/70331284_752704455184910_2392173157533351936_n.jpg')}
                     style={{ width: '100%', height: '100%' }}
                 >
                     <Header {...this.props} />
@@ -136,7 +136,7 @@ export default class chartsComponent extends Component {
                                     width: 50,
                                     height: 50
                                 }}
-                                source={require('SystemManager/icons/icons8-trophy-96.png')}
+                                source={require('thitracnghiem/icons/icons8-trophy-96.png')}
                             />
                             <View style={{ flexDirection: 'column', margin: '1%' }}>
                                 <Text style={{ color: 'white' }}>Champion</Text>
@@ -160,7 +160,7 @@ export default class chartsComponent extends Component {
                                     width: 50,
                                     height: 50
                                 }}
-                                source={require('SystemManager/icons/icons8-medal-second-place-80.png')}
+                                source={require('thitracnghiem/icons/icons8-medal-second-place-80.png')}
                             />
                             <View style={{ flexDirection: 'column', margin: '1%' }}>
                                 <Text style={{ color: 'white' }}>Second</Text>
@@ -184,7 +184,7 @@ export default class chartsComponent extends Component {
                                     width: 50,
                                     height: 50
                                 }}
-                                source={require('SystemManager/icons/icons8-medal-third-place-80.png')}
+                                source={require('thitracnghiem/icons/icons8-medal-third-place-80.png')}
                             />
                             <View style={{ flexDirection: 'column', margin: '1%' }}>
                                 <Text style={{ color: 'white' }}>Third</Text>

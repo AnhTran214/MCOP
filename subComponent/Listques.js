@@ -2,16 +2,16 @@ import React, { Component } from 'react';
 import { Text, View, ScrollView, StyleSheet, Alert, TextInput, FlatList, Image } from 'react-native';
 import Button from 'react-native-button';
 /* import OfflineNotice from 'PhanAnh/miniComponent/OfflineNotice'; */
-import { Home, info, math, listques } from 'SystemManager/Navigation/screenName';
+import { Home, info, math, listques } from 'thitracnghiem/Navigation/screenName';
 import AsyncStorage from '@react-native-community/async-storage';
 import firebase from 'react-native-firebase';
 import {
     setItemToAsyncStorage,
     getItemFromAsyncStorage,
     setItemToAsyncStorage1
-} from 'SystemManager/Function/function';
-import Header from 'SystemManager/subComponent/Header';
-import Footer from 'SystemManager/subComponent/footer';
+} from 'thitracnghiem/Function/function';
+import Header from 'thitracnghiem/subComponent/Header';
+import Footer from 'thitracnghiem/subComponent/footer';
 import { TouchableHighlight } from 'react-native-gesture-handler';
 
 /* import ScrollableTabView, { DefaultTabBar } from 'react-native-scrollable-tab-view'; */
@@ -22,7 +22,7 @@ export default class ListquesComponent extends Component {
         let drawerLabel = 'Danh sách câu hỏi';
         let drawerIcon = () => (
             <Image
-                source={require('SystemManager/icons/icons8-summary-list-100.png')}
+                source={require('thitracnghiem/icons/icons8-summary-list-100.png')}
                 style={{ width: 26, height: 26, tintColor: '#1E90FF' }}
             />
         );

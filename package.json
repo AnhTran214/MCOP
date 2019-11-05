@@ -1,47 +1,49 @@
 {
-  "name": "SystemManager",
-  "version": "0.0.1",
-  "private": true,
-  "scripts": {
-    "start": "react-native start",
-    "test": "jest",
-    "lint": "eslint .",
-    "postinstall": "npx jetify"
-  },
-  "dependencies": {
-    "@react-native-community/async-storage": "^1.6.1",
-    "@react-native-community/netinfo": "^4.2.0",
-    "random-string": "^0.2.0",
-    "react": "16.8.6",
-    "react-native": "0.60.5",
-    "react-native-button": "^2.4.0",
-    "react-native-countdown-component": "^2.5.2",
-    "react-native-firebase": "^5.5.6",
-    "react-native-gesture-handler": "^1.4.1",
-    "react-native-image-crop-picker": "^0.25.0",
-    "react-native-linear-gradient": "^2.5.6",
-    "react-native-modalbox": "^1.7.1",
-    "react-native-reanimated": "^1.2.0",
-    "react-native-scrollable-tab-view": "^0.10.0",
-    "react-native-swipeout": "^2.3.6",
-    "react-native-vector-icons": "^6.6.0",
-    "react-native-video": "^5.0.0",
-    "react-navigation": "^4.0.0",
-    "react-navigation-drawer": "^2.2.0",
-    "react-navigation-stack": "^1.5.1",
-    "react-navigation-tabs": "^2.4.0"
-  },
-  "devDependencies": {
-    "@babel/core": "^7.5.5",
-    "@babel/runtime": "^7.5.5",
-    "@react-native-community/eslint-config": "^0.0.5",
-    "babel-jest": "^24.9.0",
-    "eslint": "^6.3.0",
-    "jest": "^24.9.0",
-    "metro-react-native-babel-preset": "^0.56.0",
-    "react-test-renderer": "16.8.6"
-  },
-  "jest": {
-    "preset": "react-native"
-  }
+    "name": "thitracnghiem",
+    "version": "0.0.1",
+    "private": true,
+    "scripts": {
+        "android": "react-native run-android",
+        "ios": "react-native run-ios",
+        "start": "react-native start",
+        "test": "jest",
+        "lint": "eslint .",
+        "postinstall": "npx jetify"
+    },
+    "dependencies": {
+        "@react-native-community/async-storage": "^1.6.2",
+        "@react-native-community/netinfo": "^4.6.0",
+        "random-string": "^0.2.0",
+        "react": "16.9.0",
+        "react-native": "0.61.3",
+        "react-native-button": "^2.4.0",
+        "react-native-countdown-component": "^2.6.0",
+        "react-native-firebase": "^5.5.6",
+        "react-native-gesture-handler": "^1.5.0",
+        "react-native-image-crop-picker": "^0.26.1",
+        "react-native-linear-gradient": "^2.5.6",
+        "react-native-modalbox": "^2.0.0",
+        "react-native-reanimated": "^1.4.0",
+        "react-native-screens": "^2.0.0-alpha.7",
+        "react-native-swipeout": "^2.3.6",
+        "react-native-vector-icons": "^6.6.0",
+        "react-native-video": "^5.0.2",
+        "react-navigation": "^4.0.10",
+        "react-navigation-drawer": "^2.3.3",
+        "react-navigation-stack": "^1.10.3",
+        "react-navigation-tabs": "^2.5.6"
+    },
+    "devDependencies": {
+        "@babel/core": "^7.6.4",
+        "@babel/runtime": "^7.6.3",
+        "@react-native-community/eslint-config": "^0.0.5",
+        "babel-jest": "^24.9.0",
+        "eslint": "^6.6.0",
+        "jest": "^24.9.0",
+        "metro-react-native-babel-preset": "^0.57.0",
+        "react-test-renderer": "16.9.0"
+    },
+    "jest": {
+        "preset": "react-native"
+    }
 }

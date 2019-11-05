@@ -12,9 +12,9 @@ import {
 } from 'react-native';
  import firebase from 'react-native-firebase';
 import Button from 'react-native-button';
-import {Login} from 'SystemManager/Navigation/screenName';
+import {Login} from 'thitracnghiem/Navigation/screenName';
  import AsyncStorage from '@react-native-community/async-storage';
-import {setItemToAsyncStorage} from 'SystemManager/Function/function';
+import {setItemToAsyncStorage} from 'thitracnghiem/Function/function';
 /*import OfflineNotice from 'Demon/Democode/infor/OfflineNotice' */
 import LinearGradient from 'react-native-linear-gradient';
 
@@ -112,7 +112,7 @@ export default class signupComponent extends Component {
                 backgroundColor = "#1E90FF"
                 barStyle = "light-content"
                 />
-			<ImageBackground source = {require('SystemManager/img/70331284_752704455184910_2392173157533351936_n.jpg')} style={{width: '100%', height: '100%'}}>
+			<ImageBackground source = {require('thitracnghiem/img/70331284_752704455184910_2392173157533351936_n.jpg')} style={{width: '100%', height: '100%'}}>
 				{/* <OfflineNotice /> */}
 				<ScrollView>
 					<View
@@ -142,7 +142,7 @@ export default class signupComponent extends Component {
 						}}>
 						<Image 
 						style = {{width:30, height:30, tintColor: 'white'}}
-						source = {require('SystemManager/icons/back.png')}/>
+						source = {require('thitracnghiem/icons/back.png')}/>
 					</Button>
 						<Button
 						containerStyle = {{

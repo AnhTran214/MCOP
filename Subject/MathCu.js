@@ -12,19 +12,19 @@ import {
 	FlatList
 } from 'react-native';
 import Button from 'react-native-button';
-import { Login, Home, info, math } from 'SystemManager/Navigation/screenName';
+import { Login, Home, info, math } from 'thitracnghiem/Navigation/screenName';
 import AsyncStorage from '@react-native-community/async-storage';
 import firebase from 'react-native-firebase';
 import {
 	setItemToAsyncStorage,
 	getItemFromAsyncStorage,
 	setItemToAsyncStorage1
-} from 'SystemManager/Function/function';
+} from 'thitracnghiem/Function/function';
 /* import OfflineNotice from 'PhanAnh/miniComponent/OfflineNotice';*/
-import Header from 'SystemManager/subComponent/Header';
-import FooterSub from 'SystemManager/subComponent/footerSub';
-import ListquesComponent from 'SystemManager/subComponent/Listques';
-import Result from 'SystemManager/Subject/Result';
+import Header from 'thitracnghiem/subComponent/Header';
+import FooterSub from 'thitracnghiem/subComponent/footerSub';
+import ListquesComponent from 'thitracnghiem/subComponent/Listques';
+import Result from 'thitracnghiem/Subject/Result';
 import CountDown from 'react-native-countdown-component';
 
 const quesRef = firebase.database().ref('Manager/Question/Math/Exam1');
@@ -178,7 +178,7 @@ export default class MathCuComponent extends Component {
 								margin: '2%',
 								tintColor: 'white'
 							}}
-							source={require('SystemManager/icons/back.png')}
+							source={require('thitracnghiem/icons/back.png')}
 						/>
 					</Button>
 					<View
@@ -187,7 +187,7 @@ export default class MathCuComponent extends Component {
 						}}
 					>
 						<Image
-							source={require('SystemManager/icons/icons8-alarm-clock-64.png')}
+							source={require('thitracnghiem/icons/icons8-alarm-clock-64.png')}
 							style={{ width: 30, height: 30, alignItems: 'center', tintColor: 'white', marginTop: '2%' }}
 						/>
 						<CountDown

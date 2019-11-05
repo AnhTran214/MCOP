@@ -2,8 +2,8 @@ import React, {Component} from 'react';
 import {Text, View, ScrollView, StyleSheet, Alert, TextInput, ImageBackground, Image,StatusBar} from 'react-native';
  import firebase from 'react-native-firebase';
 import Button from 'react-native-button';
-import {SignUp, Home} from 'SystemManager/Navigation/screenName';
- import {setItemToAsyncStorage} from 'SystemManager/Function/function';
+import {SignUp, Home} from 'thitracnghiem/Navigation/screenName';
+ import {setItemToAsyncStorage} from 'thitracnghiem/Function/function';
 /*import OfflineNotice from 'PhanAnh/miniComponent/OfflineNotice' */
 import LinearGradient from 'react-native-linear-gradient';
 
@@ -90,12 +90,12 @@ export default class loginComponent extends Component{
                 backgroundColor = "#1E90FF"
                 barStyle = "light-content"
                 />
-				 <ImageBackground source = {require('SystemManager/img/70331284_752704455184910_2392173157533351936_n.jpg')} style={{width: '100%', height: '100%'}}>
+				 <ImageBackground source = {require('thitracnghiem/img/70331284_752704455184910_2392173157533351936_n.jpg')} style={{width: '100%', height: '100%'}}>
 				{/* <OfflineNotice /> */}
                 <ScrollView>
                 <View style = {{alignItems:'center', justifyContent:'center'}}>
 				<Image
-					source = {require('SystemManager/img/imageedit_18_6287752576.png')}
+					source = {require('thitracnghiem/img/imageedit_18_6287752576.png')}
 					style = {{
 						width: 200,
 						height: 200,
@@ -105,7 +105,7 @@ export default class loginComponent extends Component{
                 <View style={[styles.propertyValueRowView]}>
 				<Image 
 				style = {{width:30, height:30, tintColor: 'white',position : 'absolute',top:'40%'}}
-				source = {require('SystemManager/icons/user.png')}/>
+				source = {require('thitracnghiem/icons/user.png')}/>
                     <TextInput
 						style={styles.multilineBox }
 						underlineColorAndroid="transparent"
@@ -123,7 +123,7 @@ export default class loginComponent extends Component{
                 <View style={[styles.propertyValueRowView,{marginBottom:'5%'}]}>
 				<Image 
 				style = {{width:30, height:30, tintColor: 'white',position : 'absolute',top:'40%'}}
-				source = {require('SystemManager/icons/56255.png')}/>
+				source = {require('thitracnghiem/icons/56255.png')}/>
                     <TextInput
 						style={[styles.multilineBox]}
 						keyboardType='default'
@@ -149,11 +149,11 @@ export default class loginComponent extends Component{
 				{this.state.showhidenPass === true ? 
 				<Image 
 				style = {{width:30, height:30, tintColor: 'white'}}
-				source = {require('SystemManager/icons/2d4e09879b6f017f74ffaee0b0011c0a-eye-icon-by-vexels.png')}/>
+				source = {require('thitracnghiem/icons/2d4e09879b6f017f74ffaee0b0011c0a-eye-icon-by-vexels.png')}/>
 				: 
 				<Image 
 				style = {{width:30, height:30,tintColor: 'white'}}
-				source = {require('SystemManager/icons/mob32px045-512.png')}/>
+				source = {require('thitracnghiem/icons/mob32px045-512.png')}/>
 				}
 				</Button>
                 </View> 

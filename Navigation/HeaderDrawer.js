@@ -3,8 +3,8 @@ import { Text, View, TouchableHighlight, Image, Alert, StatusBar } from 'react-n
 import Button from 'react-native-button';
 import AsyncStorage from '@react-native-community/async-storage';
 import firebase from 'react-native-firebase';
-import { Login, Home } from 'SystemManager/Navigation/screenName';
-import { setItemToAsyncStorage, getItemFromAsyncStorage } from 'SystemManager/Function/function';
+import { Login, Home } from 'thitracnghiem/Navigation/screenName';
+import { setItemToAsyncStorage, getItemFromAsyncStorage } from 'thitracnghiem/Function/function';
 import LinearGradient from 'react-native-linear-gradient';
 
 export default class HeaderDrawer extends Component {
@@ -53,7 +53,7 @@ export default class HeaderDrawer extends Component {
             >
                 <Image
                     style={{ width: 50, height: 50, tintColor: 'white' }}
-                    source={require('SystemManager/icons/user.png')}
+                    source={require('thitracnghiem/icons/user.png')}
                 />
                 <Text style={{ color: 'white' }}>{this.state.userData.name}</Text>
                 <Text style={{ color: 'white' }}>{this.state.userData.email}</Text>

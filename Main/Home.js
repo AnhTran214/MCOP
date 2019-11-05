@@ -1,17 +1,17 @@
 import React, { Component } from 'react';
 import { Text, View, ScrollView, StyleSheet, Alert, ImageBackground, StatusBar, Image } from 'react-native';
 import Button from 'react-native-button';
-import { Login, Home, lite, math, eng, listques } from 'SystemManager/Navigation/screenName';
+import { Login, Home, lite, math, eng, listques } from 'thitracnghiem/Navigation/screenName';
 import AsyncStorage from '@react-native-community/async-storage';
 import firebase from 'react-native-firebase';
 import {
     setItemToAsyncStorage,
     getItemFromAsyncStorage,
     setItemToAsyncStorage1
-} from 'SystemManager/Function/function';
+} from 'thitracnghiem/Function/function';
 /* import OfflineNotice from 'PhanAnh/miniComponent/OfflineNotice';*/
-import Header from 'SystemManager/subComponent/Header';
-import Footer from 'SystemManager/subComponent/footer';
+import Header from 'thitracnghiem/subComponent/Header';
+import Footer from 'thitracnghiem/subComponent/footer';
 import LinearGradient from 'react-native-linear-gradient';
 import { FlatList } from 'react-native-gesture-handler';
 
@@ -40,11 +40,12 @@ export default class homeComponent extends Component {
         topic.on('value', (childSnapshot) => {
             const arrayTopic = [];
             childSnapshot.forEach((doc) => {
-                arrayTopic.push({
-                    id: doc.toJSON().id,
-                    name_top: doc.toJSON().name_top,
-                    status: doc.toJSON().status
-                });
+                if (doc.toJSON().status == 1)
+                    arrayTopic.push({
+                        id: doc.toJSON().id,
+                        name_top: doc.toJSON().name_top,
+                        status: doc.toJSON().status
+                    });
             });
             this.setState({
                 arrayTopic: arrayTopic
@@ -120,7 +121,7 @@ export default class homeComponent extends Component {
         );
     };
     async setTopicId(id) {
-        await setItemToAsyncStorage1('id', id);
+        await setItemToAsyncStorage1('id', id.toString());
         this.props.navigation.navigate(math);
     }
     async componentDidMount() {
@@ -145,9 +146,10 @@ export default class homeComponent extends Component {
     }
     gettopic = () => {
         var arr = [];
-        this.state.arrayTopic.forEach((item) => {
+        this.state.arrayTopic.forEach((item, index) => {
             arr.push(
                 <View
+                    key={index}
                     style={{
                         width: 150,
                         height: 200,
@@ -166,7 +168,7 @@ export default class homeComponent extends Component {
                             height: 50,
                             tintColor: '#1E90FF'
                         }}
-                        source={require('SystemManager/icons/icons8-coordinate-system-80.png')}
+                        source={require('thitracnghiem/icons/icons8-coordinate-system-80.png')}
                     />
                     <Text
                         style={{
@@ -210,7 +212,7 @@ export default class homeComponent extends Component {
         return (
             <View style={styles.contain}>
                 <ImageBackground
-                    source={require('SystemManager/img/70331284_752704455184910_2392173157533351936_n.jpg')}
+                    source={require('thitracnghiem/img/70331284_752704455184910_2392173157533351936_n.jpg')}
                     style={{ width: '100%', height: '100%' }}
                 >
                     {/*<OfflineNotice/>*/}

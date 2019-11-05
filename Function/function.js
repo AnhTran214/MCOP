@@ -33,12 +33,6 @@ export const getItemFromAsyncStorage = async (item) => {
 // const bienLuuTru = await getItemFromAsyncStorage('tênBiếnCầnLấy');
 
 // -----------------------------------------------------------------------------------
-
-export const getStatusColor = (status) => {
-    if (status === 'Đang chờ xử lý') return 'orange';
-    else if (status === 'Đã xử lý') return '#4CC417';
-    else return 'red';
-};
 //neu chuoi nhap vao qua dai thi cat lam 2 va thanh ...
 
 // -----------------------------------------------------------------------------------

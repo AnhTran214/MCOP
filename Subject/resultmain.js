@@ -13,7 +13,7 @@ import {
     ImageBackground
 } from 'react-native';
 import Button from 'react-native-button';
-import { Login, Home, info, math } from 'SystemManager/Navigation/screenName';
+import { Login, Home, info, math } from 'thitracnghiem/Navigation/screenName';
 import LinearGradient from 'react-native-linear-gradient';
 
 export default class Resultmain extends Component {
@@ -21,7 +21,7 @@ export default class Resultmain extends Component {
         return (
             <View style={{ flex: 1 }}>
                 <ImageBackground
-                    source={require('SystemManager/img/70331284_752704455184910_2392173157533351936_n.jpg')}
+                    source={require('thitracnghiem/img/70331284_752704455184910_2392173157533351936_n.jpg')}
                     style={{ width: '100%', height: '100%' }}
                 >
                     <View style={{ width: '100%', backgroundColor: '#1E90FF', height: 50 }}>
@@ -44,7 +44,7 @@ export default class Resultmain extends Component {
                                     height: 30,
                                     tintColor: 'white'
                                 }}
-                                source={require('SystemManager/icons/back.png')}
+                                source={require('thitracnghiem/icons/back.png')}
                             />
                             Trở về
                         </Button>
