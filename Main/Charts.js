@@ -24,8 +24,8 @@ export default class chartsComponent extends Component {
         let drawerLabel = 'Xếp hạng';
         let drawerIcon = () => (
             <Image
-                source={require('thitracnghiem/icons/icons8-medieval-crown-96.png')}
-                style={{ width: 26, height: 26 }}
+                source={require('thitracnghiem/icons/icons8-crown-480.png')}
+                style={{ width: 26, height: 26, tintColor: '#1E90FF' }}
             />
         );
 

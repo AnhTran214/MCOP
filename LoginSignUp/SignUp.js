@@ -34,7 +34,8 @@ export default class signupComponent extends Component {
 			user: '',
 			role: 'Người dùng',
 			isUploading: false,
-			name: ''  
+			name: '',
+			rePassword:''  
 		};
 	}
 
@@ -103,6 +104,10 @@ export default class signupComponent extends Component {
 		this.setState({
 		  pickerDisplayed: !this.state.pickerDisplayed
 		})
+	  }
+	  checkValue = () =>
+	  {
+		return this.state.typedPassword !== this.state.rePassword || (this.state.typedEmail ==='' || this.state.name ==='' || this.state.typedPassword ==='' || this.state.rePassword === '');
 	  }
 
 	render() {
@@ -223,8 +228,24 @@ export default class signupComponent extends Component {
 					}}
 				/>
 				</View>
+				<View style={[styles.propertyValueRowView]}>
+				<TextInput
+					style={styles.multilineBox }
+					keyboardType='default'
+					placeholderTextColor = "white"
+					placeholder='Nhập lại mật khẩu'
+					secureTextEntry={true}
+					autoCapitalize='none'
+					onChangeText={(text) => {
+						this.setState({
+							rePassword: text
+						});
+					}}
+				/>
+				</View>
 				<LinearGradient  start={{x: 0, y: 0}} end={{x: 1, y: 0}} 
-				colors = {['rgb(86, 123, 248)', 'rgb(95,192,255)']}
+				colors = {this.state.typedEmail===''|| this.state.typedPassword!==this.state.rePassword||
+				this.state.typedPassword === ''|| this.state.rePassword === ''||this.state.name ===''?['grey','grey']:['rgb(86, 123, 248)', 'rgb(95,192,255)']}
 				style = {{
 					margin: '3%',
 					padding: '3%',
@@ -233,6 +254,7 @@ export default class signupComponent extends Component {
 				}}
 				>
 					<Button
+					disabled = {this.checkValue()? true: false}
 						style={{
 							fontSize: 16,
 							color: 'white'

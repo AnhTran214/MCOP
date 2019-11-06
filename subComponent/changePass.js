@@ -211,7 +211,7 @@ export default class changePassComponent extends Component {
                                 marginBottom: '2%',
                                 borderBottomLeftRadius: 5,
                                 borderBottomRightRadius: 5,
-                                backgroundColor: '#F1F1F1'
+                                backgroundColor: 'rgba(241,241,241,0.7)'
                             }}
                         >
                             <View
@@ -236,7 +236,7 @@ export default class changePassComponent extends Component {
                                         keyboardType='default'
                                         underlineColorAndroid='transparent'
                                         placeholderTextColor='grey'
-                                        placeholder='Nhập mật khẩu cũ'
+                                        placeholder=''
                                         autoCapitalize='none'
                                         maxLength={10}
                                         onChangeText={(text) => {
@@ -252,7 +252,7 @@ export default class changePassComponent extends Component {
                                         alignSelf: 'flex-start'
                                     }}
                                 >
-                                    Nhập mật khẩu mới:
+                                    Mật khẩu mới:
                                 </Text>
                                 <View style={[ styles.propertyValueRowView ]}>
                                     <TextInput
@@ -260,7 +260,7 @@ export default class changePassComponent extends Component {
                                         keyboardType='default'
                                         underlineColorAndroid='transparent'
                                         placeholderTextColor='grey'
-                                        placeholder='Nhập mật khẩu mới'
+                                        placeholder=''
                                         autoCapitalize='none'
                                         maxLength={10}
                                         onChangeText={(text) => {
@@ -283,7 +283,7 @@ export default class changePassComponent extends Component {
                                         style={[ styles.multilineBox ]}
                                         underlineColorAndroid='transparent'
                                         placeholderTextColor='grey'
-                                        placeholder='Nhập lại mật khẩu mới'
+                                        placeholder=''
                                         autoCapitalize='none'
                                         maxLength={10}
                                         onChangeText={(text) => {
@@ -340,9 +340,8 @@ const styles = StyleSheet.create({
         height: 50,
         marginTop: '2%',
         borderColor: '#1E90FF',
-        borderTopWidth: 5,
+        borderBottomWidth: 2,
         textAlignVertical: 'top',
-        backgroundColor: 'white',
         marginLeft: '2%',
         marginRight: '2%',
         borderRadius: 5,

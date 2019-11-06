@@ -218,7 +218,7 @@ export default class infoAccComponent extends Component {
                                 marginBottom: '2%',
                                 borderBottomLeftRadius: 5,
                                 borderBottomRightRadius: 5,
-                                backgroundColor: '#F1F1F1'
+                                backgroundColor: 'rgba(241,241,241,0.7)'
                             }}
                         >
                             <View
@@ -232,31 +232,16 @@ export default class infoAccComponent extends Component {
                                 <Text
                                     style={{
                                         marginLeft: '2%',
-                                        alignSelf: 'flex-start'
+                                        alignSelf: 'center'
                                     }}
                                 >
-                                    Tài khoản:
+                                    {this.state.itemData.email}
                                 </Text>
-                                <View style={[ styles.propertyValueRowView ]}>
-                                    <TextInput
-                                        style={styles.multilineBox}
-                                        keyboardType='default'
-                                        underlineColorAndroid='transparent'
-                                        placeholderTextColor='grey'
-                                        editable={false}
-                                        placeholder={this.state.itemData.email}
-                                        autoCapitalize='none'
-                                        onChangeText={(text) => {
-                                            this.setState({
-                                                name: text
-                                            });
-                                        }}
-                                    />
-                                </View>
                                 <Text
                                     style={{
                                         marginLeft: '2%',
-                                        alignSelf: 'flex-start'
+                                        alignSelf: 'flex-start',
+                                        color: 'grey'
                                     }}
                                 >
                                     Họ và tên:
@@ -266,7 +251,7 @@ export default class infoAccComponent extends Component {
                                         style={styles.multilineBox}
                                         keyboardType='default'
                                         underlineColorAndroid='transparent'
-                                        placeholderTextColor='grey'
+                                        placeholderTextColor='black'
                                         placeholder={this.state.itemData.name}
                                         autoCapitalize='none'
                                         onChangeText={(text) => {
@@ -279,7 +264,8 @@ export default class infoAccComponent extends Component {
                                 <Text
                                     style={{
                                         marginLeft: '2%',
-                                        alignSelf: 'flex-start'
+                                        alignSelf: 'flex-start',
+                                        color: 'grey'
                                     }}
                                 >
                                     Ngày sinh:
@@ -289,7 +275,7 @@ export default class infoAccComponent extends Component {
                                         style={styles.multilineBox}
                                         keyboardType='default'
                                         underlineColorAndroid='transparent'
-                                        placeholderTextColor='grey'
+                                        placeholderTextColor='black'
                                         placeholder={this.state.itemData.birthday}
                                         autoCapitalize='none'
                                         maxLength={10}
@@ -303,7 +289,8 @@ export default class infoAccComponent extends Component {
                                 <Text
                                     style={{
                                         marginLeft: '2%',
-                                        alignSelf: 'flex-start'
+                                        alignSelf: 'flex-start',
+                                        color: 'grey'
                                     }}
                                 >
                                     Số điện thoại:
@@ -313,7 +300,7 @@ export default class infoAccComponent extends Component {
                                         style={styles.multilineBox}
                                         keyboardType='numeric'
                                         underlineColorAndroid='transparent'
-                                        placeholderTextColor='grey'
+                                        placeholderTextColor='black'
                                         placeholder={this.state.itemData.phone}
                                         autoCapitalize='none'
                                         maxLength={10}
@@ -327,7 +314,8 @@ export default class infoAccComponent extends Component {
                                 <Text
                                     style={{
                                         marginLeft: '2%',
-                                        alignSelf: 'flex-start'
+                                        alignSelf: 'flex-start',
+                                        color: 'grey'
                                     }}
                                 >
                                     Địa chỉ:
@@ -336,7 +324,7 @@ export default class infoAccComponent extends Component {
                                     <TextInput
                                         style={[ styles.multilineBox, { height: 100 } ]}
                                         underlineColorAndroid='transparent'
-                                        placeholderTextColor='grey'
+                                        placeholderTextColor='black'
                                         placeholder={this.state.itemData.address}
                                         autoCapitalize='none'
                                         multilineBox={true}
@@ -416,12 +404,10 @@ const styles = StyleSheet.create({
         height: 50,
         marginTop: '2%',
         borderColor: '#1E90FF',
-        borderTopWidth: 5,
+        borderBottomWidth: 2,
         textAlignVertical: 'top',
-        backgroundColor: 'white',
         marginLeft: '2%',
         marginRight: '2%',
-        borderRadius: 5,
         marginBottom: '2%'
     },
     propertyValueRowView: {

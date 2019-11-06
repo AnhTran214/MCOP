@@ -12,7 +12,6 @@ import infoAccComponent from 'thitracnghiem/Main/infoAcc';
 import MathComponent from 'thitracnghiem/Subject/Math';
 import liteComponent from 'thitracnghiem/Subject/Literature';
 import engComponent from 'thitracnghiem/Subject/English';
-import addquesComponent from 'thitracnghiem/Main/Addques';
 import ListquesComponent from 'thitracnghiem/subComponent/Listques';
 import HeaderDrawer from 'thitracnghiem/Navigation/HeaderDrawer';
 import chartsComponent from 'thitracnghiem/Main/Charts';
@@ -28,7 +27,6 @@ import {
     math,
     lite,
     eng,
-    addques,
     listques,
     charts,
     changePass,
@@ -50,8 +48,8 @@ const HomeStack = createStackNavigator(
 );
 const MathStack = createStackNavigator(
     {
-        result: Resultmain,
-        math: MathComponent
+        math: MathComponent,
+        result: Resultmain
     },
     { headerMode: 'none' }
 );
@@ -80,7 +78,7 @@ let routeConfig = {
             drawerLabel: 'Trang chủ',
             drawerIcon: (
                 <Image
-                    source={require('thitracnghiem/icons/icons8-home-100.png')}
+                    source={require('thitracnghiem/icons/icons8-home-480.png')}
                     style={{ width: 26, height: 26, tintColor: '#1E90FF' }}
                 />
             )
@@ -92,13 +90,12 @@ let routeConfig = {
             drawerLabel: 'Thông tin cá nhân',
             drawerIcon: (
                 <Image
-                    source={require('thitracnghiem/icons/user.png')}
+                    source={require('thitracnghiem/icons/icons8-user-male-512.png')}
                     style={{ width: 26, height: 26, tintColor: '#1E90FF' }}
                 />
             )
         }
     },
-    addques: addquesComponent,
     charts: chartsComponent
 };
 let drawerNavConfig = {

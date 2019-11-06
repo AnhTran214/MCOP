@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Text, View, ScrollView, StyleSheet, Alert, TextInput, ImageBackground, Image,StatusBar} from 'react-native';
+import {Text, View, ScrollView, StyleSheet, Alert, TextInput, ImageBackground, Image,StatusBar, ActivityIndicator} from 'react-native';
  import firebase from 'react-native-firebase';
 import Button from 'react-native-button';
 import {SignUp, Home} from 'thitracnghiem/Navigation/screenName';
@@ -20,7 +20,8 @@ export default class loginComponent extends Component{
 			pickerDisplayed: false,
 			isAuthenticated: false,
 			userData: {},
-			showhidenPass: true
+			showhidenPass: true,
+			loading: false,
 		};
 	}
 	showhidenPassword = () => {
@@ -65,6 +66,9 @@ export default class loginComponent extends Component{
 		});
 	} 
 	 onLogin = () => {
+		this.setState({
+            loading: true
+        });
 		if (this.state.typedEmail == '' || this.state.typedPassword == '') {
 			Alert.alert('Thông báo','Email và Password không được bỏ trống');
 			return;
@@ -82,6 +86,10 @@ export default class loginComponent extends Component{
 				Alert.alert(`${error.toString().replace('Error: ', '')}`);
 			});
 	}; 
+	checkValue = () =>
+	{
+	  return (this.state.typedEmail ==='' ||  this.state.typedPassword ==='' );
+	}
 
     render(){
         return(
@@ -158,7 +166,7 @@ export default class loginComponent extends Component{
 				</Button>
                 </View> 
 				<LinearGradient  start={{x: 0, y: 0}} end={{x: 1, y: 0}} 
-				colors = {['rgb(86, 123, 248)', 'rgb(95,192,255)']}
+				colors = {this.state.typedEmail ==='' ||  this.state.typedPassword ==='' ?['grey','grey']:['rgb(86, 123, 248)', 'rgb(95,192,255)']}
 				style = {{
 					margin: '3%',
 					padding: '3%',
@@ -167,6 +175,7 @@ export default class loginComponent extends Component{
 				}}
 				>
                 <Button
+						disabled = {this.checkValue()? true: false}
 						style={{
 							fontSize: 16,
 							color: 'white'
@@ -175,6 +184,21 @@ export default class loginComponent extends Component{
 						ĐĂNG NHẬP
 					</Button>
 					</LinearGradient>
+					{this.state.loading ?
+							<View style={
+								{
+									position: 'absolute',
+									left: 0,
+									right: 0,
+									top: 0,
+									bottom: 0,
+									alignItems: 'center',
+									justifyContent: 'center'
+								}
+							}>
+								<ActivityIndicator size={70} />
+							</View> : null
+						}
                     <Button
 						containerStyle={{
 							padding: '3%',

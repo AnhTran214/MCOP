@@ -1,5 +1,15 @@
 import React, { Component } from 'react';
-import { Text, View, ScrollView, StyleSheet, Alert, ImageBackground, StatusBar, Image } from 'react-native';
+import {
+    Text,
+    View,
+    ScrollView,
+    StyleSheet,
+    Alert,
+    ImageBackground,
+    StatusBar,
+    Image,
+    ActivityIndicator
+} from 'react-native';
 import Button from 'react-native-button';
 import { Login, Home, lite, math, eng, listques } from 'thitracnghiem/Navigation/screenName';
 import AsyncStorage from '@react-native-community/async-storage';
@@ -104,7 +114,8 @@ export default class homeComponent extends Component {
                 Alert.alert(`${error.toString().replace('Error: ', '')}`);
             });
     };
-    playtoMath = () => {
+    async setTopicId(id) {
+        await setItemToAsyncStorage1('id', id.toString());
         Alert.alert(
             'Thông báo',
             'Bạn đã sẵn sàng làm bài?',
@@ -113,16 +124,15 @@ export default class homeComponent extends Component {
                 {
                     text: 'Sẵn sàng',
                     onPress: async () => {
-                        this.test();
+                        this.props.navigation.navigate(math);
                     }
                 }
             ],
             { cancelable: true }
         );
-    };
-    async setTopicId(id) {
-        await setItemToAsyncStorage1('id', id.toString());
-        this.props.navigation.navigate(math);
+        this.setState({
+            loading: true
+        });
     }
     async componentDidMount() {
         const { currentUser } = firebase.auth();
@@ -153,7 +163,7 @@ export default class homeComponent extends Component {
                     style={{
                         width: 150,
                         height: 200,
-                        backgroundColor: 'white',
+                        backgroundColor: 'rgba(255,255,255, 0.7)',
                         borderColor: '#1E90FF',
                         borderWidth: 2,
                         margin: '2%',
@@ -252,6 +262,21 @@ export default class homeComponent extends Component {
                         >
                             {this.gettopic()}
                         </View>
+                        {this.state.loading ? (
+                            <View
+                                style={{
+                                    position: 'absolute',
+                                    left: 0,
+                                    right: 0,
+                                    top: 0,
+                                    bottom: 0,
+                                    alignItems: 'center',
+                                    justifyContent: 'center'
+                                }}
+                            >
+                                <ActivityIndicator size={70} />
+                            </View>
+                        ) : null}
                     </ScrollView>
                     <Footer {...this.props} />
                 </ImageBackground>

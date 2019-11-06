@@ -67,28 +67,9 @@ export default class Footer extends Component {
                                 margin: '2%',
                                 tintColor: 'white'
                             }}
-                            source={require('thitracnghiem/icons/icons8-home-100.png')}
+                            source={require('thitracnghiem/icons/icons8-home-480.png')}
                         />
                     </Button>
-                    {/* <Button
-                        containerStyle={{
-                            width: 30,
-							margin: '2%',
-							alignSelf: 'flex-start',
-                    }}
-						onPress={async () => {
-							this.props.navigation.navigate(addques);
-						}}>
-                            <Image
-						style={{
-							width: 30,
-                            height: 30,
-                            margin: '2%',
-                            tintColor: 'white'
-						}}
-						source={require('thitracnghiem/icons/icons8-question-mark-64.png')}
-					/>
-					</Button> */}
                     <Button
                         containerStyle={{
                             width: 30,
@@ -103,9 +84,10 @@ export default class Footer extends Component {
                             style={{
                                 width: 30,
                                 height: 30,
-                                margin: '2%'
+                                margin: '2%',
+                                tintColor: 'white'
                             }}
-                            source={require('thitracnghiem/icons/icons8-medieval-crown-96.png')}
+                            source={require('thitracnghiem/icons/icons8-crown-480.png')}
                         />
                     </Button>
                     <Button
@@ -125,7 +107,7 @@ export default class Footer extends Component {
                                 margin: '2%',
                                 tintColor: 'white'
                             }}
-                            source={require('thitracnghiem/icons/user.png')}
+                            source={require('thitracnghiem/icons/icons8-user-male-512.png')}
                         />
                     </Button>
                 </View>

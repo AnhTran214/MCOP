@@ -238,8 +238,8 @@ export default class MathComponent extends Component {
 		{
 		return (
 			<View style={styles.contain}>
-				{/* <ImageBackground source = {require('PhanAnh/Image/blue-technology-4669.jpg')} style={{width: '100%', height: '100%'}}>
-				<OfflineNotice/>*/}
+				 <ImageBackground source = {require('thitracnghiem/img/70331284_752704455184910_2392173157533351936_n.jpg')} style={{width: '100%', height: '100%'}}>
+				{/*<OfflineNotice/>*/}
 				<View
 					style={{
 						flexDirection: 'row',
@@ -365,7 +365,7 @@ export default class MathComponent extends Component {
 				</View>
 
 				<ScrollView>
-					<View style={{ alignItems: 'center', justifyContent: 'center' }}>
+					<View style={{ alignItems: 'center', justifyContent: 'center',backgroundColor:'rgba(255,255,255,0.5)' }}>
 						 <Text
 							style={{
 								fontSize: 22,
@@ -426,7 +426,7 @@ export default class MathComponent extends Component {
 						<Button
 							containerStyle={[
 								styles.stylerepButton,
-								{ backgroundColor: this.state.change[0] === true ? 'white' : 'grey', borderColor:'white' }
+								{ backgroundColor: this.state.change[0] === true ? null : '#1E90FF', borderColor:'white' }
 							]}
 							style={[ styles.repButton, { color: this.state.change[0] === true ? 'black' : 'white' } ]}
 							onPress={()=>this.changeAw(this.state.currentid,0)}
@@ -446,7 +446,7 @@ export default class MathComponent extends Component {
 						<Button
 							containerStyle={[
 								styles.stylerepButton,
-								{ backgroundColor: this.state.change[1] === true ? 'white' : 'grey' }
+								{ backgroundColor: this.state.change[1] === true ? null : '#1E90FF' }
 							]}
 							style={[ styles.repButton, { color: this.state.change[1] === true ? 'black' : 'white' } ]}
 							onPress={()=>this.changeAw(this.state.currentid,1)}
@@ -465,7 +465,7 @@ export default class MathComponent extends Component {
 						<Button
 							containerStyle={[
 								styles.stylerepButton,
-								{ backgroundColor: this.state.change[2] === true ? 'white' : 'grey' }
+								{ backgroundColor: this.state.change[2] === true ? null : '#1E90FF' }
 							]}
 							style={[ styles.repButton, { color: this.state.change[2] === true ? 'black' : 'white' } ]}
 							onPress={()=>this.changeAw(this.state.currentid,2)}
@@ -484,7 +484,7 @@ export default class MathComponent extends Component {
 						<Button
 							containerStyle={[
 								styles.stylerepButton,
-								{ backgroundColor: this.state.change[3] === true ? 'white' : 'grey', borderColor:'white' }
+								{ backgroundColor: this.state.change[3] === true ? null : '#1E90FF', borderColor:'white' }
 							]}
 							style={[ styles.repButton, { color: this.state.change[3] === true ? 'black' : 'white' } ]}
 							onPress={()=>this.changeAw(this.state.currentid,3)}
@@ -508,7 +508,7 @@ export default class MathComponent extends Component {
 						flexDirection: 'row',
 						justifyContent: 'center',
 						alignItems: 'center',
-						backgroundColor: 'white'
+						backgroundColor: 'rgba(255,255,255,0.5)'
 					}}
 				>
 					<Button
@@ -534,7 +534,7 @@ export default class MathComponent extends Component {
 				</View>
 
 				<Result ref={'Result'} gotoHome={() => this.props.navigation.navigate(Home)} />
-				{/* </ImageBackground> */}
+				 </ImageBackground>
 			</View>
 		);
 					}
