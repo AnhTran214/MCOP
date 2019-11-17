@@ -8,7 +8,7 @@ import {
 	TextInput,
 	Platform,
 	ImageBackground,
-	ScrollView,StatusBar
+	ScrollView,StatusBar,ActivityIndicator
 } from 'react-native';
  import firebase from 'react-native-firebase';
 import Button from 'react-native-button';
@@ -19,7 +19,7 @@ import {setItemToAsyncStorage} from 'thitracnghiem/Function/function';
 import LinearGradient from 'react-native-linear-gradient';
 
  
- const LearnAppRefUsers = firebase.database().ref('Manager/User');
+ const LearnAppRefUsers = firebase.database().ref('Customer');
 export default class signupComponent extends Component {
 	/* static navigationOptions = ({ navigation }) => {
 		let drawerLabel = 'Register';
@@ -29,13 +29,20 @@ export default class signupComponent extends Component {
 		super(props);
 		this.unsubcriber = null; // 1 cai object quan sat viec thay doi user
 		this.state = {
-			typedEmail: '',
-			typedPassword: '',
 			user: '',
 			role: 'Người dùng',
 			isUploading: false,
-			name: '',
-			rePassword:''  
+			Username: '',
+            Fullname: '',
+            Phone: '',
+            Email: '',
+            Address: '',
+            Birthday: '',
+            Password: '',
+			Status: 1,
+			Image:'',
+			rePassword:'' ,
+			loading: false
 		};
 	}
 
@@ -56,58 +63,70 @@ export default class signupComponent extends Component {
 	}
 	//ham thuc thi dang ky
 	 onRegister = () => {
-		if (this.state.typedEmail == '' || this.state.typedPassword == '' || this.state.name == '') {
+		if (this.state.Username == '' || this.state.Password == '' || this.state.Fullname == '') {
 			Alert.alert('Thông báo','Xin bạn hãy nhập đầy đủ thông tin...');
 			return;
 		}
-		firebase
-			.auth()
-			.createUserWithEmailAndPassword(this.state.typedEmail, this.state.typedPassword) // tao ra email va pass voi createUserWithEmailAndPassword va email va pass lay tu state
-            //dang ky thanh cong thi user = registerUser ban nhap
-			.then( async () => {
-				const userData = {
-					id: require('random-string')({ length: 10 }),
-                    email: this.state.typedEmail,
-                    password: this.state.typedPassword,
-					role: this.state.role,
-					name: this.state.name,
-					phone:'',
-					address:'',
-					birthday:'',
-					status:'',
-                };
-
-                LearnAppRefUsers.push(userData); // Đẩy lên Database
-                    
-                await setItemToAsyncStorage('userData', userData); // Đẩy lên AsyncStorage
-                Alert.alert('Thông báo','Đăng ký thành công\nTự động đăng nhập...');
-                 this.props.navigation.navigate('App');
-
-        })
-			//dang ky that bai
-			.catch((error) => {
-				alert(`${error.toString().replace('Error: ', '')}`);
-			});
-	};
-
-	//thay doi gia tri chu
-	 setPickerValue(newValue) {
 		this.setState({
-		  pickerSelection: newValue,
-		  role : newValue
+			loading: true
+		});
+		LearnAppRefUsers.orderByChild("Username").equalTo(this.state.Username).once('value', (value) => {
+			if (value.exists()) {
+				Alert.alert('Thông báo', 'Tài Khoản Đã Tồn Tại');
+				this.setState({
+					loading: false
+				});
+			}
+			else {
+				LearnAppRefUsers.push(
+					{
+						Username: this.state.Username,
+						Fullname: this.state.Fullname,
+						Phone: '',
+						Email:  '',
+						Address: '',
+						Birthday: '',
+						Password: this.state.Password,
+						Status: 1,
+						Image:'',
+					}
+				);
+				LearnAppRefUsers.orderByChild("Username").equalTo(this.state.Username).once('value', (value) => {
+					if (value.exists()) {
+						value.forEach(async(data)=>
+						{
+								   await setItemToAsyncStorage('userData', value.val());
+									this.setState({
+										loading: false
+									});
+									Alert.alert('Thông báo','Đăng ký thành công\nTự động đăng nhập...');
+									console.log(value.val());
+									this.props.navigation.navigate('App');
+							return;
+						})
+					}
+					else {
+						Alert.alert('Thông báo', 'Tài Khoản Không Tồn Tại');
+						this.setState({
+							loading: false
+						});
+					}
+		
+				}, (error) => {
+					Alert.alert('Thông báo', 'Lỗi Server');
+					this.setState({
+						loading: false
+					});
+				});
+			}
+
 		})
 	
-		this.togglePicker();
-	  }
-	 //an hien danh sach
-	  togglePicker() {
-		this.setState({
-		  pickerDisplayed: !this.state.pickerDisplayed
-		})
-	  }
+	}
+
 	  checkValue = () =>
 	  {
-		return this.state.typedPassword !== this.state.rePassword || (this.state.typedEmail ==='' || this.state.name ==='' || this.state.typedPassword ==='' || this.state.rePassword === '');
+		return this.state.Password !== this.state.rePassword || (this.state.typedUsername ==='' || this.state.Fullname ==='' || this.state.Password ==='' || this.state.rePassword === '');
 	  }
 
 	render() {
@@ -193,7 +212,7 @@ export default class signupComponent extends Component {
 					autoCapitalize='none' // khong tu dong viet hoa
 					onChangeText={(text) => {
 						this.setState({
-							name: text
+							Fullname: text
 						});
 					}}
 				/>
@@ -203,12 +222,12 @@ export default class signupComponent extends Component {
 					style={styles.multilineBox }
 					underlineColorAndroid="transparent"
 					placeholderTextColor = "white"
-					keyboardType='email-address'
-					placeholder='Nhập email'
+					keyboardType='default'
+					placeholder='Nhập Username'
 					autoCapitalize='none' // khong tu dong viet hoa
 					onChangeText={(text) => {
 						this.setState({
-							typedEmail: text
+							Username: text
 						});
 					}}
 				/>
@@ -223,7 +242,7 @@ export default class signupComponent extends Component {
 					autoCapitalize='none'
 					onChangeText={(text) => {
 						this.setState({
-							typedPassword: text
+							Password: text
 						});
 					}}
 				/>
@@ -244,8 +263,7 @@ export default class signupComponent extends Component {
 				/>
 				</View>
 				<LinearGradient  start={{x: 0, y: 0}} end={{x: 1, y: 0}} 
-				colors = {this.state.typedEmail===''|| this.state.typedPassword!==this.state.rePassword||
-				this.state.typedPassword === ''|| this.state.rePassword === ''||this.state.name ===''?['grey','grey']:['rgb(86, 123, 248)', 'rgb(95,192,255)']}
+				colors = {this.checkValue()?['grey','grey']:['rgb(86, 123, 248)', 'rgb(95,192,255)']}
 				style = {{
 					margin: '3%',
 					padding: '3%',
@@ -259,9 +277,8 @@ export default class signupComponent extends Component {
 							fontSize: 16,
 							color: 'white'
 						}}
-						onPress= {async () => {
-							await this.onRegister();
-						}}>
+						onPress= { 
+							 this.onRegister}>
 						{/* <Image source={require('Demon/icons/design-team-512.png')} style={{
 						padding: 10,
 						height: 25,
@@ -272,6 +289,21 @@ export default class signupComponent extends Component {
 						ĐĂNG KÝ
 					</Button>
 				</LinearGradient>
+				{this.state.loading ? (
+                                <View
+                                    style={{
+                                        position: 'absolute',
+                                        left: 0,
+                                        right: 0,
+                                        top: 0,
+                                        bottom: 0,
+                                        alignItems: 'center',
+                                        justifyContent: 'center'
+                                    }}
+                                >
+                                    <ActivityIndicator size={70} />
+                                </View>
+                            ) : null}
 				</View>
 			</View>
 			</ScrollView>

@@ -18,7 +18,7 @@ import { setItemToAsyncStorage } from 'thitracnghiem/Function/function';
 /*import OfflineNotice from 'PhanAnh/miniComponent/OfflineNotice' */
 import LinearGradient from 'react-native-linear-gradient';
 
-const LearnAppRefUsers = firebase.database().ref('Manager/User');
+const LearnAppRefUsers = firebase.database().ref('Customer');
 export default class loginComponent extends Component {
     constructor(props) {
         super(props);
@@ -51,30 +51,6 @@ export default class loginComponent extends Component {
         });
     }
 
-    componentWillUnmount() {
-        if (this.unsubcriber) {
-            this.unsubcriber();
-        }
-    }
-    getUserFromDB() {
-        return new Promise((resolve) => {
-            LearnAppRefUsers.orderByChild('email').equalTo(this.state.typedEmail).on('value', (childSnapshot) => {
-                var userData = {};
-                childSnapshot.forEach((doc) => {
-                    userData = {
-                        id: doc.toJSON().id,
-                        email: doc.toJSON().email,
-                        password: doc.toJSON().password,
-                        role: doc.toJSON().role,
-                        name: doc.toJSON().name,
-                        address: doc.toJSON().address,
-                        contact: doc.toJSON().contact
-                    };
-                });
-                resolve(userData);
-            });
-        });
-    }
     onLogin = () => {
         this.setState({
             loading: true
@@ -84,16 +60,50 @@ export default class loginComponent extends Component {
             return;
         }
         firebase
-            .auth()
-            .signInWithEmailAndPassword(this.state.typedEmail, this.state.typedPassword)
-            .then(async (loginUser) => {
-                const userData = await this.getUserFromDB();
-                setItemToAsyncStorage('userData', userData);
-                Alert.alert('Thông báo', 'Đăng nhập thành công');
-                this.props.navigation.navigate('App');
-            })
-            .catch((error) => {
-                Alert.alert(`${error.toString().replace('Error: ', '')}`);
+            .database()
+            .ref("Customer").orderByChild("Username").equalTo(this.state.typedEmail).once('value', (value) => {
+                if (value.exists()) {
+                    value.forEach(async(data)=>
+                    {
+                        if (data.toJSON().Password == this.state.typedPassword) {
+                            if (data.toJSON().Status == 1) {
+    
+                               await setItemToAsyncStorage('userData', value.toJSON());
+                                this.setState({
+                                    loading: false
+                                });
+                                Alert.alert('Thông báo', 'Đăng nhập thành công');
+                                this.props.navigation.navigate('App');
+                            }
+                            else {
+                                Alert.alert('Thông báo', 'Tài Khoản Đã Bị Khóa');
+                                this.setState({
+                                    loading: false
+                                });
+                            }
+                        }
+                        else {
+                            Alert.alert('Thông báo', 'Nhập Sai Mật Khẩu');
+                            this.setState({
+                                loading: false
+                            });
+                        }
+                        return;
+                    }
+                    )
+                }
+                else {
+                    Alert.alert('Thông báo', 'Tài Khoản Không Tồn Tại');
+                    this.setState({
+                        loading: false
+                    });
+                }
+
+            }, (error) => {
+                Alert.alert('Thông báo', 'Lỗi Server');
+                this.setState({
+                    loading: false
+                });
             });
     };
     checkValue = () => {
@@ -119,7 +129,7 @@ export default class loginComponent extends Component {
                                     marginTop: '5%'
                                 }}
                             />
-                            <View style={[ styles.propertyValueRowView ]}>
+                            <View style={[styles.propertyValueRowView]}>
                                 <Image
                                     style={{
                                         width: 30,
@@ -144,7 +154,7 @@ export default class loginComponent extends Component {
                                     }}
                                 />
                             </View>
-                            <View style={[ styles.propertyValueRowView, { marginBottom: '5%' } ]}>
+                            <View style={[styles.propertyValueRowView, { marginBottom: '5%' }]}>
                                 <Image
                                     style={{
                                         width: 30,
@@ -156,7 +166,7 @@ export default class loginComponent extends Component {
                                     source={require('thitracnghiem/icons/56255.png')}
                                 />
                                 <TextInput
-                                    style={[ styles.multilineBox ]}
+                                    style={[styles.multilineBox]}
                                     keyboardType='default'
                                     placeholderTextColor='white'
                                     underlineColorAndroid='transparent'
@@ -184,11 +194,11 @@ export default class loginComponent extends Component {
                                             source={require('thitracnghiem/icons/2d4e09879b6f017f74ffaee0b0011c0a-eye-icon-by-vexels.png')}
                                         />
                                     ) : (
-                                        <Image
-                                            style={{ width: 30, height: 30, tintColor: 'white' }}
-                                            source={require('thitracnghiem/icons/mob32px045-512.png')}
-                                        />
-                                    )}
+                                            <Image
+                                                style={{ width: 30, height: 30, tintColor: 'white' }}
+                                                source={require('thitracnghiem/icons/mob32px045-512.png')}
+                                            />
+                                        )}
                                 </Button>
                             </View>
                             <Button
@@ -218,10 +228,10 @@ export default class loginComponent extends Component {
                                 end={{ x: 1, y: 0 }}
                                 colors={
                                     this.state.typedEmail === '' || this.state.typedPassword === '' ? (
-                                        [ 'grey', 'grey' ]
+                                        ['grey', 'grey']
                                     ) : (
-                                        [ 'rgb(86, 123, 248)', 'rgb(95,192,255)' ]
-                                    )
+                                            ['rgb(86, 123, 248)', 'rgb(95,192,255)']
+                                        )
                                 }
                                 style={{
                                     margin: '2%',

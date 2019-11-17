@@ -22,9 +22,10 @@ import { Home, info, changePass } from 'thitracnghiem/Navigation/screenName';
 import Header from 'thitracnghiem/subComponent/Header';
 import Footer from 'thitracnghiem/subComponent/footer';
 import LinearGradient from 'react-native-linear-gradient';
-
+import DatePicker from 'react-native-datepicker';
+import ImagePicker from 'react-native-image-crop-picker';
 //tham chieu den root
-const LearnAppUser = firebase.database().ref('Manager/User');
+const LearnAppUser = firebase.database().ref('Customer');
 export default class infoAccComponent extends Component {
     static navigationOptions = ({ navigation }) => {
         let drawerLabel = 'Thông tin cá nhân';
@@ -41,121 +42,91 @@ export default class infoAccComponent extends Component {
         super(props);
         this.state = {
             loading: false,
-            email: '',
             currentItemId: '',
             itemData: {},
             typedEmail: '',
             shortEmail: '',
             userData: {},
             pickerDisplayed: false,
-            name: '',
-            phone: '',
-            address: '',
-            birthday: '',
-            status: ''
+            key: "",
+            Username: '',
+            Fullname: '',
+            Phone: '',
+            Email: '',
+            Address: '',
+            Birthday: '',
+            Password: '',
+            Status: 1,
         };
     }
-    getItemFromDataFromDB() {
-        LearnAppUser.orderByChild('id').equalTo(this.state.userData.id).on('value', (childSnapshot) => {
-            var itemData = {};
-            childSnapshot.forEach((doc) => {
-                itemData = {
-                    key: doc.key,
-                    id: doc.toJSON().id,
-                    email: doc.toJSON().email,
-                    password: doc.toJSON().password,
-                    role: doc.toJSON().role,
-                    name: doc.toJSON().name,
-                    phone: doc.toJSON().phone,
-                    address: doc.toJSON().address,
-                    birthday: doc.toJSON().birthday,
-                    status: doc.toJSON().status
-                };
-                this.setState({
-                    itemData: itemData,
-                    name: this.state.itemData.name,
-                    phone: this.state.itemData.phone,
-                    address: this.state.itemData.address,
-                    birthday: this.state.itemData.birthday,
-                    status: this.state.itemData.status
-                });
-                console.log('db', this.state.itemData);
-            });
-        });
-    }
+
     async componentDidMount() {
         await setItemToAsyncStorage('currentScreen', info);
         const currentItemId = await getItemFromAsyncStorage('currentItemId');
         //console.log(`get currentItemId = ${currentItemId}`);
         await AsyncStorage.getItem('userData').then((value) => {
             const userData = JSON.parse(value);
-            this.setState({
-                currentItemId: currentItemId,
-                userData: userData
-            });
-            const shortEmail = this.state.userData.email.split('@').shift();
-            this.setState({
-                typedEmail: this.state.userData.email,
-                shortEmail: shortEmail
-            });
-        });
-        this.getItemFromDataFromDB();
-        console.log('userdata', this.state.userData);
-    }
-    setPickerValue(newValue) {
-        this.setState({
-            itemData: {
-                ...this.state.itemData,
-                role: newValue
-            }
-        });
-
-        this.togglePicker();
-    }
-    togglePicker() {
-        this.setState({
-            pickerDisplayed: !this.state.pickerDisplayed
-        });
-    }
-    getUserFromDB() {
-        return new Promise((resolve) => {
-            LearnAppUser.orderByChild('email').equalTo(this.state.typedEmail).on('value', (childSnapshot) => {
-                var userData = {};
-                childSnapshot.forEach((doc) => {
-                    userData = {
-                        id: doc.toJSON().id,
-                        email: doc.toJSON().email,
-                        password: doc.toJSON().password,
-                        role: doc.toJSON().role,
-                        name: doc.toJSON().name
-                    };
+            for (var key in userData) {
+                this.setState({
+                    key: key,
+                    userData: userData[key],
+                    itemData: userData,
+                    Username: userData[key].Username,
+                    Fullname: userData[key].Fullname,
+                    Phone: userData[key].Phone,
+                    Email: userData[key].Email,
+                    Address: userData[key].Address,
+                    Birthday: userData[key].Birthday,
+                    Password: userData[key].Password,
+                    Status: userData[key].Status,
+                    Image: userData[key].Image
                 });
-                resolve(userData);
-            });
+            }
         });
     }
     async update() {
-        try {
-            await LearnAppUser.orderByChild('id').equalTo(this.state.userData.id).on('child_added', (data) => {
-                data.key;
-                LearnAppUser.child(data.key)
+                LearnAppUser.child(this.state.key)
                     .update({
-                        name: this.state.name,
-                        birthday: this.state.birthday,
-                        phone: this.state.phone,
-                        address: this.state.address
+                        Fullname: this.state.Fullname,
+                        Phone: this.state.Phone,
+                        Email:this.state.Email,
+                        Address: this.state.Address,
+                        Birthday: this.state.Birthday,
+                        Status: this.state.Status,
+                        Image: this.state.Image
                     })
                     .then(async () => {
-                        await AsyncStorage.clear();
-                        const userData = await this.getUserFromDB();
-                        setItemToAsyncStorage('userData', userData);
+                        this.state.userData.Fullname=this.state.Fullname;
+                        this.state.userData.Phone=this.state.Phone;
+                        this.state.userData.Email=this.state.Email;
+                        this.state.userData.Address=this.state.Address;
+                        this.state.userData.Birthday=this.state.Birthday;
+                        this.state.userData.Status=this.state.Status;
+                        this.state.userData.Image=this.state.Image;
+                        this.state.itemData[this.state.key]=this.state.userData;
+                        setItemToAsyncStorage('userData', 
+                        this.state.itemData);
                         Alert.alert('Thông báo', 'Cập nhật thành công!');
                         this.props.navigation.navigate(Home);
-                    });
-            });
-        } catch (error) {
-            alert(error);
-        }
+                    }).catch( (error)=> {
+                        alert(error);
+                    })
+    }
+    Reset  = ()=>
+    {
+        this.setState(
+            {
+                Username: this.state.userData.Username,
+                Fullname: this.state.userData.Fullname,
+                Phone:this.state.userData.Phone,
+                Email: this.state.userData.Email,
+                Address: this.state.userData.Address,
+                Birthday: this.state.userData.Birthday,
+                Password: this.state.userData.Password,
+                Status: this.state.userData.Status,
+                Image: this.state.userData.Image
+            }
+        )
     }
     AlertUpdate = () => {
         Alert.alert(
@@ -172,7 +143,24 @@ export default class infoAccComponent extends Component {
             ],
             { cancelable: true }
         );
-    };
+    };   
+    renderImage(image) {
+        return <Image style={{ width: 125, height: 125, borderRadius: 125 }}   source = {{uri: image}} />;
+    }
+     pickSig() {
+        ImagePicker.openPicker({
+            width: 300,
+            height: 300,
+            cropping: false,
+            includeBase64:true
+        })
+            .then((image) => {
+                this.setState({
+                    Image: `data:${image.mime};base64,${image.data}`
+                });
+            })
+            .catch((e) => alert(e));
+    }
     render() {
         return (
             <View style={{ flex: 1, marginTop: Platform.OS === 'ios' ? 34 : 0 }}>
@@ -232,11 +220,47 @@ export default class infoAccComponent extends Component {
                                 <Text
                                     style={{
                                         marginLeft: '2%',
-                                        alignSelf: 'center'
+                                        alignSelf: 'center',
+                                        color: 'red',
+                                        fontWeight:'bold'
                                     }}
                                 >
-                                    {this.state.itemData.email}
+                                    {this.state.Username}
                                 </Text>
+                                <View
+                                      style={{
+                                        marginTop:10,
+                                        marginBottom:10,
+                                        width: 300,
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                    }}
+                                >
+                                <View
+                                                style={{
+                                                    width: 125,
+                                                    height: 125,
+                                                    borderRadius: 125,
+                                                    justifyContent: 'center',
+                                                    alignItems: 'center',
+                                                    borderColor: 'white',
+                                                    borderWidth: 3,
+                                                }}
+                                            >
+                                                {this.renderImage(this.state.Image)}
+                                            </View>
+                                <Button onPress={() => this.pickSig()}>
+                                            <Text
+                                                style={{
+                                                    fontSize: 11,
+                                                    fontStyle: 'italic',
+                                                    color: 'rgb(26,141,255)'
+                                                }}
+                                            >
+                                                    Thay đổi
+                                            </Text>
+                                        </Button>
+                                        </View>
                                 <Text
                                     style={{
                                         marginLeft: '2%',
@@ -246,17 +270,44 @@ export default class infoAccComponent extends Component {
                                 >
                                     Họ và tên:
                                 </Text>
-                                <View style={[ styles.propertyValueRowView ]}>
+                                <View style={[styles.propertyValueRowView]}>
                                     <TextInput
                                         style={styles.multilineBox}
                                         keyboardType='default'
                                         underlineColorAndroid='transparent'
                                         placeholderTextColor='black'
-                                        placeholder={this.state.itemData.name}
+                                        placeholder={this.state.Fullname}
                                         autoCapitalize='none'
+                                        value={this.state.Fullname}
                                         onChangeText={(text) => {
                                             this.setState({
-                                                name: text
+                                                Fullname: text
+                                            });
+                                        }}
+                                    />
+                                </View>
+                                <Text
+                                    style={{
+                                        marginLeft: '2%',
+                                        alignSelf: 'flex-start',
+                                        color: 'grey'
+                                    }}
+                                >
+                                    Email:
+                                </Text>
+                                <View style={[styles.propertyValueRowView]}>
+                                    <TextInput
+                                        style={styles.multilineBox}
+                                        keyboardType='default'
+                                        underlineColorAndroid='transparent'
+                                        placeholderTextColor='black'
+                                        placeholder={this.state.Email}
+                                        autoCapitalize='none'
+                                        maxLength={100}
+                                        value=  {this.state.Email}
+                                        onChangeText={(text) => {
+                                            this.setState({
+                                                Email: text
                                             });
                                         }}
                                     />
@@ -270,20 +321,29 @@ export default class infoAccComponent extends Component {
                                 >
                                     Ngày sinh:
                                 </Text>
-                                <View style={[ styles.propertyValueRowView ]}>
-                                    <TextInput
-                                        style={styles.multilineBox}
-                                        keyboardType='default'
-                                        underlineColorAndroid='transparent'
-                                        placeholderTextColor='black'
-                                        placeholder={this.state.itemData.birthday}
-                                        autoCapitalize='none'
-                                        maxLength={10}
-                                        onChangeText={(text) => {
-                                            this.setState({
-                                                birthday: text
-                                            });
+                                <View style={[styles.propertyValueRowView]} >
+                                <DatePicker
+                                        style={{ width: 200 }}
+                                        date={this.state.Birthday}
+                                        mode="date"
+                                        placeholder="select date"
+                                        format="YYYY-MM-DD"
+                                        minDate="1960-05-01"
+                                        maxDate="2099-06-01"
+                                        confirmBtnText="Confirm"
+                                        cancelBtnText="Cancel"
+                                        customStyles={{
+                                            dateIcon: {
+                                                position: 'absolute',
+                                                right: 0,
+                                                top: 4,
+                                                marginLeft: 0
+                                            },
+                                            dateInput: {
+                                                
+                                            }
                                         }}
+                                        onDateChange={(date) => { this.setState({ Birthday: date }) }}
                                     />
                                 </View>
                                 <Text
@@ -295,18 +355,19 @@ export default class infoAccComponent extends Component {
                                 >
                                     Số điện thoại:
                                 </Text>
-                                <View style={[ styles.propertyValueRowView ]}>
+                                <View style={[styles.propertyValueRowView]}>
                                     <TextInput
                                         style={styles.multilineBox}
                                         keyboardType='numeric'
                                         underlineColorAndroid='transparent'
                                         placeholderTextColor='black'
-                                        placeholder={this.state.itemData.phone}
+                                        placeholder={this.state.Phone}
                                         autoCapitalize='none'
                                         maxLength={10}
+                                        value=  {this.state.Phone}
                                         onChangeText={(text) => {
                                             this.setState({
-                                                phone: text
+                                                Phone: text
                                             });
                                         }}
                                     />
@@ -320,18 +381,19 @@ export default class infoAccComponent extends Component {
                                 >
                                     Địa chỉ:
                                 </Text>
-                                <View style={[ styles.propertyValueRowView ]}>
+                                <View style={[styles.propertyValueRowView]}>
                                     <TextInput
-                                        style={[ styles.multilineBox, { height: 100 } ]}
+                                        style={[styles.multilineBox, { height: 100 }]}
                                         underlineColorAndroid='transparent'
                                         placeholderTextColor='black'
-                                        placeholder={this.state.itemData.address}
+                                        placeholder={this.state.Address}
                                         autoCapitalize='none'
+                                        value= {this.state.Address}
                                         multilineBox={true}
-                                        maxLength={100}
+                                        maxLength={200}
                                         onChangeText={(text) => {
                                             this.setState({
-                                                address: text
+                                                Address: text
                                             });
                                         }}
                                     />
@@ -341,7 +403,35 @@ export default class infoAccComponent extends Component {
                         <LinearGradient
                             start={{ x: 0, y: 0 }}
                             end={{ x: 1, y: 0 }}
-                            colors={[ 'rgb(86, 123, 248)', 'rgb(95,192,255)' ]}
+                            colors={['rgb(86, 123, 248)', 'rgb(95,192,255)']}
+                            style={{
+                                width: '75%',
+                                height: 60,
+                                marginTop: '1%',
+                                marginBottom: '1%',
+                                backgroundColor: '#1E90FF',
+                                alignSelf: 'center',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                borderRadius: 20
+                            }}
+                        >
+                            <Button
+                                style={{
+                                    fontSize: 16,
+                                    color: 'white',
+                                    textAlign: 'center',
+                                    textAlignVertical: 'center'
+                                }}
+                                onPress={this.Reset}
+                            >
+                              RESET
+                            </Button>
+                        </LinearGradient>
+                        <LinearGradient
+                            start={{ x: 0, y: 0 }}
+                            end={{ x: 1, y: 0 }}
+                            colors={['rgb(86, 123, 248)', 'rgb(95,192,255)']}
                             style={{
                                 width: '75%',
                                 height: 60,

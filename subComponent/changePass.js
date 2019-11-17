@@ -18,13 +18,13 @@ import firebase from 'react-native-firebase';
 import Button from 'react-native-button';
 import { setItemToAsyncStorage, getItemFromAsyncStorage, getStatusColor } from 'thitracnghiem/Function/function';
 import AsyncStorage from '@react-native-community/async-storage';
-import { Home, info } from 'thitracnghiem/Navigation/screenName';
+import { Home, info,changePass } from 'thitracnghiem/Navigation/screenName';
 import Header from 'thitracnghiem/subComponent/Header';
 import Footer from 'thitracnghiem/subComponent/footer';
 import LinearGradient from 'react-native-linear-gradient';
 
 //tham chieu den root
-const LearnAppUser = firebase.database().ref('Manager/User');
+const LearnAppUser = firebase.database().ref('Customer');
 export default class changePassComponent extends Component {
     constructor(props) {
         super(props);
@@ -37,116 +37,82 @@ export default class changePassComponent extends Component {
             shortEmail: '',
             userData: {},
             pickerDisplayed: false,
-            name: '',
-            phone: '',
-            address: '',
-            birthday: '',
-            status: '',
+            key: "",
+            Username: '',
+            Fullname: '',
+            Phone: '',
+            Email: '',
+            Address: '',
+            Birthday: '',
+            Password: '',
+            Status: 1,
+            password:'',
             newpassword: '',
             renewpassword: ''
         };
     }
-    getItemFromDataFromDB() {
-        LearnAppUser.orderByChild('id').equalTo(this.state.userData.id).on('value', (childSnapshot) => {
-            var itemData = {};
-            childSnapshot.forEach((doc) => {
-                itemData = {
-                    key: doc.key,
-                    id: doc.toJSON().id,
-                    email: doc.toJSON().email,
-                    password: doc.toJSON().password,
-                    role: doc.toJSON().role,
-                    name: doc.toJSON().name,
-                    phone: doc.toJSON().phone,
-                    address: doc.toJSON().address,
-                    birthday: doc.toJSON().birthday,
-                    status: doc.toJSON().status
-                };
-                this.setState({
-                    itemData: itemData,
-                    name: this.state.itemData.name,
-                    phone: this.state.itemData.phone,
-                    address: this.state.itemData.address,
-                    birthday: this.state.itemData.birthday,
-                    status: this.state.itemData.status
-                });
-                console.log('db', this.state.itemData);
-            });
-        });
-    }
     async componentDidMount() {
-        await setItemToAsyncStorage('currentScreen', info);
-        const currentItemId = await getItemFromAsyncStorage('currentItemId');
-        //console.log(`get currentItemId = ${currentItemId}`);
+        await setItemToAsyncStorage('currentScreen', changePass);
         await AsyncStorage.getItem('userData').then((value) => {
             const userData = JSON.parse(value);
-            this.setState({
-                currentItemId: currentItemId,
-                userData: userData
-            });
-            const shortEmail = this.state.userData.email.split('@').shift();
-            this.setState({
-                typedEmail: this.state.userData.email,
-                shortEmail: shortEmail
-            });
-        });
-        this.getItemFromDataFromDB();
-        console.log('userdata', this.state.userData);
-    }
-    setPickerValue(newValue) {
-        this.setState({
-            itemData: {
-                ...this.state.itemData,
-                role: newValue
-            }
-        });
-
-        this.togglePicker();
-    }
-    togglePicker() {
-        this.setState({
-            pickerDisplayed: !this.state.pickerDisplayed
-        });
-    }
-    getUserFromDB() {
-        return new Promise((resolve) => {
-            LearnAppUser.orderByChild('email').equalTo(this.state.typedEmail).on('value', (childSnapshot) => {
-                var userData = {};
-                childSnapshot.forEach((doc) => {
-                    userData = {
-                        id: doc.toJSON().id,
-                        email: doc.toJSON().email,
-                        password: doc.toJSON().password,
-                        role: doc.toJSON().role,
-                        name: doc.toJSON().name
-                    };
+            console.log(userData);
+            for (var key in userData) {
+                this.setState({
+                    key: key,
+                    userData: userData[key],
+                    itemData: userData,
+                    Username: userData[key].Username,
+                    Fullname: userData[key].Fullname,
+                    Phone: userData[key].Phone,
+                    Email: userData[key].Email,
+                    Address: userData[key].Address,
+                    Birthday: userData[key].Birthday,
+                    Password: userData[key].Password,
+                    Status: userData[key].Status,
+                    Image: userData[key].Image
                 });
-                resolve(userData);
-            });
+            }
         });
     }
     async update() {
-        try {
-            await LearnAppUser.orderByChild('id').equalTo(this.state.userData.id).on('child_added', (data) => {
-                data.key;
-                LearnAppUser.child(data.key)
-                    .update({
-                        name: this.state.name,
-                        birthday: this.state.birthday,
-                        phone: this.state.phone,
-                        address: this.state.address
-                    })
-                    .then(async () => {
-                        await AsyncStorage.clear();
-                        const userData = await this.getUserFromDB();
-                        setItemToAsyncStorage('userData', userData);
-                        Alert.alert('Thông báo', 'Cập nhật thành công!');
-                        this.props.navigation.navigate(Home);
-                    });
-            });
-        } catch (error) {
-            alert(error);
+        if (this.state.password=='')
+        {
+            Alert.alert("Thông Báo","Mật Khẩu Hiện Tại Không Được Để Trống");
+            return;
         }
+        if (this.state.newpassword=='')
+        {
+            Alert.alert("Thông Báo","Mật Khẩu Mới Không Được Để Trống");
+            return;
+        }
+        if (this.state.renewpassword=='')
+        {
+            Alert.alert("Thông Báo","Mật Khẩu Nhập Lại Không Được Để Trống");
+            return;
+        }
+        if (this.state.newpassword!=this.state.renewpassword)
+        {
+            Alert.alert("Thông Báo","Mật Khẩu Nhập Lại Không Trùng Khớp");
+            return;
+        }
+        if (this.state.password!=this.state.Password)
+        {
+            Alert.alert("Thông Báo","Mật Khẩu Cũ Không Đúng");
+            return;
+        }
+        LearnAppUser.child(this.state.key)
+        .update({
+            Password: this.state.newpassword
+        })
+        .then(async () => {
+            this.state.userData.Password=this.state.newpassword;
+            setItemToAsyncStorage('userData', 
+            this.state.itemData);
+            Alert.alert('Thông báo', 'Cập nhật thành công!');
+            this.props.navigation.navigate(Home);
+        }).catch( (error)=> {
+            alert(error);
+        })
     }
     AlertUpdate = () => {
         Alert.alert(
@@ -157,9 +123,7 @@ export default class changePassComponent extends Component {
                 {
                     text: 'Có',
                     onPress: () => {
-                        /* this.update(); */
-                        Alert.alert('Thông báo', 'Đổi mật khẩu thành công');
-                        this.props.navigation.navigate(info);
+                         this.update(); 
                     }
                 }
             ],

@@ -12,9 +12,6 @@ export default class HeaderDrawer extends Component {
         super(props);
         this.state = {
             loading: false,
-            currentItemId: '',
-            typedEmail: '',
-            shortEmail: '',
             userData: {},
             currentUser: null
         };
@@ -23,27 +20,22 @@ export default class HeaderDrawer extends Component {
         const { currentUser } = firebase.auth();
         this.setState({ currentUser });
         await setItemToAsyncStorage('currentScreen', Home);
-        const currentItemId = await getItemFromAsyncStorage('currentItemId');
         await AsyncStorage.getItem('userData').then((value) => {
             const userData = JSON.parse(value);
+         for( var key in userData)
+         { 
             this.setState({
-                currentItemId: currentItemId,
-                userData: userData
-            });
-            const shortEmail = this.state.userData.email.split('@').shift();
-            this.setState({
-                typedEmail: this.state.userData.email,
-                shortEmail: shortEmail
-            });
+                userData:  userData[key]
+            }); 
+         }            
         });
     }
     render() {
-        const { currentUser } = this.state;
         return (
             <LinearGradient
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
-                colors={[ 'rgb(86, 123, 248)', 'rgb(95,192,255)' ]}
+                colors={['rgb(86, 123, 248)', 'rgb(95,192,255)']}
                 style={{
                     height: 200,
                     alignItems: 'center',
@@ -51,12 +43,27 @@ export default class HeaderDrawer extends Component {
                     backgroundColor: '#1E90FF'
                 }}
             >
-                <Image
-                    style={{ width: 50, height: 50, tintColor: 'white' }}
-                    source={require('thitracnghiem/icons/user.png')}
-                />
-                <Text style={{ color: 'white' }}>{this.state.userData.name}</Text>
-                <Text style={{ color: 'white' }}>{this.state.userData.email}</Text>
+                {
+                    this.state.userData ?
+                        <Image
+                            style={{ width: 50, height: 50 }}
+                            source = {{uri: this.state.userData.Image}}
+                         
+                        /> :
+                        <Image
+                            style={{ width: 50, height: 50, tintColor: 'white'}}
+                            source={require('thitracnghiem/icons/user.png')}
+                        />
+
+                }
+                  {
+                    this.state.userData ?
+                <Text style={{ color: 'white' }}>{this.state.userData.Username}</Text> : null
+                  }
+                    {
+                    this.state.userData ?
+                <Text style={{ color: 'white' }}>{this.state.userData.Fullname}</Text>  : null
+                    }
             </LinearGradient>
         );
     }

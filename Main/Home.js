@@ -139,20 +139,7 @@ export default class homeComponent extends Component {
         this.setState({ currentUser });
         await setItemToAsyncStorage('currentScreen', Home);
         const currentItemId = await getItemFromAsyncStorage('currentItemId');
-        await AsyncStorage.getItem('userData').then((value) => {
-            const userData = JSON.parse(value);
-            this.setState({
-                currentItemId: currentItemId,
-                userData: userData
-            });
-            const shortEmail = this.state.userData.email.split('@').shift();
-            this.setState({
-                typedEmail: this.state.userData.email,
-                shortEmail: shortEmail
-            });
-        });
-        this.getdataTopic();
-        console.log('userdata', this.state.userData);
+
     }
     gettopic = () => {
         var arr = [];
