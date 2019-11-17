@@ -13,26 +13,27 @@ import {
 } from 'react-native';
 import firebase from 'react-native-firebase';
 import Button from 'react-native-button';
-import { SignUp, Home, fopass } from 'thitracnghiem/Navigation/screenName';
+import { SignUp, Home, Login, takepass } from 'thitracnghiem/Navigation/screenName';
 import { setItemToAsyncStorage } from 'thitracnghiem/Function/function';
 /*import OfflineNotice from 'PhanAnh/miniComponent/OfflineNotice' */
 import LinearGradient from 'react-native-linear-gradient';
 
 const LearnAppRefUsers = firebase.database().ref('Manager/User');
-export default class loginComponent extends Component {
+export default class FopassCom extends Component {
     constructor(props) {
         super(props);
         this.unsubcriber = null;
         this.state = {
             typedEmail: '',
-            typedPassword: '',
+            typeUsername: '',
             user: null,
             isUploading: false,
             pickerDisplayed: false,
             isAuthenticated: false,
             userData: {},
             showhidenPass: true,
-            loading: false
+            loading: false,
+            code: ''
         };
     }
     showhidenPassword = () => {
@@ -79,13 +80,13 @@ export default class loginComponent extends Component {
         this.setState({
             loading: true
         });
-        if (this.state.typedEmail == '' || this.state.typedPassword == '') {
+        if (this.state.typedEmail == '' || this.state.typeUsername == '') {
             Alert.alert('Thông báo', 'Email và Password không được bỏ trống');
             return;
         }
         firebase
             .auth()
-            .signInWithEmailAndPassword(this.state.typedEmail, this.state.typedPassword)
+            .signInWithEmailAndPassword(this.state.typedEmail, this.state.typeUsername)
             .then(async (loginUser) => {
                 const userData = await this.getUserFromDB();
                 setItemToAsyncStorage('userData', userData);
@@ -97,7 +98,7 @@ export default class loginComponent extends Component {
             });
     };
     checkValue = () => {
-        return this.state.typedEmail === '' || this.state.typedPassword === '';
+        return this.state.typedEmail === '' || this.state.typeUsername === '';
     };
 
     render() {
@@ -110,6 +111,37 @@ export default class loginComponent extends Component {
                 >
                     {/* <OfflineNotice /> */}
                     <ScrollView>
+                        <View
+                            style={{
+                                flexDirection: 'row',
+                                justifyContent: 'flex-start',
+                                marginLeft: '5%',
+                                marginRight: '5%',
+                                justifyContent: 'space-between',
+                                width: '90%'
+                                /* backgroundColor: 'red' */
+                            }}
+                        >
+                            <Button
+                                containerStyle={{
+                                    padding: 10
+                                    /* backgroundColor:'white', */
+                                }}
+                                style={{
+                                    color: 'white',
+                                    marginBottom: '20%'
+                                }}
+                                onPress={() => {
+                                    const { navigate } = this.props.navigation; //chu y
+                                    navigate(Login);
+                                }}
+                            >
+                                <Image
+                                    style={{ width: 30, height: 30, tintColor: 'white' }}
+                                    source={require('thitracnghiem/icons/back.png')}
+                                />
+                            </Button>
+                        </View>
                         <View style={{ alignItems: 'center', justifyContent: 'center' }}>
                             <Image
                                 source={require('thitracnghiem/img/imageedit_18_6287752576.png')}
@@ -128,7 +160,7 @@ export default class loginComponent extends Component {
                                         position: 'absolute',
                                         top: '40%'
                                     }}
-                                    source={require('thitracnghiem/icons/user.png')}
+                                    source={require('thitracnghiem/icons/email.png')}
                                 />
                                 <TextInput
                                     style={styles.multilineBox}
@@ -136,11 +168,54 @@ export default class loginComponent extends Component {
                                     placeholderTextColor='white'
                                     keyboardType='email-address'
                                     autoCapitalize='none'
-                                    placeholder='Tài khoản'
+                                    placeholder='Email'
                                     editable={true}
                                     maxLength={50}
                                     onChangeText={(text) => {
                                         this.setState({ typedEmail: text });
+                                    }}
+                                />
+                                <Button
+                                    containerStyle={{
+                                        position: 'absolute',
+                                        left: '80%',
+                                        top: '40%',
+                                        borderWidth: 2,
+                                        borderColor: 'blue',
+                                        backgroundColor: 'blue',
+                                        borderRadius: 10,
+                                        opacity: 0.5
+                                    }}
+                                    style={{ fontSize: 13, padding: 5, color: 'white' }}
+                                    /* onPress={this.showhidenPassword.bind(this.state.showhidenPass)} */
+                                >
+                                    Gửi mã
+                                </Button>
+                            </View>
+                            <View style={[ styles.propertyValueRowView, { marginBottom: '5%' } ]}>
+                                <Image
+                                    style={{
+                                        width: 30,
+                                        height: 30,
+                                        tintColor: 'white',
+                                        position: 'absolute',
+                                        top: '40%'
+                                    }}
+                                    source={require('thitracnghiem/icons/user.png')}
+                                />
+                                <TextInput
+                                    style={[ styles.multilineBox ]}
+                                    keyboardType='default'
+                                    placeholderTextColor='white'
+                                    underlineColorAndroid='transparent'
+                                    autoCapitalize='none'
+                                    secureTextEntry={this.state.showhidenPass} // ko dung dc khi multiline = {true}
+                                    placeholder='Username'
+                                    /* multiline={true} */
+                                    editable={true}
+                                    maxLength={50}
+                                    onChangeText={(text) => {
+                                        this.setState({ typeUsername: text });
                                     }}
                                 />
                             </View>
@@ -153,7 +228,7 @@ export default class loginComponent extends Component {
                                         position: 'absolute',
                                         top: '40%'
                                     }}
-                                    source={require('thitracnghiem/icons/56255.png')}
+                                    source={require('thitracnghiem/icons/icons8-qr-code-64.png')}
                                 />
                                 <TextInput
                                     style={[ styles.multilineBox ]}
@@ -161,63 +236,22 @@ export default class loginComponent extends Component {
                                     placeholderTextColor='white'
                                     underlineColorAndroid='transparent'
                                     autoCapitalize='none'
-                                    secureTextEntry={this.state.showhidenPass} // ko dung dc khi multiline = {true}
-                                    placeholder='Mật khẩu'
+                                    placeholder='Mã xác nhận'
                                     /* multiline={true} */
                                     editable={true}
                                     maxLength={50}
                                     onChangeText={(text) => {
-                                        this.setState({ typedPassword: text });
+                                        this.setState({ code: text });
                                     }}
                                 />
-                                <Button
-                                    containerStyle={{
-                                        position: 'absolute',
-                                        left: '80%',
-                                        top: '40%'
-                                    }}
-                                    onPress={this.showhidenPassword.bind(this.state.showhidenPass)}
-                                >
-                                    {this.state.showhidenPass === true ? (
-                                        <Image
-                                            style={{ width: 30, height: 30, tintColor: 'white' }}
-                                            source={require('thitracnghiem/icons/2d4e09879b6f017f74ffaee0b0011c0a-eye-icon-by-vexels.png')}
-                                        />
-                                    ) : (
-                                        <Image
-                                            style={{ width: 30, height: 30, tintColor: 'white' }}
-                                            source={require('thitracnghiem/icons/mob32px045-512.png')}
-                                        />
-                                    )}
-                                </Button>
                             </View>
-                            <Button
-                                containerStyle={{
-                                    /* padding: '3%', */
-                                    borderRadius: 5,
-                                    alignSelf: 'center',
-                                    left: 100
-                                }}
-                                onPress={() => {
-                                    const { navigate } = this.props.navigation; //chu y
-                                    navigate(fopass);
-                                }}
-                            >
-                                <Text
-                                    style={{
-                                        fontSize: 11,
-                                        color: 'white',
-                                        fontStyle: 'italic'
-                                    }}
-                                >
-                                    Quên mật khẩu?
-                                </Text>
-                            </Button>
                             <LinearGradient
                                 start={{ x: 0, y: 0 }}
                                 end={{ x: 1, y: 0 }}
                                 colors={
-                                    this.state.typedEmail === '' || this.state.typedPassword === '' ? (
+                                    this.state.code === '' ||
+                                    this.state.typeUsername === '' ||
+                                    this.state.typedEmail === '' ? (
                                         [ 'grey', 'grey' ]
                                     ) : (
                                         [ 'rgb(86, 123, 248)', 'rgb(95,192,255)' ]
@@ -231,14 +265,24 @@ export default class loginComponent extends Component {
                                 }}
                             >
                                 <Button
-                                    disabled={this.checkValue() ? true : false}
+                                    disabled={
+                                        this.state.code === '' ||
+                                        this.state.typeUsername === '' ||
+                                        this.state.typedEmail === '' ? (
+                                            true
+                                        ) : (
+                                            false
+                                        )
+                                    }
                                     style={{
                                         fontSize: 16,
                                         color: 'white'
                                     }}
-                                    onPress={this.onLogin}
+                                    onPress={/* this.onLogin */ () => {
+                                        this.props.navigation.navigate(takepass);
+                                    }}
                                 >
-                                    ĐĂNG NHẬP
+                                    XÁC NHẬN
                                 </Button>
                             </LinearGradient>
                             {this.state.loading ? (
@@ -256,28 +300,6 @@ export default class loginComponent extends Component {
                                     <ActivityIndicator size={70} />
                                 </View>
                             ) : null}
-                            <Button
-                                containerStyle={{
-                                    padding: '3%',
-                                    borderRadius: 5,
-                                    alignSelf: 'center'
-                                }}
-                                onPress={() => {
-                                    const { navigate } = this.props.navigation; //chu y
-                                    navigate(SignUp);
-                                }}
-                            >
-                                <Text
-                                    style={{
-                                        fontSize: 11,
-                                        color: 'white',
-                                        fontStyle: 'italic'
-                                    }}
-                                >
-                                    Bạn chưa có tài khoản?{' '}
-                                    <Text style={{ color: '#1E90FF', fontStyle: 'italic' }}>Đăng ký</Text>
-                                </Text>
-                            </Button>
                             <Text
                                 style={{
                                     fontSize: 22,

@@ -10,4 +10,23 @@ const listques = 'listques';
 const charts = 'charts';
 const changePass = 'changePass';
 const result = 'result';
-export { SignUp, Login, Home, AuthLoading, info, math, lite, eng, listques, charts, changePass, result };
+const histo = 'histo';
+const fopass = 'fopass';
+const takepass = 'takepass';
+export {
+    SignUp,
+    Login,
+    Home,
+    AuthLoading,
+    info,
+    math,
+    lite,
+    fopass,
+    takepass,
+    eng,
+    listques,
+    charts,
+    changePass,
+    result,
+    histo
+};

@@ -17,6 +17,9 @@ import HeaderDrawer from 'thitracnghiem/Navigation/HeaderDrawer';
 import chartsComponent from 'thitracnghiem/Main/Charts';
 import changePassComponent from 'thitracnghiem/subComponent/changePass';
 import Resultmain from 'thitracnghiem/Subject/resultmain';
+import HistoryCom from 'thitracnghiem/Main/History';
+import FopassCom from 'thitracnghiem/LoginSignUp/fopassword';
+import TakepassCom from 'thitracnghiem/LoginSignUp/takepass';
 //---------------------------------------------------------------
 import {
     Login,
@@ -30,12 +33,18 @@ import {
     listques,
     charts,
     changePass,
-    result
+    result,
+    histo,
+    fopass,
+    takepass
 } from 'thitracnghiem/Navigation/screenName';
 //---------------------------------------------------------------
 
 //---------------------------------------------------------------
-const AuthStack = createStackNavigator({ Login: loginComponent, SignUp: signupComponent }, { headerMode: 'none' });
+const AuthStack = createStackNavigator(
+    { Login: loginComponent, SignUp: signupComponent, fopass: FopassCom, takepass: TakepassCom },
+    { headerMode: 'none' }
+);
 const HomeStack = createStackNavigator(
     {
         //'Home': homeComponent
@@ -96,6 +105,7 @@ let routeConfig = {
             )
         }
     },
+    histo: HistoryCom,
     charts: chartsComponent
 };
 let drawerNavConfig = {

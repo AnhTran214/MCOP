@@ -75,121 +75,316 @@ export default class chartsComponent extends Component {
                     >
                         Bảng xếp hạng
                     </Text>
-                    <ScrollView>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                         <LinearGradient
                             start={{ x: 0, y: 0 }}
                             end={{ x: 1, y: 0 }}
                             colors={[ 'rgb(86, 123, 248)', 'rgb(95,192,255)' ]}
                             style={{
-                                width: '95%',
-                                height: 120,
+                                width: 100,
+                                height: 50,
                                 backgroundColor: 'white',
                                 alignSelf: 'center',
+                                margin: '2%',
+                                borderRadius: 10
+                            }}
+                        >
+                            <Button
+                                containerStyle={{
+                                    width: 100,
+                                    height: 50,
+                                    justifyContent: 'center'
+                                }}
+                                style={{ alignSelf: 'center', color: 'white' }}
+                            >
+                                Toán
+                            </Button>
+                        </LinearGradient>
+                        <LinearGradient
+                            start={{ x: 0, y: 0 }}
+                            end={{ x: 1, y: 0 }}
+                            colors={[ 'rgb(86, 123, 248)', 'rgb(95,192,255)' ]}
+                            style={{
+                                width: 100,
+                                height: 50,
+                                backgroundColor: 'white',
+                                alignSelf: 'center',
+                                margin: '2%',
+                                borderRadius: 10
+                            }}
+                        >
+                            <Button
+                                containerStyle={{
+                                    width: 100,
+                                    height: 50,
+                                    justifyContent: 'center'
+                                }}
+                                style={{ alignSelf: 'center', color: 'white' }}
+                            >
+                                Văn
+                            </Button>
+                        </LinearGradient>
+                        <LinearGradient
+                            start={{ x: 0, y: 0 }}
+                            end={{ x: 1, y: 0 }}
+                            colors={[ 'rgb(86, 123, 248)', 'rgb(95,192,255)' ]}
+                            style={{
+                                width: 100,
+                                height: 50,
+                                backgroundColor: 'white',
+                                alignSelf: 'center',
+                                margin: '2%',
+                                borderRadius: 10
+                            }}
+                        >
+                            <Button
+                                containerStyle={{
+                                    width: 100,
+                                    height: 50,
+                                    justifyContent: 'center'
+                                }}
+                                style={{ alignSelf: 'center', color: 'white' }}
+                            >
+                                Anh
+                            </Button>
+                        </LinearGradient>
+                    </View>
+                    <LinearGradient
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 0 }}
+                        colors={[ 'rgb(86, 123, 248)', 'rgb(95,192,255)' ]}
+                        style={{
+                            width: '95%',
+                            height: 120,
+                            backgroundColor: 'white',
+                            alignSelf: 'center',
+                            margin: '2%'
+                        }}
+                    >
+                        <Text
+                            style={{
+                                color: 'white',
+                                alignSelf: 'center',
+                                fontSize: 18
+                            }}
+                        >
+                            Hạng của tôi
+                        </Text>
+                        <View
+                            style={{
+                                flexDirection: 'row',
+                                justifyContent: 'space-between',
                                 margin: '2%'
                             }}
                         >
                             <Text
                                 style={{
-                                    color: 'white',
-                                    alignSelf: 'center',
-                                    fontSize: 18
+                                    color: 'white'
                                 }}
                             >
-                                Hạng của tôi
+                                Điểm
                             </Text>
+                            <Text
+                                style={{
+                                    color: 'white'
+                                }}
+                            >
+                                Hạng
+                            </Text>
+                        </View>
+                    </LinearGradient>
+                    <ScrollView>
+                        <View>
                             <View
                                 style={{
+                                    width: '85%',
+                                    padding: 5,
                                     flexDirection: 'row',
-                                    justifyContent: 'space-between',
-                                    margin: '2%'
+                                    borderWidth: 2,
+                                    borderColor: '#1E90FF',
+                                    margin: '2%',
+                                    alignSelf: 'center'
                                 }}
                             >
-                                <Text
+                                <Image
                                     style={{
-                                        color: 'white'
+                                        width: 50,
+                                        height: 50
                                     }}
-                                >
-                                    Điểm
-                                </Text>
-                                <Text
+                                    source={require('thitracnghiem/icons/icons8-trophy-96.png')}
+                                />
+                                <View style={{ flexDirection: 'column', margin: '1%' }}>
+                                    <Text style={{ color: 'white' }}>Hạng 1</Text>
+                                    <Text style={{ color: 'white' }}>50 câu toán</Text>
+                                    <Text style={{ color: 'white' }}>100 điểm</Text>
+                                </View>
+                            </View>
+                            <View
+                                style={{
+                                    width: '85%',
+                                    padding: 5,
+                                    flexDirection: 'row',
+                                    borderWidth: 2,
+                                    borderColor: '#1E90FF',
+                                    margin: '2%',
+                                    alignSelf: 'center'
+                                }}
+                            >
+                                <Image
                                     style={{
-                                        color: 'white'
+                                        width: 50,
+                                        height: 50
                                     }}
-                                >
-                                    Hạng
-                                </Text>
+                                    source={require('thitracnghiem/icons/icons8-medal-second-place-80.png')}
+                                />
+                                <View style={{ flexDirection: 'column', margin: '1%' }}>
+                                    <Text style={{ color: 'white' }}>Hạng 2</Text>
+                                    <Text style={{ color: 'white' }}>45 câu toán</Text>
+                                    <Text style={{ color: 'white' }}>90 câu điểm</Text>
+                                </View>
                             </View>
-                        </LinearGradient>
-                        <View
-                            style={{
-                                width: '85%',
-                                padding: 5,
-                                flexDirection: 'row',
-                                borderWidth: 2,
-                                borderColor: '#1E90FF',
-                                margin: '2%',
-                                alignSelf: 'center'
-                            }}
-                        >
-                            <Image
+                            <View
                                 style={{
-                                    width: 50,
-                                    height: 50
+                                    width: '85%',
+                                    padding: 5,
+                                    flexDirection: 'row',
+                                    borderWidth: 2,
+                                    borderColor: '#1E90FF',
+                                    margin: '2%',
+                                    alignSelf: 'center'
                                 }}
-                                source={require('thitracnghiem/icons/icons8-trophy-96.png')}
-                            />
-                            <View style={{ flexDirection: 'column', margin: '1%' }}>
-                                <Text style={{ color: 'white' }}>Champion</Text>
-                                <Text style={{ color: 'white' }}>50 câu toán</Text>
-                                <Text style={{ color: 'white' }}>100 điểm</Text>
+                            >
+                                <Image
+                                    style={{
+                                        width: 50,
+                                        height: 50
+                                    }}
+                                    source={require('thitracnghiem/icons/icons8-medal-third-place-80.png')}
+                                />
+                                <View style={{ flexDirection: 'column', margin: '1%' }}>
+                                    <Text style={{ color: 'white' }}>Hạng 3</Text>
+                                    <Text style={{ color: 'white' }}>40 câu toán</Text>
+                                    <Text style={{ color: 'white' }}>80 câu điểm</Text>
+                                </View>
                             </View>
-                        </View>
-                        <View
-                            style={{
-                                width: '85%',
-                                padding: 5,
-                                flexDirection: 'row',
-                                borderWidth: 2,
-                                borderColor: '#1E90FF',
-                                margin: '2%',
-                                alignSelf: 'center'
-                            }}
-                        >
-                            <Image
+                            <View
                                 style={{
-                                    width: 50,
-                                    height: 50
+                                    width: '85%',
+                                    padding: 5,
+                                    flexDirection: 'row',
+                                    borderWidth: 2,
+                                    borderColor: '#1E90FF',
+                                    margin: '2%',
+                                    alignSelf: 'center'
                                 }}
-                                source={require('thitracnghiem/icons/icons8-medal-second-place-80.png')}
-                            />
-                            <View style={{ flexDirection: 'column', margin: '1%' }}>
-                                <Text style={{ color: 'white' }}>Second</Text>
-                                <Text style={{ color: 'white' }}>45 câu toán</Text>
-                                <Text style={{ color: 'white' }}>90 câu điểm</Text>
+                            >
+                                <View style={{ flexDirection: 'column', margin: '1%' }}>
+                                    <Text style={{ color: 'white' }}>Hạng 4</Text>
+                                    <Text style={{ color: 'white' }}>40 câu toán</Text>
+                                    <Text style={{ color: 'white' }}>80 câu điểm</Text>
+                                </View>
                             </View>
-                        </View>
-                        <View
-                            style={{
-                                width: '85%',
-                                padding: 5,
-                                flexDirection: 'row',
-                                borderWidth: 2,
-                                borderColor: '#1E90FF',
-                                margin: '2%',
-                                alignSelf: 'center'
-                            }}
-                        >
-                            <Image
+                            <View
                                 style={{
-                                    width: 50,
-                                    height: 50
+                                    width: '85%',
+                                    padding: 5,
+                                    flexDirection: 'row',
+                                    borderWidth: 2,
+                                    borderColor: '#1E90FF',
+                                    margin: '2%',
+                                    alignSelf: 'center'
                                 }}
-                                source={require('thitracnghiem/icons/icons8-medal-third-place-80.png')}
-                            />
-                            <View style={{ flexDirection: 'column', margin: '1%' }}>
-                                <Text style={{ color: 'white' }}>Third</Text>
-                                <Text style={{ color: 'white' }}>40 câu toán</Text>
-                                <Text style={{ color: 'white' }}>80 câu điểm</Text>
+                            >
+                                <View style={{ flexDirection: 'column', margin: '1%' }}>
+                                    <Text style={{ color: 'white' }}>Hạng 5</Text>
+                                    <Text style={{ color: 'white' }}>40 câu toán</Text>
+                                    <Text style={{ color: 'white' }}>80 câu điểm</Text>
+                                </View>
+                            </View>
+                            <View
+                                style={{
+                                    width: '85%',
+                                    padding: 5,
+                                    flexDirection: 'row',
+                                    borderWidth: 2,
+                                    borderColor: '#1E90FF',
+                                    margin: '2%',
+                                    alignSelf: 'center'
+                                }}
+                            >
+                                <View style={{ flexDirection: 'column', margin: '1%' }}>
+                                    <Text style={{ color: 'white' }}>Hạng 6</Text>
+                                    <Text style={{ color: 'white' }}>40 câu toán</Text>
+                                    <Text style={{ color: 'white' }}>80 câu điểm</Text>
+                                </View>
+                            </View>
+                            <View
+                                style={{
+                                    width: '85%',
+                                    padding: 5,
+                                    flexDirection: 'row',
+                                    borderWidth: 2,
+                                    borderColor: '#1E90FF',
+                                    margin: '2%',
+                                    alignSelf: 'center'
+                                }}
+                            >
+                                <View style={{ flexDirection: 'column', margin: '1%' }}>
+                                    <Text style={{ color: 'white' }}>Hạng 7</Text>
+                                    <Text style={{ color: 'white' }}>40 câu toán</Text>
+                                    <Text style={{ color: 'white' }}>80 câu điểm</Text>
+                                </View>
+                            </View>
+                            <View
+                                style={{
+                                    width: '85%',
+                                    padding: 5,
+                                    flexDirection: 'row',
+                                    borderWidth: 2,
+                                    borderColor: '#1E90FF',
+                                    margin: '2%',
+                                    alignSelf: 'center'
+                                }}
+                            >
+                                <View style={{ flexDirection: 'column', margin: '1%' }}>
+                                    <Text style={{ color: 'white' }}>Hạng 8</Text>
+                                    <Text style={{ color: 'white' }}>40 câu toán</Text>
+                                    <Text style={{ color: 'white' }}>80 câu điểm</Text>
+                                </View>
+                            </View>
+                            <View
+                                style={{
+                                    width: '85%',
+                                    padding: 5,
+                                    flexDirection: 'row',
+                                    borderWidth: 2,
+                                    borderColor: '#1E90FF',
+                                    margin: '2%',
+                                    alignSelf: 'center'
+                                }}
+                            >
+                                <View style={{ flexDirection: 'column', margin: '1%' }}>
+                                    <Text style={{ color: 'white' }}>Hạng 9</Text>
+                                    <Text style={{ color: 'white' }}>40 câu toán</Text>
+                                    <Text style={{ color: 'white' }}>80 câu điểm</Text>
+                                </View>
+                            </View>
+                            <View
+                                style={{
+                                    width: '85%',
+                                    padding: 5,
+                                    flexDirection: 'row',
+                                    borderWidth: 2,
+                                    borderColor: '#1E90FF',
+                                    margin: '2%',
+                                    alignSelf: 'center'
+                                }}
+                            >
+                                <View style={{ flexDirection: 'column', margin: '1%' }}>
+                                    <Text style={{ color: 'white' }}>Hạng 10</Text>
+                                    <Text style={{ color: 'white' }}>40 câu toán</Text>
+                                    <Text style={{ color: 'white' }}>80 câu điểm</Text>
+                                </View>
                             </View>
                         </View>
                         <View>
