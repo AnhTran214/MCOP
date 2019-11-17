@@ -25,7 +25,6 @@ import Footer from 'thitracnghiem/subComponent/footer';
 import LinearGradient from 'react-native-linear-gradient';
 import { FlatList } from 'react-native-gesture-handler';
 
-const LearnAppUser = firebase.database().ref('Manager/User');
 const topic = firebase.database().ref('Topic');
 export default class homeComponent extends Component {
     constructor(props) {
@@ -46,15 +45,16 @@ export default class homeComponent extends Component {
             arrayTopic: []
         };
     }
-    getdataTopic() {
-        topic.on('value', (childSnapshot) => {
+   async getdataTopic() {
+      await  topic.on('value', async(childSnapshot) => {
             const arrayTopic = [];
-            childSnapshot.forEach((doc) => {
-                if (doc.toJSON().status == 1)
+           await childSnapshot.forEach((doc) => {
+                if (doc.toJSON().Status == 1)
                     arrayTopic.push({
-                        id: doc.toJSON().id,
-                        name_top: doc.toJSON().name_top,
-                        status: doc.toJSON().status
+                        Id: doc.key,
+                        Name_Top: doc.toJSON().Name_Top,
+                        Image : doc.toJSON().Image,
+                        Status: doc.toJSON().Status
                     });
             });
             this.setState({
@@ -62,60 +62,8 @@ export default class homeComponent extends Component {
             });
         });
     }
-    async test() {
-        try {
-            await LearnAppUser.orderByChild('id').equalTo(this.state.userData.id).on('child_added', (data) => {
-                data.key;
-                const history = {
-                    id: require('random-string')({ length: 10 }),
-                    time: '',
-                    date: '',
-                    rightSen: 0,
-                    score: 0
-                };
-                LearnAppUser.child(data.key).child('History').push(history);
-                this.setState({
-                    history: history
-                });
-                console.log(this.state.history);
-            });
-            this.props.navigation.navigate(math);
-        } catch (error) {
-            alert(error);
-        }
-    }
-    startclock = async () => {
-        var t = 5;
-        var temp = await setInterval(() => {
-            if (t != 0) {
-                t--;
-                this.setState({ count: t });
-            }
-            else {
-                Alert.alert('Thông báo', 'Cuộc thi kết thúc');
-                clearInterval(temp);
-            }
-        }, 1000);
-    };
-    deleteUser = () => {
-        firebase
-            .auth()
-            .currentUser.delete()
-            .then(async () => {
-                Alert.alert('Thông báo', 'Xóa tài khoản thành công');
-                await LearnAppRef.orderByChild('id').equalTo(this.state.userData.id).on('child_added', (data) => {
-                    data.key;
-                    LearnAppRef.child(data.key).remove();
-                });
-                await AsyncStorage.clear();
-                this.props.navigation.navigate(Login);
-            })
-            .catch((error) => {
-                Alert.alert(`${error.toString().replace('Error: ', '')}`);
-            });
-    };
     async setTopicId(id) {
-        await setItemToAsyncStorage1('id', id.toString());
+        await setItemToAsyncStorage1('idTop', id);
         Alert.alert(
             'Thông báo',
             'Bạn đã sẵn sàng làm bài?',
@@ -135,10 +83,15 @@ export default class homeComponent extends Component {
         });
     }
     async componentDidMount() {
-        const { currentUser } = firebase.auth();
-        this.setState({ currentUser });
+
         await setItemToAsyncStorage('currentScreen', Home);
-        const currentItemId = await getItemFromAsyncStorage('currentItemId');
+        await this.getdataTopic().then(()=>
+        {
+            this.gettopic();
+        }
+        );
+
+     
 
     }
     gettopic = () => {
@@ -162,10 +115,9 @@ export default class homeComponent extends Component {
                     <Image
                         style={{
                             width: 50,
-                            height: 50,
-                            tintColor: '#1E90FF'
+                            height: 50
                         }}
-                        source={require('thitracnghiem/icons/icons8-coordinate-system-80.png')}
+                        source = {{uri: item.Image}}
                     />
                     <Text
                         style={{
@@ -173,7 +125,7 @@ export default class homeComponent extends Component {
                             fontSize: 18
                         }}
                     >
-                        {item.name_top}
+                        {item.Name_Top} 
                     </Text>
                     <LinearGradient
                         start={{ x: 0, y: 0 }}
@@ -192,7 +144,7 @@ export default class homeComponent extends Component {
                                 color: 'white'
                             }}
                             onPress={() => {
-                                this.setTopicId(item.id);
+                                this.setTopicId(item.Id);
                             }}
                         >
                             Thi ngay

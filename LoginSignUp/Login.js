@@ -43,13 +43,7 @@ export default class loginComponent extends Component {
             this.setState({ showhidenPass: true });
         }
     };
-    componentDidMount() {
-        this.unsubcriber = firebase.auth().onAuthStateChanged((changedUser) => {
-            this.setState({
-                user: changedUser
-            });
-        });
-    }
+
 
     onLogin = () => {
         this.setState({

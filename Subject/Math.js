@@ -54,13 +54,56 @@ export default class MathComponent extends Component {
 			questArray : [],
 			con:1,
 			currentid:0,
-			timeleft: 90,
+			Time_Left: 0,
+			timeleft:0,
+			Max_Point: 0,
 			TTQuest : [],
+			ojbQuest: {},
+			Id_Top: '',
+			Id_Con: '',
 			right:0
 		};
 		this.onPressAdd = this.onPressAdd.bind(this);
 	}
+	getCon= async() =>
+	{
+		await AsyncStorage.getItem('idTop').then((value) => {
+            const Id_Top = value;
+            this.setState({
+				Id_Top: Id_Top
+			})
+			con.orderByChild("Id_Top").equalTo(Id_Top).once("value",async(value)=>
+			{
+				if (value.exists())
+				{
+					var listCon=[];
+				await value.forEach((data)=>
+					{
+						if (data.toJSON().Status==1)
+						listCon.push(
+							{
+								Id_Con:data.key,
+								Max_Point: data.toJSON().Max_Point,
+								Time_Left : data.toJSON().Time_Left,
+								timeleft :  data.toJSON().Time_Left
+							}
+						)
+					})
+					var leng=listCon.length;
+					var x = Math.floor((Math.random() * leng) + 1);
+					this.setState(
+						{
+							Id_Con : listCon[x-1].Id_Con,
+							Max_Point : listCon[x-1].Max_Point,
+							Time_Left : listCon[x-1].Time_Left,
+						}
+					);
 
+					this.getInclude();
+				}
+			})
+        });
+	}
 	changeAw = (index,id) => {
 			var arr= [true,true,true,true];	
 			var res= this.state.ls;
@@ -135,52 +178,26 @@ export default class MathComponent extends Component {
 	};
 	 getInclude = async() =>{
 		var arr=[];
-		var kt=true;
-	await inc.orderByChild('id_con').equalTo(this.state.con).on('value',async(childSnapshot)=>{
+	await inc.orderByChild('Id_Con').equalTo(this.state.Id_Con).on('value',async(childSnapshot)=>{
 			childSnapshot.forEach(async(doc)=>{
-					arr.push(doc.toJSON().id_quest);
-					if(kt)
-					{
-						kt=false;
-						await this.getquestfirst(doc.toJSON().id_quest);					
-					}	
-				
+					arr.push(doc.toJSON().Id_Ques);			
+					this.setState(
+						{TTQuest: arr}
+					)
 			});
+			await	quest.on('value', async(childSnapshot)=>{
+				var questitem={};
+					questitem=await childSnapshot.val();
+					this.setState({
+						ojbQuest: questitem
+					})
+					console.log(this.state.ojbQuest);
+			});
+		
 		});
-			this.setState(
-			{
-				TTQuest: arr
-			});
-
-			
+	
 	
 	}
-	getquestfirst= async(id)=>{
-
-		await quest.orderByChild('id').equalTo(id).on('value', async(childSnapshot)=>{
-				var questitem={};
-				childSnapshot.forEach((doc)=>{
-					if (doc.toJSON().status==1)
-					questitem = {
-						
-						id: doc.toJSON().id,
-						id_top: doc.toJSON().id_top,
-						status: doc.toJSON().status,
-						content_ques: doc.toJSON().content_ques,
-						a1: doc.toJSON().a1,
-						a2: doc.toJSON().a2,
-						a3: doc.toJSON().a3,
-						a4: doc.toJSON().a4,
-						a: doc.toJSON().a,
-					};
-				});
-				
-				await  this.setState({
-					currentid: 0,
-					questitem: questitem
-				});
-			});
-		}
 	 getquestwithid= async(index)=>{
 	await quest.orderByChild('id').equalTo(this.state.TTQuest[index]).on('value', async(childSnapshot)=>{
 			var questitem={};
@@ -188,15 +205,15 @@ export default class MathComponent extends Component {
 				if (doc.toJSON().status==1)
 				questitem = {
 					
-					id: doc.toJSON().id,
-					id_top: doc.toJSON().id_top,
-					status: doc.toJSON().status,
-					content_ques: doc.toJSON().content_ques,
-					answer1: doc.toJSON().answer1,
-					answer2: doc.toJSON().answer2,
-					answer3: doc.toJSON().answer3,
-					answer4: doc.toJSON().answer4,
-					answer: doc.toJSON().answer,
+					Id: doc.key,
+				Id_Top: doc.toJSON().Id_Top,
+					status: doc.toJSON().Status,
+					Content_Ques: doc.toJSON().Content_Ques,
+					Answer1: doc.toJSON().Answer1,
+					Answer2: doc.toJSON().Answer2,
+					Answer3: doc.toJSON().Answer3,
+					Answer4: doc.toJSON().Answer4,
+					Answer: doc.toJSON().Answer,
 				};
 			});
 			await  this.setState({
@@ -215,27 +232,14 @@ export default class MathComponent extends Component {
 		}
 	}
 	async componentDidMount() {
-		const { currentUser } = firebase.auth();
-		this.setState({ currentUser });
+
 		await setItemToAsyncStorage('currentScreen', Home);
-		const id = await getItemFromAsyncStorage('id');
-			await this.getInclude();
-		await AsyncStorage.getItem('userData').then((value) => {
-			const userData = JSON.parse(value);
-			this.setState({
-				id: id,
-				userData: userData
-			});
-			const shortEmail = this.state.userData.email.split('@').shift();
-			this.setState({
-				typedEmail: this.state.userData.email,
-				shortEmail: shortEmail
-			});
-		});
+		await this.getCon();
+			
+
 	}
 	render() {
-		if (this.state.TTQuest.length>0)
-		{
+
 		return (
 			<View style={styles.contain}>
 				 <ImageBackground source = {require('thitracnghiem/img/70331284_752704455184910_2392173157533351936_n.jpg')} style={{width: '100%', height: '100%'}}>
@@ -537,8 +541,6 @@ export default class MathComponent extends Component {
 				 </ImageBackground>
 			</View>
 		);
-					}
-					else return null;
 	}
 }
 const styles = StyleSheet.create({
