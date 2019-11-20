@@ -30,7 +30,6 @@ export default class homeComponent extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            loading: false,
             email: '',
             currentItemId: '',
             itemData: {},
@@ -63,7 +62,6 @@ export default class homeComponent extends Component {
         });
     }
     async setTopicId(id) {
-        await setItemToAsyncStorage1('idTop', id);
         Alert.alert(
             'Thông báo',
             'Bạn đã sẵn sàng làm bài?',
@@ -72,15 +70,12 @@ export default class homeComponent extends Component {
                 {
                     text: 'Sẵn sàng',
                     onPress: async () => {
-                        this.props.navigation.navigate(math);
+                        this.props.navigation.navigate(math,{Id_Top:id});
                     }
                 }
             ],
             { cancelable: true }
         );
-        this.setState({
-            loading: true
-        });
     }
     async componentDidMount() {
 
@@ -201,21 +196,7 @@ export default class homeComponent extends Component {
                         >
                             {this.gettopic()}
                         </View>
-                        {this.state.loading ? (
-                            <View
-                                style={{
-                                    position: 'absolute',
-                                    left: 0,
-                                    right: 0,
-                                    top: 0,
-                                    bottom: 0,
-                                    alignItems: 'center',
-                                    justifyContent: 'center'
-                                }}
-                            >
-                                <ActivityIndicator size={70} />
-                            </View>
-                        ) : null}
+            
                     </ScrollView>
                     <Footer {...this.props} />
                 </ImageBackground>

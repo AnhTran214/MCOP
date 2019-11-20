@@ -25,22 +25,7 @@ export default class FooterSub extends Component {
         Alert.alert('Thông báo', 'Nộp bài thành công');
     };
     async componentDidMount() {
-        const { currentUser } = firebase.auth();
-        this.setState({ currentUser });
-        await setItemToAsyncStorage('currentScreen', Home);
-        const currentItemId = await getItemFromAsyncStorage('currentItemId');
-        await AsyncStorage.getItem('userData').then((value) => {
-            const userData = JSON.parse(value);
-            this.setState({
-                currentItemId: currentItemId,
-                userData: userData
-            });
-            const shortEmail = this.state.userData.email.split('@').shift();
-            this.setState({
-                typedEmail: this.state.userData.email,
-                shortEmail: shortEmail
-            });
-        });
+      
     }
     render() {
         const { currentUser } = this.state;
