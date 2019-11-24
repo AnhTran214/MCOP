@@ -13,22 +13,32 @@ export default class HeaderDrawer extends Component {
         this.state = {
             loading: false,
             userData: {},
-            currentUser: null
+            key: ''
         };
     }
-    async componentDidMount() {
-        const { currentUser } = firebase.auth();
-        this.setState({ currentUser });
-        await setItemToAsyncStorage('currentScreen', Home);
-        await AsyncStorage.getItem('userData').then((value) => {
-            const userData = JSON.parse(value);
-         for( var key in userData)
-         { 
+    getUser = async()=>
+    {
+        await firebase.database().ref('Customer/'+this.state.key).on("value",(value)=>
+        {
+        
+           if (value.exists())
+           {
             this.setState({
-                userData:  userData[key]
+                userData:  value.toJSON()
             }); 
-         }            
-        });
+             
+           }
+        }) 
+    }
+    async componentDidMount() {
+        await setItemToAsyncStorage('currentScreen', Home);
+       var key= await AsyncStorage.getItem('key');
+        this.setState(
+            {
+                key:key
+            }
+        )
+            await this.getUser();
     }
     render() {
         return (
@@ -44,7 +54,7 @@ export default class HeaderDrawer extends Component {
                 }}
             >
                 {
-                    this.state.userData ?
+                    this.state.userData &&  this.state.userData.Image!=''?
                         <Image
                             style={{ width: 50, height: 50 }}
                             source = {{uri: this.state.userData.Image}}

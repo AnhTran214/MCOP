@@ -14,10 +14,10 @@ import {
 import firebase from 'react-native-firebase';
 import Button from 'react-native-button';
 import { SignUp, Home, fopass } from 'thitracnghiem/Navigation/screenName';
-import { setItemToAsyncStorage } from 'thitracnghiem/Function/function';
+import { setItemToAsyncStorage,setItemToAsyncStorage1 } from 'thitracnghiem/Function/function';
 /*import OfflineNotice from 'PhanAnh/miniComponent/OfflineNotice' */
 import LinearGradient from 'react-native-linear-gradient';
-
+import md5 from 'md5';
 const LearnAppRefUsers = firebase.database().ref('Customer');
 export default class loginComponent extends Component {
     constructor(props) {
@@ -59,10 +59,11 @@ export default class loginComponent extends Component {
                 if (value.exists()) {
                     value.forEach(async(data)=>
                     {
-                        if (data.toJSON().Password == this.state.typedPassword) {
+                        if (data.toJSON().Password == md5(this.state.typedPassword)) {
                             if (data.toJSON().Status == 1) {
     
                                await setItemToAsyncStorage('userData', value.toJSON());
+                               await setItemToAsyncStorage1('key', data.key);
                                 this.setState({
                                     loading: false
                                 });
@@ -142,7 +143,7 @@ export default class loginComponent extends Component {
                                     autoCapitalize='none'
                                     placeholder='Tài khoản'
                                     editable={true}
-                                    maxLength={50}
+                                    maxLength={100}
                                     onChangeText={(text) => {
                                         this.setState({ typedEmail: text });
                                     }}
@@ -160,7 +161,7 @@ export default class loginComponent extends Component {
                                     source={require('thitracnghiem/icons/56255.png')}
                                 />
                                 <TextInput
-                                    style={[styles.multilineBox]}
+                                    style={[styles.multilineBox1]}
                                     keyboardType='default'
                                     placeholderTextColor='white'
                                     underlineColorAndroid='transparent'
@@ -169,7 +170,7 @@ export default class loginComponent extends Component {
                                     placeholder='Mật khẩu'
                                     /* multiline={true} */
                                     editable={true}
-                                    maxLength={50}
+                                    maxLength={100}
                                     onChangeText={(text) => {
                                         this.setState({ typedPassword: text });
                                     }}
@@ -313,6 +314,19 @@ const styles = StyleSheet.create({
         marginLeft: '10%',
         marginRight: '2%',
         borderRadius: 5,
+        color: 'white'
+    },
+      multilineBox1: {
+        width: '80%',
+        height: 50,
+        marginTop: 20,
+        borderColor: 'rgba(255,255,255,0.7)',
+        borderBottomWidth: 1,
+        textAlignVertical: 'top',
+        marginLeft: '10%',
+        marginRight: '2%',
+        borderRadius: 5,
+        paddingRight:40,
         color: 'white'
     },
     propertyValueRowView: {

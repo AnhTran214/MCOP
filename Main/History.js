@@ -18,6 +18,7 @@ import { setItemToAsyncStorage, getItemFromAsyncStorage } from 'thitracnghiem/Fu
 import Header from 'thitracnghiem/subComponent/Header';
 import Footer from 'thitracnghiem/subComponent/footer';
 import LinearGradient from 'react-native-linear-gradient';
+import { thisExpression } from '@babel/types';
 
 export default class HistoryCom extends Component {
     static navigationOptions = ({ navigation }) => {
@@ -35,7 +36,11 @@ export default class HistoryCom extends Component {
         super(props);
         this.state = {
             sen: 50,
-            point: 100
+            point: 100,
+            key: '',
+            his: [],
+            objCon: {},
+            objTop: {},
         };
     }
     total = () => {
@@ -49,6 +54,91 @@ export default class HistoryCom extends Component {
             this.setState({ point: p - 2 });
         }
     };
+    getHis = async () => {
+        await firebase.database().ref("Result").orderByChild('Id_Cus').equalTo(this.state.key).limitToLast(3).on("value", (value) => {
+            if (value.exists()) {
+                var his = [];
+                value.forEach((element) => {
+
+                    his.push(element.toJSON());
+                })
+                his.reverse();
+                this.setState({ his: his });
+            }
+        })
+    }
+    getTop = async () => {
+        await firebase.database().ref("Topic").on("value", (value) => {
+            if (value.exists()) {
+                this.setState({ objTop: value.val() });
+            }
+        })
+    }
+    getCon = async () => {
+        await firebase.database().ref("Contest").on("value", (value) => {
+            if (value.exists()) {
+                this.setState({ objCon: value.val() });
+            }
+        })
+    }
+    async  componentDidMount() {
+        await AsyncStorage.getItem('userData').then((value) => {
+            const userData = JSON.parse(value);
+            for (var key in userData) {
+                this.setState({
+                    key: key,
+                });
+                return;
+            }
+        });
+        await this.getHis();
+        await this.getCon();
+        await this.getTop();
+
+    }
+    changDate = (date) => {
+        var d = new Date(date);
+        return d.getDate() + "/" + d.getMonth() + "/" + d.getFullYear();
+    }
+    changeTime = (time) => {
+        var min = parseInt(time / 60);
+        var sec = time % 60;
+        if (min < 10 && min > 0) min = '0' + min;
+        if (sec < 10 && sec > 0) sec = '0' + sec;
+        return min + ' phút ' + sec + ' s'
+    }
+    showHis = () => {
+        var show_his = [];
+        this.state.his.forEach((element, index) => {
+            show_his.push(
+                <View
+                    key={index}
+                    style={{
+                        width: '85%',
+                        padding: 5,
+                        flexDirection: 'row',
+                        borderWidth: 2,
+                        borderColor: '#1E90FF',
+                        margin: '2%',
+                        alignSelf: 'center',
+                        borderRadius: 10
+                    }}
+                >
+                    <View style={{ justifyContent: 'center', width: '25%' }}>
+                        <Text style={{ color: 'white', fontSize: 15, opacity: 0.7, textAlign: 'center' }}>{this.state.objCon.hasOwnProperty(element.Id_Con) && this.state.objTop.hasOwnProperty(this.state.objCon[element.Id_Con].Id_Top) ? this.state.objTop[this.state.objCon[element.Id_Con].Id_Top].Name_Top : "NULL"}</Text>
+                    </View>
+                    <View style={{ flexDirection: 'column', margin: '3%', width: '75%' }}>
+                        <Text style={{ color: 'white' }}>Ngày: {this.changDate(element.Date_Res)}</Text>
+                        <Text style={{ color: 'white' }}>Thời gian: {this.changeTime(element.TimeLeft_Res)}</Text>
+                        <Text style={{ color: 'white' }}>{element.Point} điểm</Text>
+                    </View>
+                </View>
+            )
+        });
+        if (show_his.length == 0)
+            return null
+        else return show_his;
+    }
     render() {
         return (
             <View
@@ -77,69 +167,7 @@ export default class HistoryCom extends Component {
                     </Text>
                     <ScrollView>
                         <View>
-                            <View
-                                style={{
-                                    width: '85%',
-                                    padding: 5,
-                                    flexDirection: 'row',
-                                    borderWidth: 2,
-                                    borderColor: '#1E90FF',
-                                    margin: '2%',
-                                    alignSelf: 'center',
-                                    borderRadius: 10
-                                }}
-                            >
-                                <View style={{ justifyContent: 'center' }}>
-                                    <Text style={{ color: 'white', fontSize: 20, opacity: 0.7 }}>Toán</Text>
-                                </View>
-                                <View style={{ flexDirection: 'column', margin: '3%' }}>
-                                    <Text style={{ color: 'white' }}>Ngày: 17/11/2019</Text>
-                                    <Text style={{ color: 'white' }}>Thời gian: 85 phút 00 giây</Text>
-                                    <Text style={{ color: 'white' }}>80 điểm</Text>
-                                </View>
-                            </View>
-                            <View
-                                style={{
-                                    width: '85%',
-                                    padding: 5,
-                                    flexDirection: 'row',
-                                    borderWidth: 2,
-                                    borderColor: '#1E90FF',
-                                    margin: '2%',
-                                    alignSelf: 'center',
-                                    borderRadius: 10
-                                }}
-                            >
-                                <View style={{ justifyContent: 'center' }}>
-                                    <Text style={{ color: 'white', fontSize: 20, opacity: 0.7 }}>Văn</Text>
-                                </View>
-                                <View style={{ flexDirection: 'column', margin: '3%' }}>
-                                    <Text style={{ color: 'white' }}>Ngày: 10/11/2019</Text>
-                                    <Text style={{ color: 'white' }}>Thời gian: 90 phút 00 giây</Text>
-                                    <Text style={{ color: 'white' }}>90 điểm</Text>
-                                </View>
-                            </View>
-                            <View
-                                style={{
-                                    width: '85%',
-                                    padding: 5,
-                                    flexDirection: 'row',
-                                    borderWidth: 2,
-                                    borderColor: '#1E90FF',
-                                    margin: '2%',
-                                    alignSelf: 'center',
-                                    borderRadius: 10
-                                }}
-                            >
-                                <View style={{ justifyContent: 'center' }}>
-                                    <Text style={{ color: 'white', fontSize: 20, opacity: 0.7 }}>Anh</Text>
-                                </View>
-                                <View style={{ flexDirection: 'column', margin: '3%' }}>
-                                    <Text style={{ color: 'white' }}>Ngày: 1/11/2019</Text>
-                                    <Text style={{ color: 'white' }}>Thời gian: 87 phút 00 giây</Text>
-                                    <Text style={{ color: 'white' }}>100 điểm</Text>
-                                </View>
-                            </View>
+                            {this.showHis()}
                         </View>
                         <View />
                     </ScrollView>

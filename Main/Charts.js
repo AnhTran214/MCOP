@@ -8,6 +8,7 @@ import {
     StatusBar,
     ScrollView,
     TextInput,
+    FlatList,
     StyleSheet,
     ImageBackground
 } from 'react-native';
@@ -18,6 +19,7 @@ import { setItemToAsyncStorage, getItemFromAsyncStorage } from 'thitracnghiem/Fu
 import Header from 'thitracnghiem/subComponent/Header';
 import Footer from 'thitracnghiem/subComponent/footer';
 import LinearGradient from 'react-native-linear-gradient';
+import { validate, nullLiteral } from '@babel/types';
 
 export default class chartsComponent extends Component {
     static navigationOptions = ({ navigation }) => {
@@ -35,20 +37,363 @@ export default class chartsComponent extends Component {
         super(props);
         this.state = {
             sen: 50,
-            point: 100
+            point: 100,
+            objTop: {},
+            objCon: {},
+            objCus: {},
+            listTop: [],
+            listRes: [],
+            Id_Top: '',
+            key: '',
+            index: 0,
+            point: 0
         };
     }
-    total = () => {
-        var s = 50;
-        var p = 100;
-        if (s === 50) {
-            this.setState({ point: p });
+    getCus = async () => {
+        await firebase.database().ref("Customer").on("value", (value) => {
+            if (value.exists()) {
+                this.setState({ objCus: value.val() });
+            }
+        })
+    }
+    getCon = async () => {
+        await firebase.database().ref("Contest").on("value", (value) => {
+            if (value.exists()) {
+                this.setState({ objCon: value.val() });
+                this.getRes();
+            }
+        })
+    }
+    getRes = async () => {
+        await firebase.database().ref("Result").orderByChild('Point').on("value", (value) => {
+            if (value.exists()) {
+                var arr = [];
+                var index = 0;
+                var point = 0;
+                var _index = 0;
+                var tt_index=0;
+                value.forEach((element) => {
+                    if (this.state.objCon[element.toJSON().Id_Con].Id_Top == this.state.Id_Top) {
+                        arr.push(
+                            element.toJSON()
+                        );
+                        index++;
+                        if (element.toJSON().Id_Cus == this.state.key) {
+                            _index = index;
+                            point = element.toJSON().Point;
+                        }
+                    }
+                });
+                arr.reverse();
+                if (_index>0) 
+                {
+                    tt_index=index - _index + 1
+                }
+                this.setState({
+                    listRes: arr,
+                    point: point,
+                    index: tt_index
+                })
+            }
+        })
+    }
+
+    getTop = async () => {
+        await firebase.database().ref("Topic").orderByChild("Status").equalTo(1).on("value", (value) => {
+            if (value.exists()) {
+                this.setState({ objTop: value.val() });
+                var arr = [];
+                var free = 1;
+                value.forEach((element) => {
+                    if (free) {
+                        this.setState({ Id_Top: element.key });
+                        free = 0;
+                    }
+                    arr.push(
+                        {
+                            Id: element.key,
+                            Name_Top: element.toJSON().Name_Top,
+                            Status: element.toJSON().Status
+                        });
+                })
+                this.setState({
+                    listTop: arr
+                })
+                this.getCon();
+            }
+        })
+    }
+    async componentDidMount() {
+        await AsyncStorage.getItem('userData').then((value) => {
+            const userData = JSON.parse(value);
+            for (var key in userData) {
+                this.setState({
+                    key: key,
+                });
+                return;
+            }
+        });
+        await this.getTop();
+        await this.getCus();
+    }
+    setIdTop = async (id) => {
+        this.setState({
+            Id_Top: id
+        });
+        this.getRes();
+    }
+    getTopRes=()=>
+    {
+        var arr=[];
+        var last=-1;
+        this.state.listRes.forEach((element,index)=>
+        {
+            last=index;
+            if (this.state.objCus.hasOwnProperty(element.Id_Cus))
+            {
+                if (index==0)
+                {
+                    arr.push(
+                        <View
+                        key={index}
+                        style={{
+                            width: '85%',
+                            padding: 5,
+                            flexDirection: 'row',
+                            borderWidth: 2,
+                            borderColor: '#1E90FF',
+                            margin: '2%',
+                            alignSelf: 'center',
+
+                        }}
+                    >
+                        <View style={{ alignSelf: 'center' }}>
+                            <Image
+                                style={{
+                                    width: 50,
+                                    height: 50,
+                                    alignContent: 'center'
+                                }}
+                                source={require('thitracnghiem/icons/icons8-trophy-96.png')}
+                            />
+                        </View>
+                        <View style={{ flexDirection: 'column', margin: '1%' }}>
+                            <Text style={{ color: 'white' }}>Hạng 1</Text>
+                            <Text style={{ color: 'white' }}> Tài khoản : {this.state.objCus[element.Id_Cus].Username}</Text>
+                            <Text style={{ color: 'white' }}>{element.Point} điểm</Text>
+                        </View>
+                    </View>
+                    )
+                }
+                else
+                if (index==1)
+                {
+                    arr.push(
+                    <View
+                    key={index}
+                    style={{
+                        width: '85%',
+                        padding: 5,
+                        flexDirection: 'row',
+                        borderWidth: 2,
+                        borderColor: '#1E90FF',
+                        margin: '2%',
+                        alignSelf: 'center'
+                    }}
+                >
+                    <Image
+                        style={{
+                            width: 50,
+                            height: 50
+                        }}
+                        source={require('thitracnghiem/icons/icons8-medal-second-place-80.png')}
+                    />
+                    <View style={{ flexDirection: 'column', margin: '1%' }}>
+                        <Text style={{ color: 'white' }}>Hạng 2</Text>
+                        <Text style={{ color: 'white' }}> Tài khoản : {this.state.objCus[element.Id_Cus].Username}</Text>
+                            <Text style={{ color: 'white' }}>{element.Point} điểm</Text>
+                    </View>
+                </View>)
+                }
+                else
+                if (index==2)
+                {
+                    arr.push(
+                    <View
+                    key={index}
+                    style={{
+                        width: '85%',
+                        padding: 5,
+                        flexDirection: 'row',
+                        borderWidth: 2,
+                        borderColor: '#1E90FF',
+                        margin: '2%',
+                        alignSelf: 'center'
+                    }}
+                >
+                    <Image
+                        style={{
+                            width: 50,
+                            height: 50
+                        }}
+                        source={require('thitracnghiem/icons/icons8-medal-third-place-80.png')}
+                    />
+                    <View style={{ flexDirection: 'column', margin: '1%' }}>
+                        <Text style={{ color: 'white' }}>Hạng 3</Text>
+                        <Text style={{ color: 'white' }}> Tài khoản : {this.state.objCus[element.Id_Cus].Username}</Text>
+                            <Text style={{ color: 'white' }}>{element.Point} điểm</Text>
+                    </View>
+                </View>)
+                }
+                else
+                {
+                    arr.push(
+                        <View
+                        key={index}
+                        style={{
+                            width: '85%',
+                            padding: 5,
+                            flexDirection: 'row',
+                            borderWidth: 2,
+                            borderColor: '#1E90FF',
+                            margin: '2%',
+                            alignSelf: 'center'
+                        }}
+                    >
+                        <View style={{ flexDirection: 'column', margin: '1%' }}>
+                            <Text style={{ color: 'white' }}>Hạng {index +1}</Text>
+                            <Text style={{ color: 'white' }}> Tài khoản : {this.state.objCus[element.Id_Cus].Username}</Text>
+                            <Text style={{ color: 'white' }}>{element.Point} điểm</Text>
+                        </View>
+                    </View>
+                    )
+                }
+            }
+        })
+        for (let index=last+1;index<10;index++)
+        {
+            if (index==0)
+            {
+                arr.push(
+                    <View
+                    key={index}
+                    style={{
+                        width: '85%',
+                        padding: 5,
+                        flexDirection: 'row',
+                        borderWidth: 2,
+                        borderColor: '#1E90FF',
+                        margin: '2%',
+                        alignSelf: 'center',
+
+                    }}
+                >
+                    <View style={{ alignSelf: 'center' }}>
+                        <Image
+                            style={{
+                                width: 50,
+                                height: 50,
+                                alignContent: 'center'
+                            }}
+                            source={require('thitracnghiem/icons/icons8-trophy-96.png')}
+                        />
+                    </View>
+                    <View style={{ flexDirection: 'column', margin: '1%' }}>
+                        <Text style={{ color: 'white' }}>Hạng 1</Text>
+                        <Text style={{ color: 'white' }}> Tài khoản : Không có</Text>
+                        <Text style={{ color: 'white' }}> 0 điểm</Text>
+                    </View>
+                </View>
+                )
+            }
+            else
+            if (index==1)
+            {
+                arr.push(
+                <View
+                key={index}
+                style={{
+                    width: '85%',
+                    padding: 5,
+                    flexDirection: 'row',
+                    borderWidth: 2,
+                    borderColor: '#1E90FF',
+                    margin: '2%',
+                    alignSelf: 'center'
+                }}
+            >
+                <Image
+                    style={{
+                        width: 50,
+                        height: 50
+                    }}
+                    source={require('thitracnghiem/icons/icons8-medal-second-place-80.png')}
+                />
+                <View style={{ flexDirection: 'column', margin: '1%' }}>
+                    <Text style={{ color: 'white' }}>Hạng 2</Text>
+                    <Text style={{ color: 'white' }}> Tài khoản : Không có</Text>
+                        <Text style={{ color: 'white' }}> 0 điểm</Text>
+                </View>
+            </View>)
+            }
+            else
+            if (index==2)
+            {
+                arr.push(
+                <View
+                key={index}
+                style={{
+                    width: '85%',
+                    padding: 5,
+                    flexDirection: 'row',
+                    borderWidth: 2,
+                    borderColor: '#1E90FF',
+                    margin: '2%',
+                    alignSelf: 'center'
+                }}
+            >
+                <Image
+                    style={{
+                        width: 50,
+                        height: 50
+                    }}
+                    source={require('thitracnghiem/icons/icons8-medal-third-place-80.png')}
+                />
+                <View style={{ flexDirection: 'column', margin: '1%' }}>
+                    <Text style={{ color: 'white' }}>Hạng 3</Text>
+                    <Text style={{ color: 'white' }}> Tài khoản : Không có</Text>
+                        <Text style={{ color: 'white' }}> 0 điểm</Text>
+                </View>
+            </View>)
+            }
+            else
+            {
+                arr.push(
+                    <View
+                    key={index}
+                    style={{
+                        width: '85%',
+                        padding: 5,
+                        flexDirection: 'row',
+                        borderWidth: 2,
+                        borderColor: '#1E90FF',
+                        margin: '2%',
+                        alignSelf: 'center'
+                    }}
+                >
+                    <View style={{ flexDirection: 'column', margin: '1%' }}>
+                        <Text style={{ color: 'white' }}>Hạng {index +1}</Text>
+                       <Text style={{ color: 'white' }}> Tài khoản : Không có</Text>
+                        <Text style={{ color: 'white' }}> 0 điểm</Text>
+                    </View>
+                </View>
+                )
+            }
         }
-        for (var i = s - 1; i >= 0; i--) {
-            this.setState({ sen: i });
-            this.setState({ point: p - 2 });
-        }
-    };
+        if (arr.length==0) return null
+        else
+     return arr;
+    }
     render() {
         return (
             <View
@@ -75,90 +420,58 @@ export default class chartsComponent extends Component {
                     >
                         Bảng xếp hạng
                     </Text>
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                        <LinearGradient
-                            start={{ x: 0, y: 0 }}
-                            end={{ x: 1, y: 0 }}
-                            colors={[ 'rgb(86, 123, 248)', 'rgb(95,192,255)' ]}
-                            style={{
-                                width: 100,
-                                height: 50,
-                                backgroundColor: 'white',
-                                alignSelf: 'center',
-                                margin: '2%',
-                                borderRadius: 10
-                            }}
-                        >
-                            <Button
-                                containerStyle={{
-                                    width: 100,
-                                    height: 50,
-                                    justifyContent: 'center'
-                                }}
-                                style={{ alignSelf: 'center', color: 'white' }}
-                            >
-                                Toán
-                            </Button>
-                        </LinearGradient>
-                        <LinearGradient
-                            start={{ x: 0, y: 0 }}
-                            end={{ x: 1, y: 0 }}
-                            colors={[ 'rgb(86, 123, 248)', 'rgb(95,192,255)' ]}
-                            style={{
-                                width: 100,
-                                height: 50,
-                                backgroundColor: 'white',
-                                alignSelf: 'center',
-                                margin: '2%',
-                                borderRadius: 10
-                            }}
-                        >
-                            <Button
-                                containerStyle={{
-                                    width: 100,
-                                    height: 50,
-                                    justifyContent: 'center'
-                                }}
-                                style={{ alignSelf: 'center', color: 'white' }}
-                            >
-                                Văn
-                            </Button>
-                        </LinearGradient>
-                        <LinearGradient
-                            start={{ x: 0, y: 0 }}
-                            end={{ x: 1, y: 0 }}
-                            colors={[ 'rgb(86, 123, 248)', 'rgb(95,192,255)' ]}
-                            style={{
-                                width: 100,
-                                height: 50,
-                                backgroundColor: 'white',
-                                alignSelf: 'center',
-                                margin: '2%',
-                                borderRadius: 10
-                            }}
-                        >
-                            <Button
-                                containerStyle={{
-                                    width: 100,
-                                    height: 50,
-                                    justifyContent: 'center'
-                                }}
-                                style={{ alignSelf: 'center', color: 'white' }}
-                            >
-                                Anh
-                            </Button>
-                        </LinearGradient>
-                    </View>
+                    <FlatList
+                        horizontal={true}
+                        data={this.state.listTop}
+                        keyExtractor={item => item.id}
+                        contentContainerStyle={{ flexGrow: 1, justifyContent: 'space-between', paddingHorizontal: '3%' }}
+                        renderItem={({ item, index }) => {
+                            return (
+                                <View
+                                 key={index}>
+                                <LinearGradient
+                                    start={{ x: 0, y: 0 }}
+                                    end={{ x: 1, y: 0 }}
+                                    colors={['rgb(86, 123, 248)', 'rgb(95,192,255)']}
+                                    style={{
+                                        width: 100,
+                                        height: 50,
+                                        marginBottom: 70,
+                                        backgroundColor: 'white',
+                                        borderRadius: 10
+                                    }}
+                                >
+                                    <Button
+                                        containerStyle={{
+                                            width: 100,
+                                            height: 50,
+                                            justifyContent: 'center'
+
+                                        }}
+                                        onPress={async () => {
+                                            this.setIdTop(item.Id);
+                                        }}
+                                        style={{ alignSelf: 'center', color: 'white' }}
+                                    >
+                                        {item.Name_Top}
+                                    </Button>
+                                </LinearGradient>
+                                </View>
+                            );
+                        }}
+
+                    />
+    
+                        <View style={{flexGrow:1}}>
                     <LinearGradient
                         start={{ x: 0, y: 0 }}
                         end={{ x: 1, y: 0 }}
-                        colors={[ 'rgb(86, 123, 248)', 'rgb(95,192,255)' ]}
+                        colors={['rgb(86, 123, 248)', 'rgb(95,192,255)']}
                         style={{
                             width: '95%',
                             height: 120,
                             backgroundColor: 'white',
                             alignSelf: 'center',
-                            margin: '2%'
                         }}
                     >
                         <Text
@@ -182,231 +495,29 @@ export default class chartsComponent extends Component {
                                     color: 'white'
                                 }}
                             >
-                                Điểm
-                            </Text>
+                                {this.state.point} điểm
+                                </Text>
                             <Text
                                 style={{
                                     color: 'white'
                                 }}
                             >
-                                Hạng
+                                Hạng  {this.state.index}
                             </Text>
+
+
                         </View>
                     </LinearGradient>
+                    </View>
+        
                     <ScrollView>
-                        <View>
-                            <View
-                                style={{
-                                    width: '85%',
-                                    padding: 5,
-                                    flexDirection: 'row',
-                                    borderWidth: 2,
-                                    borderColor: '#1E90FF',
-                                    margin: '2%',
-                                    alignSelf: 'center'
-                                }}
-                            >
-                                <Image
-                                    style={{
-                                        width: 50,
-                                        height: 50
-                                    }}
-                                    source={require('thitracnghiem/icons/icons8-trophy-96.png')}
-                                />
-                                <View style={{ flexDirection: 'column', margin: '1%' }}>
-                                    <Text style={{ color: 'white' }}>Hạng 1</Text>
-                                    <Text style={{ color: 'white' }}>50 câu toán</Text>
-                                    <Text style={{ color: 'white' }}>100 điểm</Text>
-                                </View>
-                            </View>
-                            <View
-                                style={{
-                                    width: '85%',
-                                    padding: 5,
-                                    flexDirection: 'row',
-                                    borderWidth: 2,
-                                    borderColor: '#1E90FF',
-                                    margin: '2%',
-                                    alignSelf: 'center'
-                                }}
-                            >
-                                <Image
-                                    style={{
-                                        width: 50,
-                                        height: 50
-                                    }}
-                                    source={require('thitracnghiem/icons/icons8-medal-second-place-80.png')}
-                                />
-                                <View style={{ flexDirection: 'column', margin: '1%' }}>
-                                    <Text style={{ color: 'white' }}>Hạng 2</Text>
-                                    <Text style={{ color: 'white' }}>45 câu toán</Text>
-                                    <Text style={{ color: 'white' }}>90 câu điểm</Text>
-                                </View>
-                            </View>
-                            <View
-                                style={{
-                                    width: '85%',
-                                    padding: 5,
-                                    flexDirection: 'row',
-                                    borderWidth: 2,
-                                    borderColor: '#1E90FF',
-                                    margin: '2%',
-                                    alignSelf: 'center'
-                                }}
-                            >
-                                <Image
-                                    style={{
-                                        width: 50,
-                                        height: 50
-                                    }}
-                                    source={require('thitracnghiem/icons/icons8-medal-third-place-80.png')}
-                                />
-                                <View style={{ flexDirection: 'column', margin: '1%' }}>
-                                    <Text style={{ color: 'white' }}>Hạng 3</Text>
-                                    <Text style={{ color: 'white' }}>40 câu toán</Text>
-                                    <Text style={{ color: 'white' }}>80 câu điểm</Text>
-                                </View>
-                            </View>
-                            <View
-                                style={{
-                                    width: '85%',
-                                    padding: 5,
-                                    flexDirection: 'row',
-                                    borderWidth: 2,
-                                    borderColor: '#1E90FF',
-                                    margin: '2%',
-                                    alignSelf: 'center'
-                                }}
-                            >
-                                <View style={{ flexDirection: 'column', margin: '1%' }}>
-                                    <Text style={{ color: 'white' }}>Hạng 4</Text>
-                                    <Text style={{ color: 'white' }}>40 câu toán</Text>
-                                    <Text style={{ color: 'white' }}>80 câu điểm</Text>
-                                </View>
-                            </View>
-                            <View
-                                style={{
-                                    width: '85%',
-                                    padding: 5,
-                                    flexDirection: 'row',
-                                    borderWidth: 2,
-                                    borderColor: '#1E90FF',
-                                    margin: '2%',
-                                    alignSelf: 'center'
-                                }}
-                            >
-                                <View style={{ flexDirection: 'column', margin: '1%' }}>
-                                    <Text style={{ color: 'white' }}>Hạng 5</Text>
-                                    <Text style={{ color: 'white' }}>40 câu toán</Text>
-                                    <Text style={{ color: 'white' }}>80 câu điểm</Text>
-                                </View>
-                            </View>
-                            <View
-                                style={{
-                                    width: '85%',
-                                    padding: 5,
-                                    flexDirection: 'row',
-                                    borderWidth: 2,
-                                    borderColor: '#1E90FF',
-                                    margin: '2%',
-                                    alignSelf: 'center'
-                                }}
-                            >
-                                <View style={{ flexDirection: 'column', margin: '1%' }}>
-                                    <Text style={{ color: 'white' }}>Hạng 6</Text>
-                                    <Text style={{ color: 'white' }}>40 câu toán</Text>
-                                    <Text style={{ color: 'white' }}>80 câu điểm</Text>
-                                </View>
-                            </View>
-                            <View
-                                style={{
-                                    width: '85%',
-                                    padding: 5,
-                                    flexDirection: 'row',
-                                    borderWidth: 2,
-                                    borderColor: '#1E90FF',
-                                    margin: '2%',
-                                    alignSelf: 'center'
-                                }}
-                            >
-                                <View style={{ flexDirection: 'column', margin: '1%' }}>
-                                    <Text style={{ color: 'white' }}>Hạng 7</Text>
-                                    <Text style={{ color: 'white' }}>40 câu toán</Text>
-                                    <Text style={{ color: 'white' }}>80 câu điểm</Text>
-                                </View>
-                            </View>
-                            <View
-                                style={{
-                                    width: '85%',
-                                    padding: 5,
-                                    flexDirection: 'row',
-                                    borderWidth: 2,
-                                    borderColor: '#1E90FF',
-                                    margin: '2%',
-                                    alignSelf: 'center'
-                                }}
-                            >
-                                <View style={{ flexDirection: 'column', margin: '1%' }}>
-                                    <Text style={{ color: 'white' }}>Hạng 8</Text>
-                                    <Text style={{ color: 'white' }}>40 câu toán</Text>
-                                    <Text style={{ color: 'white' }}>80 câu điểm</Text>
-                                </View>
-                            </View>
-                            <View
-                                style={{
-                                    width: '85%',
-                                    padding: 5,
-                                    flexDirection: 'row',
-                                    borderWidth: 2,
-                                    borderColor: '#1E90FF',
-                                    margin: '2%',
-                                    alignSelf: 'center'
-                                }}
-                            >
-                                <View style={{ flexDirection: 'column', margin: '1%' }}>
-                                    <Text style={{ color: 'white' }}>Hạng 9</Text>
-                                    <Text style={{ color: 'white' }}>40 câu toán</Text>
-                                    <Text style={{ color: 'white' }}>80 câu điểm</Text>
-                                </View>
-                            </View>
-                            <View
-                                style={{
-                                    width: '85%',
-                                    padding: 5,
-                                    flexDirection: 'row',
-                                    borderWidth: 2,
-                                    borderColor: '#1E90FF',
-                                    margin: '2%',
-                                    alignSelf: 'center'
-                                }}
-                            >
-                                <View style={{ flexDirection: 'column', margin: '1%' }}>
-                                    <Text style={{ color: 'white' }}>Hạng 10</Text>
-                                    <Text style={{ color: 'white' }}>40 câu toán</Text>
-                                    <Text style={{ color: 'white' }}>80 câu điểm</Text>
-                                </View>
-                            </View>
-                        </View>
-                        <View>
-                            {/* <TextInput
-            keyboardType = 'numeric'
-            style={styles.multilineBox }
-            placeholderTextColor = 'grey'
-            placeholder= 'Số câu'
-            multiline={true}
-            maxLength={3}
-            onChangeText={(text) => {
-                this.setState({ sen: text });
-            }}
-            /> */}
-                            {/* <Text style = {{margin: '2%'}}>{this.state.point}</Text>
-            <Button
-            onPress= { this.total.bind(this)}
-            >
-                {this.state.sen}
-            </Button> */}
-                        </View>
+    
+                               <View>
+                               {this.getTopRes()}
+                                   </View> 
+     
                     </ScrollView>
+                    
                     <Footer {...this.props} />
                 </ImageBackground>
             </View>

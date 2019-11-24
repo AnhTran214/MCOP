@@ -151,7 +151,7 @@ export default class MathComponent extends Component {
 						var fail = [];
 						succ = this.state.result.filter(x => x == true);
 						fail = this.state.result.filter(x => x == false);
-						var point = Math.round(parseFloat(this.state.Max_Point * succ.length / this.state.TTQuest.length) * 1000) / 1000;
+						var point = Math.round(parseFloat(this.state.Max_Point * succ.length / this.state.TTQuest.length) * 100) / 100;
 						var time= this.state.Time_Left-this.state.timeleft+1;
 						this.props.navigation.dispatch(
 							StackActions.reset({
@@ -312,7 +312,7 @@ export default class MathComponent extends Component {
 									var fail = [];
 									succ = this.state.result.filter(x => x == true);
 									fail = this.state.result.filter(x => x == false);
-									var point = Math.round(parseFloat(this.state.Max_Point * succ.length / this.state.TTQuest.length) * 1000) / 1000;
+									var point = Math.round(parseFloat(this.state.Max_Point * succ.length / this.state.TTQuest.length) * 100) / 100;
 									var time= this.state.Time_Left-this.state.timeleft;
 									this.props.navigation.dispatch(
 										StackActions.reset({
@@ -321,7 +321,8 @@ export default class MathComponent extends Component {
 												NavigationActions.navigate({
 													routeName: 'result',
 													params: {
-														res_quest: succ.length + "|" + fail.length + "|" + this.state.TTQuest.length + "|" + point+"|"+time
+														res_quest: succ.length + "|" + fail.length + "|" + this.state.TTQuest.length + "|" + point+"|"+time,
+														Id_Con  : this.state.Id_Con
 													}
 												})
 											]
@@ -347,9 +348,10 @@ export default class MathComponent extends Component {
 						}}
 					>
 						<FlatList
+						        contentContainerStyle={{flexGrow: 1, justifyContent: 'space-between'}}
 							horizontal={true}
 							data={this.state.TTQuest}
-							keyExtractor={({ item, index }) => index}
+							keyExtractor={item => item.id}
 							renderItem={({ item, index }) => {
 								return (
 									<View>

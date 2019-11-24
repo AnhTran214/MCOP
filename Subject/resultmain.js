@@ -60,7 +60,7 @@ export default class Resultmain extends Component {
                     Id_Cus : key_user,
                     Id_Con : Id_Con,
                     TimeLeft_Res: parseInt(this.state.time),
-                    Point : parseInt(this.state.point),
+                    Point : parseFloat(this.state.point),
                     Date_Res: date
                 }
             )

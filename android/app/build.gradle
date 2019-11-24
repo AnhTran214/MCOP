@@ -133,6 +133,7 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
+        multiDexEnabled true
         vectorDrawables.useSupportLibrary = true
     }
     splits {
@@ -177,6 +178,10 @@ android {
 
         }
     }
+     packagingOptions {
+        exclude 'META-INF/mimetypes.default'
+        exclude 'META-INF/mailcap.default'
+    }
 }
 
 dependencies {
@@ -188,7 +193,7 @@ dependencies {
     implementation "com.google.firebase:firebase-auth:17.0.0"
     implementation "com.google.firebase:firebase-database:17.0.0"
     implementation "com.google.firebase:firebase-storage:17.0.0"
-
+    implementation project(':react-native-smtp-mailer')
     if (enableHermes) {
         def hermesPath = "../../node_modules/hermes-engine/android/";
         debugImplementation files(hermesPath + "hermes-debug.aar")

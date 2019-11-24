@@ -14,10 +14,10 @@ import {
 import Button from 'react-native-button';
 import {Login} from 'thitracnghiem/Navigation/screenName';
  import AsyncStorage from '@react-native-community/async-storage';
-import {setItemToAsyncStorage} from 'thitracnghiem/Function/function';
+import {setItemToAsyncStorage,setItemToAsyncStorage1} from 'thitracnghiem/Function/function';
 /*import OfflineNotice from 'Demon/Democode/infor/OfflineNotice' */
 import LinearGradient from 'react-native-linear-gradient';
-
+import md5 from 'md5';
  
  const LearnAppRefUsers = firebase.database().ref('Customer');
 export default class signupComponent extends Component {
@@ -27,7 +27,6 @@ export default class signupComponent extends Component {
 	} */
 	constructor(props) {
 		super(props);
-		this.unsubcriber = null; // 1 cai object quan sat viec thay doi user
 		this.state = {
 			user: '',
 			role: 'Người dùng',
@@ -42,25 +41,19 @@ export default class signupComponent extends Component {
 			Status: 1,
 			Image:'',
 			rePassword:'' ,
-			loading: false
+			loading: false,
+			showhidenPass: true,
 		};
 	}
 
-	// unsubcriber is called when ever the user changed
-	// khi trang thai dang nhap thay doi se chui vao ham onAuthStateChanged((changedUser).....
-	 componentDidMount() {
-		this.unsubcriber = firebase.auth().onAuthStateChanged((changedUser) => {
-			this.setState({
-				user: changedUser
-			});// cap nhat lai user
-		});
-	}
-
-	 componentWillUnmount() {
-		if (this.unsubcriber) {
-			this.unsubcriber();
-		}
-	}
+	showhidenPassword = () => {
+        if (this.state.showhidenPass === true) {
+            this.setState({ showhidenPass: false });
+        }
+        else {
+            this.setState({ showhidenPass: true });
+        }
+    };
 	//ham thuc thi dang ky
 	 onRegister = () => {
 		if (this.state.Username == '' || this.state.Password == '' || this.state.Fullname == '') {
@@ -86,7 +79,7 @@ export default class signupComponent extends Component {
 						Email:  '',
 						Address: '',
 						Birthday: '',
-						Password: this.state.Password,
+						Password: md5(this.state.Password),
 						Status: 1,
 						Image:'',
 					}
@@ -96,6 +89,7 @@ export default class signupComponent extends Component {
 						value.forEach(async(data)=>
 						{
 								   await setItemToAsyncStorage('userData', value.val());
+								   await setItemToAsyncStorage1('key', data.key);
 									this.setState({
 										loading: false
 									});
@@ -209,6 +203,7 @@ export default class signupComponent extends Component {
 					underlineColorAndroid="transparent"
 					placeholderTextColor = "white"
 					placeholder='Nhập họ và tên'
+					maxLength={255}
 					autoCapitalize='none' // khong tu dong viet hoa
 					onChangeText={(text) => {
 						this.setState({
@@ -223,6 +218,7 @@ export default class signupComponent extends Component {
 					underlineColorAndroid="transparent"
 					placeholderTextColor = "white"
 					keyboardType='default'
+					maxLength={255}
 					placeholder='Nhập Username'
 					autoCapitalize='none' // khong tu dong viet hoa
 					onChangeText={(text) => {
@@ -234,18 +230,39 @@ export default class signupComponent extends Component {
 				</View>
 				<View style={[styles.propertyValueRowView]}>
 				<TextInput
-					style={styles.multilineBox }
+					style={styles.multilineBox1}
 					keyboardType='default'
 					placeholderTextColor = "white"
 					placeholder='Nhập mật khẩu'
-					secureTextEntry={true}
+					secureTextEntry={this.state.showhidenPass} 
 					autoCapitalize='none'
+					maxLength={100}
 					onChangeText={(text) => {
 						this.setState({
 							Password: text
 						});
 					}}
 				/>
+				  <Button
+                                    containerStyle={{
+                                        position: 'absolute',
+                                        right:'5%',
+                                        top: '40%'
+                                    }}
+                                    onPress={this.showhidenPassword.bind(this.state.showhidenPass)}
+                                >
+                                    {this.state.showhidenPass === true ? (
+                                        <Image
+                                            style={{ width: 30, height: 30, tintColor: 'white' }}
+                                            source={require('thitracnghiem/icons/2d4e09879b6f017f74ffaee0b0011c0a-eye-icon-by-vexels.png')}
+                                        />
+                                    ) : (
+                                            <Image
+                                                style={{ width: 30, height: 30, tintColor: 'white' }}
+                                                source={require('thitracnghiem/icons/mob32px045-512.png')}
+                                            />
+                                        )}
+                                </Button>
 				</View>
 				<View style={[styles.propertyValueRowView]}>
 				<TextInput
@@ -253,7 +270,7 @@ export default class signupComponent extends Component {
 					keyboardType='default'
 					placeholderTextColor = "white"
 					placeholder='Nhập lại mật khẩu'
-					secureTextEntry={true}
+					secureTextEntry={this.state.showhidenPass} 
 					autoCapitalize='none'
 					onChangeText={(text) => {
 						this.setState({
@@ -262,6 +279,7 @@ export default class signupComponent extends Component {
 					}}
 				/>
 				</View>
+				{this.state.rePassword.trim().length>0 && this.state.rePassword!=this.state.Password?<Text style={{color:'red',textAlign:'center'}}>Mật khẩu nhập lại không trùng khớp</Text>:null}
 				<LinearGradient  start={{x: 0, y: 0}} end={{x: 1, y: 0}} 
 				colors = {this.checkValue()?['grey','grey']:['rgb(86, 123, 248)', 'rgb(95,192,255)']}
 				style = {{
@@ -329,6 +347,19 @@ const styles = StyleSheet.create({
 		borderRadius:5,
 		color: 'white'
   },
+  multilineBox1: {
+	width: '96%',
+	height: 50,
+	marginTop: 20,
+	borderColor: 'rgba(255,255,255,0.7)',
+	borderBottomWidth: 1,
+	textAlignVertical: 'top',
+	marginLeft: '2%',
+	marginRight: '2%',
+	paddingRight: 50,
+	borderRadius:5,
+	color: 'white'
+},
   propertyValueRowView: {
 		flexDirection: 'row',
         justifyContent: 'flex-start',

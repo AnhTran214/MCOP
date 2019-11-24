@@ -62,6 +62,26 @@ export default class Footer extends Component {
                             alignSelf: 'flex-start'
                         }}
                         onPress={async () => {
+                            this.props.navigation.navigate(info);
+                        }}
+                    >
+                        <Image
+                            style={{
+                                width: 30,
+                                height: 30,
+                                margin: '2%',
+                                tintColor: 'white'
+                            }}
+                            source={require('thitracnghiem/icons/icons8-user-male-512.png')}
+                        />
+                    </Button>
+                    <Button
+                        containerStyle={{
+                            width: 30,
+                            margin: '2%',
+                            alignSelf: 'flex-start'
+                        }}
+                        onPress={async () => {
                             this.props.navigation.navigate(histo);
                         }}
                     >
@@ -82,7 +102,7 @@ export default class Footer extends Component {
                             alignSelf: 'flex-start'
                         }}
                         onPress={async () => {
-                            this.props.navigation.navigate(info);
+                            this.props.navigation.navigate(charts);
                         }}
                     >
                         <Image
@@ -92,7 +112,7 @@ export default class Footer extends Component {
                                 margin: '2%',
                                 tintColor: 'white'
                             }}
-                            source={require('thitracnghiem/icons/icons8-user-male-512.png')}
+                            source={require('thitracnghiem/icons/icons8-crown-480.png')}
                         />
                     </Button>
                 </View>

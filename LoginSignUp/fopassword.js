@@ -17,7 +17,8 @@ import { SignUp, Home, Login, takepass } from 'thitracnghiem/Navigation/screenNa
 import { setItemToAsyncStorage } from 'thitracnghiem/Function/function';
 /*import OfflineNotice from 'PhanAnh/miniComponent/OfflineNotice' */
 import LinearGradient from 'react-native-linear-gradient';
-
+import RNSmtpMailer from "react-native-smtp-mailer";
+import { thisExpression } from '@babel/types';
 const LearnAppRefUsers = firebase.database().ref('Manager/User');
 export default class FopassCom extends Component {
     constructor(props) {
@@ -26,79 +27,92 @@ export default class FopassCom extends Component {
         this.state = {
             typedEmail: '',
             typeUsername: '',
-            user: null,
-            isUploading: false,
-            pickerDisplayed: false,
-            isAuthenticated: false,
-            userData: {},
-            showhidenPass: true,
             loading: false,
-            code: ''
+            code: '',
+            securenumber: '',
+            err_email:'',
+            key:''
         };
     }
-    showhidenPassword = () => {
-        if (this.state.showhidenPass === true) {
-            this.setState({ showhidenPass: false });
-        }
-        else {
-            this.setState({ showhidenPass: true });
-        }
-    };
-    componentDidMount() {
-        this.unsubcriber = firebase.auth().onAuthStateChanged((changedUser) => {
-            this.setState({
-                user: changedUser
-            });
-        });
-    }
-
-    componentWillUnmount() {
-        if (this.unsubcriber) {
-            this.unsubcriber();
-        }
-    }
-    getUserFromDB() {
-        return new Promise((resolve) => {
-            LearnAppRefUsers.orderByChild('email').equalTo(this.state.typedEmail).on('value', (childSnapshot) => {
-                var userData = {};
-                childSnapshot.forEach((doc) => {
-                    userData = {
-                        id: doc.toJSON().id,
-                        email: doc.toJSON().email,
-                        password: doc.toJSON().password,
-                        role: doc.toJSON().role,
-                        name: doc.toJSON().name,
-                        address: doc.toJSON().address,
-                        contact: doc.toJSON().contact
-                    };
-                });
-                resolve(userData);
-            });
-        });
-    }
-    onLogin = () => {
-        this.setState({
-            loading: true
-        });
-        if (this.state.typedEmail == '' || this.state.typeUsername == '') {
-            Alert.alert('Thông báo', 'Email và Password không được bỏ trống');
+    makeEmall = async () => {
+        if (this.state.typedEmail.trim().length == 0 || this.state.typeUsername.trim().length == 0) {
+            Alert.alert("Thông báo", "Vui lòng nhập email và username trước");
             return;
         }
-        firebase
-            .auth()
-            .signInWithEmailAndPassword(this.state.typedEmail, this.state.typeUsername)
-            .then(async (loginUser) => {
-                const userData = await this.getUserFromDB();
-                setItemToAsyncStorage('userData', userData);
-                Alert.alert('Thông báo', 'Đăng nhập thành công');
-                this.props.navigation.navigate('App');
-            })
-            .catch((error) => {
-                Alert.alert(`${error.toString().replace('Error: ', '')}`);
-            });
-    };
+        this.setState({loading:true});
+        await firebase.database().ref("Customer").orderByChild("Username").equalTo(this.state.typeUsername).once("value", (value) => {
+            if (value.exists()) {
+               value.forEach((element)=>
+               {
+                if (element.toJSON().Email == this.state.typedEmail) {
+                    
+                    var rd = "";
+                    this.setState({
+                        key: element.key
+                    })
+                    for (var i = 0; i < 6; i++) {
+                        rd += Math.floor(Math.random() * 10).toString();
+                    }
+                
+                    RNSmtpMailer.sendMail({
+                        mailhost: "smtp.gmail.com",
+                        port: "465",
+                        ssl: true, //if ssl: false, TLS is enabled,**note:** in iOS TLS/SSL is determined automatically, so either true or false is the same
+                        username: "mcopf4@gmail.com",
+                        password: "mcop2019",
+                        from: "mcopf4@gmail.com",
+                        recipients: this.state.typedEmail,
+                        subject: "Mã xác nhận tài khoản " + this.state.typedEmail + " từ MCOP",
+                        htmlBody: "<p>Mã xác nhận của tài khoản "+this.state.typeUsername+" : " + rd + ".<p></br><p>Nếu xảy ra lỗi xin vui lòng liên hệ mcopf4@gmail.com để được giúp đỡ.</p>",
+                        attachmentPaths: [],
+                        attachmentNames: [],
+                        attachmentTypes: []
+                    })
+                        .then(() => {
+                            this.setState({ securenumber: rd,loading:false })
+                            Alert.alert("Thông báo", "Gửi thành công");
+                        })
+                        .catch(err => {
+                            console.log(err);
+                            this.setState({ securenumber: "",loading:false });
+                            
+                            Alert.alert("Thông báo", "Không gửi được mã xác nhận");
+                        })
+                }
+                else {
+                    this.setState({loading:false});
+                    Alert.alert("Thông báo", "Người dùng không tồn tại trong email nhập");
+                }
+                return;
+               })
+               
+            }
+            else {
+                this.setState({loading:false});
+                Alert.alert("Thông báo", "Người dùng không tồn tại");
+                return;
+            }
+        })
+
+    }
+    checkEmail = (text) => {
+        if (text.trim().length == 0) {
+            this.setState({ err_email: "" })
+        }
+        else {
+            var reg = new RegExp("[a-zA-Z0-9.-_]{1,}@[a-zA-Z.-]{2,}[.]{1}[a-zA-Z]{2,}");
+            if (reg.test(text) === false) {
+                this.setState({ err_email: "Định dạng Email không đúng" })
+            }
+            else {
+                this.setState({ err_email: "" })
+            }
+        }
+        this.setState({ typedEmail: text })
+
+    }
     checkValue = () => {
-        return this.state.typedEmail === '' || this.state.typeUsername === '';
+        return this.state.typedEmail === '' || this.state.typeUsername === '' || this.state.err_email.length>0;
     };
 
     render() {
@@ -151,7 +165,7 @@ export default class FopassCom extends Component {
                                     marginTop: '5%'
                                 }}
                             />
-                            <View style={[ styles.propertyValueRowView ]}>
+                            <View style={[styles.propertyValueRowView]}>
                                 <Image
                                     style={{
                                         width: 30,
@@ -163,16 +177,16 @@ export default class FopassCom extends Component {
                                     source={require('thitracnghiem/icons/email.png')}
                                 />
                                 <TextInput
-                                    style={styles.multilineBox}
+                                    style={styles.multilineBox1}
                                     underlineColorAndroid='transparent'
                                     placeholderTextColor='white'
                                     keyboardType='email-address'
                                     autoCapitalize='none'
                                     placeholder='Email'
                                     editable={true}
-                                    maxLength={50}
+                                    maxLength={100}
                                     onChangeText={(text) => {
-                                        this.setState({ typedEmail: text });
+                                        this.checkEmail(text);
                                     }}
                                 />
                                 <Button
@@ -187,12 +201,13 @@ export default class FopassCom extends Component {
                                         opacity: 0.5
                                     }}
                                     style={{ fontSize: 13, padding: 5, color: 'white' }}
-                                    /* onPress={this.showhidenPassword.bind(this.state.showhidenPass)} */
+                                    onPress={()=>this.makeEmall()}
                                 >
                                     Gửi mã
                                 </Button>
                             </View>
-                            <View style={[ styles.propertyValueRowView, { marginBottom: '5%' } ]}>
+                          {this.state.err_email.length>0?  <Text style={{ color: 'red', flex: 0, textAlign: 'center' }}>{this.state.err_email}</Text>:null}
+                            <View style={[styles.propertyValueRowView, { marginBottom: '5%' }]}>
                                 <Image
                                     style={{
                                         width: 30,
@@ -204,12 +219,11 @@ export default class FopassCom extends Component {
                                     source={require('thitracnghiem/icons/user.png')}
                                 />
                                 <TextInput
-                                    style={[ styles.multilineBox ]}
+                                    style={[styles.multilineBox]}
                                     keyboardType='default'
                                     placeholderTextColor='white'
                                     underlineColorAndroid='transparent'
                                     autoCapitalize='none'
-                                    secureTextEntry={this.state.showhidenPass} // ko dung dc khi multiline = {true}
                                     placeholder='Username'
                                     /* multiline={true} */
                                     editable={true}
@@ -219,7 +233,7 @@ export default class FopassCom extends Component {
                                     }}
                                 />
                             </View>
-                            <View style={[ styles.propertyValueRowView, { marginBottom: '5%' } ]}>
+                            <View style={[styles.propertyValueRowView, { marginBottom: '5%' }]}>
                                 <Image
                                     style={{
                                         width: 30,
@@ -231,7 +245,7 @@ export default class FopassCom extends Component {
                                     source={require('thitracnghiem/icons/icons8-qr-code-64.png')}
                                 />
                                 <TextInput
-                                    style={[ styles.multilineBox ]}
+                                    style={[styles.multilineBox]}
                                     keyboardType='default'
                                     placeholderTextColor='white'
                                     underlineColorAndroid='transparent'
@@ -249,13 +263,11 @@ export default class FopassCom extends Component {
                                 start={{ x: 0, y: 0 }}
                                 end={{ x: 1, y: 0 }}
                                 colors={
-                                    this.state.code === '' ||
-                                    this.state.typeUsername === '' ||
-                                    this.state.typedEmail === '' ? (
-                                        [ 'grey', 'grey' ]
-                                    ) : (
-                                        [ 'rgb(86, 123, 248)', 'rgb(95,192,255)' ]
-                                    )
+                                    this.checkValue() ? (
+                                            ['grey', 'grey']
+                                        ) : (
+                                            ['rgb(86, 123, 248)', 'rgb(95,192,255)']
+                                        )
                                 }
                                 style={{
                                     margin: '2%',
@@ -266,20 +278,19 @@ export default class FopassCom extends Component {
                             >
                                 <Button
                                     disabled={
-                                        this.state.code === '' ||
-                                        this.state.typeUsername === '' ||
-                                        this.state.typedEmail === '' ? (
-                                            true
-                                        ) : (
-                                            false
-                                        )
+                                      this.checkValue()? true :false
                                     }
                                     style={{
                                         fontSize: 16,
                                         color: 'white'
                                     }}
                                     onPress={/* this.onLogin */ () => {
-                                        this.props.navigation.navigate(takepass);
+                                        if (this.state.code == this.state.securenumber) {
+                                            this.props.navigation.navigate(takepass,{key:this.state.key});
+                                        }
+                                        else {
+                                            Alert.alert("Mã xác nhận không đúng")
+                                        }
                                     }}
                                 >
                                     XÁC NHẬN
@@ -332,6 +343,19 @@ const styles = StyleSheet.create({
         marginRight: '2%',
         borderRadius: 5,
         color: 'white'
+    },
+    multilineBox1: {
+        width: '80%',
+        height: 50,
+        marginTop: 20,
+        borderColor: 'rgba(255,255,255,0.7)',
+        borderBottomWidth: 1,
+        textAlignVertical: 'top',
+        marginLeft: '10%',
+        marginRight: '2%',
+        borderRadius: 5,
+        color: 'white',
+        paddingRight:'12%'
     },
     propertyValueRowView: {
         flexDirection: 'row',

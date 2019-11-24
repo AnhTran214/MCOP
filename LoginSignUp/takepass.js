@@ -17,7 +17,7 @@ import { SignUp, Home, Login } from 'thitracnghiem/Navigation/screenName';
 import { setItemToAsyncStorage } from 'thitracnghiem/Function/function';
 /*import OfflineNotice from 'PhanAnh/miniComponent/OfflineNotice' */
 import LinearGradient from 'react-native-linear-gradient';
-
+import md5 from 'md5';
 const LearnAppRefUsers = firebase.database().ref('Manager/User');
 export default class TakepassCom extends Component {
     constructor(props) {
@@ -26,14 +26,20 @@ export default class TakepassCom extends Component {
         this.state = {
             typeRepass: '',
             typePassword: '',
-            user: null,
-            isUploading: false,
-            pickerDisplayed: false,
-            isAuthenticated: false,
-            userData: {},
             showhidenPass: true,
             loading: false,
-            code: ''
+            userData: {},
+            pickerDisplayed: false,
+            key: "",
+            Username: '',
+            Fullname: '',
+            Phone: '',
+            Email: '',
+            Address: '',
+            Birthday: '',
+            Password: '',
+            Status: 1,
+            key:''
         };
     }
     showhidenPassword = () => {
@@ -44,63 +50,42 @@ export default class TakepassCom extends Component {
             this.setState({ showhidenPass: true });
         }
     };
-    componentDidMount() {
-        this.unsubcriber = firebase.auth().onAuthStateChanged((changedUser) => {
-            this.setState({
-                user: changedUser
-            });
-        });
-    }
-
-    componentWillUnmount() {
-        if (this.unsubcriber) {
-            this.unsubcriber();
-        }
-    }
-    getUserFromDB() {
-        return new Promise((resolve) => {
-            LearnAppRefUsers.orderByChild('email').equalTo(this.state.typeRepass).on('value', (childSnapshot) => {
-                var userData = {};
-                childSnapshot.forEach((doc) => {
-                    userData = {
-                        id: doc.toJSON().id,
-                        email: doc.toJSON().email,
-                        password: doc.toJSON().password,
-                        role: doc.toJSON().role,
-                        name: doc.toJSON().name,
-                        address: doc.toJSON().address,
-                        contact: doc.toJSON().contact
-                    };
-                });
-                resolve(userData);
-            });
-        });
-    }
-    onLogin = () => {
+  async  componentDidMount() {
+        var key=  await this.props.navigation.getParam('key', null);
         this.setState({
-            loading: true
-        });
-        if (this.state.typeRepass == '' || this.state.typePassword == '') {
-            Alert.alert('Thông báo', 'Email và Password không được bỏ trống');
-            return;
-        }
-        firebase
-            .auth()
-            .signInWithEmailAndPassword(this.state.typeRepass, this.state.typePassword)
-            .then(async (loginUser) => {
-                const userData = await this.getUserFromDB();
-                setItemToAsyncStorage('userData', userData);
-                Alert.alert('Thông báo', 'Đăng nhập thành công');
-                this.props.navigation.navigate('App');
-            })
-            .catch((error) => {
-                Alert.alert(`${error.toString().replace('Error: ', '')}`);
-            });
-    };
-    checkValue = () => {
-        return this.state.typeRepass === '' || this.state.typePassword === '';
-    };
+            key:key
+        })
+    }
 
+
+    checkValue = () => {
+        return (this.state.typeRepass === '' || this.state.typePassword === '' || this.state.typeRepass !== this.state.typePassword) ;
+    };
+    update = ()=>
+    {
+        this.setState({
+            loading:true
+        })
+        firebase.database().ref("Customer/"+this.state.key).update(
+            {
+                Password : md5(this.state.typePassword)
+            }
+        ).then(()=>
+        {
+            this.setState({
+                loading:false
+            })
+            Alert.alert('Thông báo', 'Đổi mật khẩu thành công');
+            this.props.navigation.navigate(Login);
+        
+        }).catch(()=>
+        {
+            this.setState({
+                loading:false
+            })
+            Alert.alert('Thông báo', 'Đổi mật khẩu thất bại');
+        })
+    }
     render() {
         return (
             <View style={styles.contain}>
@@ -163,18 +148,39 @@ export default class TakepassCom extends Component {
                                     source={require('thitracnghiem/icons/56255.png')}
                                 />
                                 <TextInput
-                                    style={styles.multilineBox}
+                                    style={styles.multilineBox1}
                                     underlineColorAndroid='transparent'
                                     placeholderTextColor='white'
-                                    keyboardType='email-address'
+                                    keyboardType='default'
                                     autoCapitalize='none'
                                     placeholder='Mật khẩu mới'
                                     editable={true}
-                                    maxLength={50}
+                                    secureTextEntry={this.state.showhidenPass}
+                                    maxLength={100}
                                     onChangeText={(text) => {
                                         this.setState({ typePassword: text });
                                     }}
                                 />
+                                  <Button
+                                    containerStyle={{
+                                        position: 'absolute',
+                                        right:'5%',
+                                        top: '40%'
+                                    }}
+                                    onPress={this.showhidenPassword.bind(this.state.showhidenPass)}
+                                >
+                                    {this.state.showhidenPass === true ? (
+                                        <Image
+                                            style={{ width: 30, height: 30, tintColor: 'white' }}
+                                            source={require('thitracnghiem/icons/2d4e09879b6f017f74ffaee0b0011c0a-eye-icon-by-vexels.png')}
+                                        />
+                                    ) : (
+                                            <Image
+                                                style={{ width: 30, height: 30, tintColor: 'white' }}
+                                                source={require('thitracnghiem/icons/mob32px045-512.png')}
+                                            />
+                                        )}
+                                </Button>
                             </View>
                             <View style={[ styles.propertyValueRowView, { marginBottom: '5%' } ]}>
                                 <Image
@@ -197,20 +203,21 @@ export default class TakepassCom extends Component {
                                     placeholder='Nhập lại mật khẩu'
                                     /* multiline={true} */
                                     editable={true}
-                                    maxLength={50}
+                                    maxLength={100}
                                     onChangeText={(text) => {
                                         this.setState({ typeRepass: text });
                                     }}
                                 />
                             </View>
+                            {this.state.typeRepass.trim().length>0 && this.state.typeRepass!=this.state.typePassword?<Text style={{color:'red',textAlign:'center'}}>Mật khẩu nhập lại không trùng khớp</Text>:null}
                             <LinearGradient
                                 start={{ x: 0, y: 0 }}
                                 end={{ x: 1, y: 0 }}
-                                colors={/*  this.state.typeRepass === '' || this.state.typePassword === '' ? (
+                                colors={  this.checkValue() ? (
                                         [ 'grey', 'grey' ]
-                                    ) : ( */
+                                    ) : (
                                 [ 'rgb(86, 123, 248)', 'rgb(95,192,255)' ]
-                                /*  ) */
+                                  )
                                 }
                                 style={{
                                     margin: '2%',
@@ -220,14 +227,14 @@ export default class TakepassCom extends Component {
                                 }}
                             >
                                 <Button
-                                    /* disabled={this.checkValue() ? true : false} */
+                                     disabled={this.checkValue() ? true : false} 
                                     style={{
                                         fontSize: 16,
                                         color: 'white'
                                     }}
                                     onPress={/* this.onLogin */ () => {
-                                        Alert.alert('Thông báo', 'Đổi mật khẩu thành công');
-                                        this.props.navigation.navigate(Login);
+                                        this.update();
+
                                     }}
                                 >
                                     XÁC NHẬN
@@ -278,6 +285,19 @@ const styles = StyleSheet.create({
         textAlignVertical: 'top',
         marginLeft: '10%',
         marginRight: '2%',
+        borderRadius: 5,
+        color: 'white'
+    },
+    multilineBox1: {
+        width: '80%',
+        height: 50,
+        marginTop: 20,
+        borderColor: 'rgba(255,255,255,0.7)',
+        borderBottomWidth: 1,
+        textAlignVertical: 'top',
+        marginLeft: '10%',
+        marginRight: '2%',
+        paddingRight:50,
         borderRadius: 5,
         color: 'white'
     },

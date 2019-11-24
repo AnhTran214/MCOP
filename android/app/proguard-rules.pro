@@ -8,3 +8,12 @@
 #   http://developer.android.com/guide/developing/tools/proguard.html
 
 # Add any project specific keep options here:
+-dontshrink
+-keep class javax.** {*;}
+-keep class com.sun.** {*;}
+-keep class myjava.** {*;}
+-keep class org.apache.harmony.** {*;}
+-dontwarn java.awt.**
+-dontwarn java.beans.Beans
+-dontwarn javax.security.**
+-dontwarn javax.activation.**

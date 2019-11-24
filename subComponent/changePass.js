@@ -12,7 +12,8 @@ import {
     TextInput,
     ScrollView,
     Modal,
-    ImageBackground
+    ImageBackground,
+    ActivityIndicator
 } from 'react-native';
 import firebase from 'react-native-firebase';
 import Button from 'react-native-button';
@@ -22,7 +23,7 @@ import { Home, info,changePass } from 'thitracnghiem/Navigation/screenName';
 import Header from 'thitracnghiem/subComponent/Header';
 import Footer from 'thitracnghiem/subComponent/footer';
 import LinearGradient from 'react-native-linear-gradient';
-
+import md5 from 'md5';
 //tham chieu den root
 const LearnAppUser = firebase.database().ref('Customer');
 export default class changePassComponent extends Component {
@@ -48,14 +49,15 @@ export default class changePassComponent extends Component {
             Status: 1,
             password:'',
             newpassword: '',
-            renewpassword: ''
+            renewpassword: '',
+            showhidenPass: true,
+            loading:false
         };
     }
     async componentDidMount() {
         await setItemToAsyncStorage('currentScreen', changePass);
         await AsyncStorage.getItem('userData').then((value) => {
             const userData = JSON.parse(value);
-            console.log(userData);
             for (var key in userData) {
                 this.setState({
                     key: key,
@@ -74,6 +76,14 @@ export default class changePassComponent extends Component {
             }
         });
     }
+    showhidenPassword = () => {
+        if (this.state.showhidenPass === true) {
+            this.setState({ showhidenPass: false });
+        }
+        else {
+            this.setState({ showhidenPass: true });
+        }
+    };
     async update() {
         if (this.state.password=='')
         {
@@ -95,23 +105,27 @@ export default class changePassComponent extends Component {
             Alert.alert("Thông Báo","Mật Khẩu Nhập Lại Không Trùng Khớp");
             return;
         }
-        if (this.state.password!=this.state.Password)
+        if (md5(this.state.password)!=this.state.Password)
         {
+            console.log(this.state.Password);
             Alert.alert("Thông Báo","Mật Khẩu Cũ Không Đúng");
             return;
         }
+        this.setState({loading:true});
         LearnAppUser.child(this.state.key)
         .update({
-            Password: this.state.newpassword
+            Password: md5(this.state.newpassword)
         })
         .then(async () => {
-            this.state.userData.Password=this.state.newpassword;
+            this.state.userData.Password=md5(this.state.newpassword);
             setItemToAsyncStorage('userData', 
             this.state.itemData);
+            this.setState({loading:false});
             Alert.alert('Thông báo', 'Cập nhật thành công!');
             this.props.navigation.navigate(Home);
         }).catch( (error)=> {
-            alert(error);
+            this.setState({loading:false});
+            Alert.alert("Thay đổi không thành công");
         })
     }
     AlertUpdate = () => {
@@ -196,19 +210,40 @@ export default class changePassComponent extends Component {
                                 </Text>
                                 <View style={[ styles.propertyValueRowView ]}>
                                     <TextInput
-                                        style={styles.multilineBox}
+                                        style={styles.multilineBox1}
                                         keyboardType='default'
                                         underlineColorAndroid='transparent'
                                         placeholderTextColor='grey'
                                         placeholder=''
                                         autoCapitalize='none'
-                                        maxLength={10}
+                                        secureTextEntry={this.state.showhidenPass} 
+                                        maxLength={100}
                                         onChangeText={(text) => {
                                             this.setState({
                                                 password: text
                                             });
                                         }}
                                     />
+                                      <Button
+                                    containerStyle={{
+                                        position: 'absolute',
+                                        right:'5%',
+                                        top: '30%'
+                                    }}
+                                    onPress={this.showhidenPassword.bind(this.state.showhidenPass)}
+                                >
+                                    {this.state.showhidenPass === true ? (
+                                        <Image
+                                            style={{ width: 30, height: 30, tintColor: 'white' }}
+                                            source={require('thitracnghiem/icons/2d4e09879b6f017f74ffaee0b0011c0a-eye-icon-by-vexels.png')}
+                                        />
+                                    ) : (
+                                            <Image
+                                                style={{ width: 30, height: 30, tintColor: 'white' }}
+                                                source={require('thitracnghiem/icons/mob32px045-512.png')}
+                                            />
+                                        )}
+                                </Button>
                                 </View>
                                 <Text
                                     style={{
@@ -226,7 +261,8 @@ export default class changePassComponent extends Component {
                                         placeholderTextColor='grey'
                                         placeholder=''
                                         autoCapitalize='none'
-                                        maxLength={10}
+                                        secureTextEntry={this.state.showhidenPass} 
+                                        maxLength={100}
                                         onChangeText={(text) => {
                                             this.setState({
                                                 newpassword: text
@@ -249,7 +285,8 @@ export default class changePassComponent extends Component {
                                         placeholderTextColor='grey'
                                         placeholder=''
                                         autoCapitalize='none'
-                                        maxLength={10}
+                                        secureTextEntry={this.state.showhidenPass} 
+                                        maxLength={100}
                                         onChangeText={(text) => {
                                             this.setState({
                                                 renewpassword: text
@@ -259,6 +296,21 @@ export default class changePassComponent extends Component {
                                 </View>
                             </View>
                         </View>
+                        {this.state.loading ? (
+                                <View
+                                    style={{
+                                        position: 'absolute',
+                                        left: 0,
+                                        right: 0,
+                                        top: 0,
+                                        bottom: 0,
+                                        alignItems: 'center',
+                                        justifyContent: 'center'
+                                    }}
+                                >
+                                    <ActivityIndicator size={70} />
+                                </View>
+                            ) : null}
                         <LinearGradient
                             start={{ x: 0, y: 0 }}
                             end={{ x: 1, y: 0 }}
@@ -309,6 +361,19 @@ const styles = StyleSheet.create({
         marginLeft: '2%',
         marginRight: '2%',
         borderRadius: 5,
+        marginBottom: '2%'
+    },
+    multilineBox1: {
+        width: '96%',
+        height: 50,
+        marginTop: '2%',
+        borderColor: '#1E90FF',
+        borderBottomWidth: 2,
+        textAlignVertical: 'top',
+        marginLeft: '2%',
+        marginRight: '2%',
+        borderRadius: 5,
+        paddingRight:50,
         marginBottom: '2%'
     },
     propertyValueRowView: {
