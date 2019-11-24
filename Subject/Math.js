@@ -112,11 +112,8 @@ export default class MathComponent extends Component {
 		
 	}
 	changeAw = (index, id) => {
-		var arr = [true, true, true, true];
 		var res = this.state.ls;
 		var result = this.state.result;
-		if (id < 4) {
-			arr[id] = false;
 			res[index] = id;
 			if (this.state.ojbQuest[this.state.TTQuest[this.state.currentid]].Answer == id + 1) {
 				result[index] = true;
@@ -126,12 +123,34 @@ export default class MathComponent extends Component {
 				result[index] = false;
 
 			}
-		}
 		this.setState({
 			ls: res,
-			change: arr,
 			result: result
 		});
+		var len=this.state.TTQuest.length;
+		if (index<len-1)
+		{
+		for (let i=index+1;i<len;i++)
+		{
+				if (!(this.state.ls[i]>=0 &&this.state.ls[i]<=3) )
+				{
+					this.getquestwithid(i);
+					break;
+				}
+
+		}
+	}
+	else
+	{
+		for (let i=0;i<len;i++)
+		{
+			if (!(this.state.ls[i]>=0 &&this.state.ls[i]<=3))
+			{
+				this.getquestwithid(i);
+				break;
+			}
+		}
+	}
 	};
 	onPressAdd = () => {
 		Alert.alert(
@@ -210,17 +229,20 @@ export default class MathComponent extends Component {
 		await inc.orderByChild('Id_Con').equalTo(this.state.Id_Con).on('value', async (childSnapshot) => {
 			childSnapshot.forEach(async (doc) => {
 				arr.push(doc.toJSON().Id_Ques);
-				this.setState(
-					{ TTQuest: arr }
-				)
+			
 			});
+			this.setState(
+				{ 
+					TTQuest: arr
+				}
+			)
 			await quest.orderByChild("Id_Top").equalTo(this.state.Id_Top).on('value', async (childSnapshot) => {
 				var list = {};
 				list = await childSnapshot.val();
 				this.setState({
 					ojbQuest: list,
 					stop:true,
-					loading:false
+					loading:false,
 				})
 			});
 
@@ -235,12 +257,7 @@ export default class MathComponent extends Component {
 				currentid: index,
 				questitem: questitem
 			});
-			if (this.state.ls[index] >= 0 && this.state.ls[index] <= 3) {
-				this.changeAw(index, this.state.ls[index])
-			}
-			else {
-				this.changeAw(index, 4);
-			}
+		
 		}
 	
 	}
@@ -484,9 +501,9 @@ export default class MathComponent extends Component {
 									<Button
 										containerStyle={[
 											styles.stylerepButton,
-											{ backgroundColor: this.state.change[0] === true ? null : '#1E90FF', borderColor: 'white' }
+											{ backgroundColor: this.state.ls[this.state.currentid] === 0 ? '#1E90FF': null  , borderColor: 'white' }
 										]}
-										style={[styles.repButton, { color: this.state.change[0] === true ? 'black' : 'white' }]}
+										style={[styles.repButton, { color: this.state.ls[this.state.currentid] === 0 ? 'white':'black'   }]}
 										onPress={() => this.changeAw(this.state.currentid, 0)}
 									>
 										A
@@ -504,9 +521,9 @@ export default class MathComponent extends Component {
 									<Button
 										containerStyle={[
 											styles.stylerepButton,
-											{ backgroundColor: this.state.change[1] === true ? null : '#1E90FF' }
+											{ backgroundColor: this.state.ls[this.state.currentid] === 1 ? '#1E90FF': null }
 										]}
-										style={[styles.repButton, { color: this.state.change[1] === true ? 'black' : 'white' }]}
+										style={[styles.repButton, { color: this.state.ls[this.state.currentid] === 1 ? 'white':'black' }]}
 										onPress={() => this.changeAw(this.state.currentid, 1)}
 									>
 										B
@@ -523,9 +540,9 @@ export default class MathComponent extends Component {
 									<Button
 										containerStyle={[
 											styles.stylerepButton,
-											{ backgroundColor: this.state.change[2] === true ? null : '#1E90FF' }
+											{ backgroundColor: this.state.ls[this.state.currentid] === 2 ? '#1E90FF': null }
 										]}
-										style={[styles.repButton, { color: this.state.change[2] === true ? 'black' : 'white' }]}
+										style={[styles.repButton, { color: this.state.ls[this.state.currentid] === 2 ? 'white':'black' }]}
 										onPress={() => this.changeAw(this.state.currentid, 2)}
 									>
 										C
@@ -542,9 +559,9 @@ export default class MathComponent extends Component {
 									<Button
 										containerStyle={[
 											styles.stylerepButton,
-											{ backgroundColor: this.state.change[3] === true ? null : '#1E90FF', borderColor: 'white' }
+											{ backgroundColor: this.state.ls[this.state.currentid] === 3 ? '#1E90FF': null, borderColor: 'white' }
 										]}
-										style={[styles.repButton, { color: this.state.change[3] === true ? 'black' : 'white' }]}
+										style={[styles.repButton, { color: this.state.ls[this.state.currentid] === 3 ? 'white':'black' }]}
 										onPress={() => this.changeAw(this.state.currentid, 3)}
 									>
 										D
