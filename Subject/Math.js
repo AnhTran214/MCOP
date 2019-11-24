@@ -60,6 +60,7 @@ export default class MathComponent extends Component {
 			Max_Point: 0,
 			TTQuest: [],
 			ojbQuest: {},
+			objCon: {},
 			Id_Top: '',
 			Id_Con: '',
 			right: 0,

@@ -64,6 +64,13 @@ export default class chartsComponent extends Component {
             }
         })
     }
+    changeTime = (time) => {
+        var min = parseInt(time / 60);
+        var sec = time % 60;
+        if (min < 10 && min > 0) min = '0' + min;
+        if (sec < 10 && sec > 0) sec = '0' + sec;
+        return min + ' phút ' + sec + ' s'
+    }
     getRes = async () => {
         await firebase.database().ref("Result").orderByChild('Point').on("value", (value) => {
             if (value.exists()) {
@@ -73,7 +80,7 @@ export default class chartsComponent extends Component {
                 var _index = 0;
                 var tt_index=0;
                 value.forEach((element) => {
-                    if (this.state.objCon[element.toJSON().Id_Con].Id_Top == this.state.Id_Top) {
+                    if (this.state.objCon.hasOwnProperty(element.toJSON().Id_Con) && this.state.objCon[element.toJSON().Id_Con].Id_Top == this.state.Id_Top) {
                         arr.push(
                             element.toJSON()
                         );
@@ -84,7 +91,8 @@ export default class chartsComponent extends Component {
                         }
                     }
                 });
-                arr.reverse();
+              
+                arr.sort(function(a, b){return b.Point-a.Point || (b.Point==a.Point && a.TimeLeft_Res>b.TimeLeft_Res)});
                 if (_index>0) 
                 {
                     tt_index=index - _index + 1
@@ -146,9 +154,13 @@ export default class chartsComponent extends Component {
     {
         var arr=[];
         var last=-1;
-        this.state.listRes.forEach((element,index)=>
+        for (let index=0;index<this.state.listRes.length;index++)
         {
+ 
+            if (index==10) break;
             last=index;
+            var element=this.state.listRes[index];
+
             if (this.state.objCus.hasOwnProperty(element.Id_Cus))
             {
                 if (index==0)
@@ -179,8 +191,9 @@ export default class chartsComponent extends Component {
                         </View>
                         <View style={{ flexDirection: 'column', margin: '1%' }}>
                             <Text style={{ color: 'white' }}>Hạng 1</Text>
-                            <Text style={{ color: 'white' }}> Tài khoản : {this.state.objCus[element.Id_Cus].Username}</Text>
+                            <Text style={{ color: 'white' }}>Tài khoản : {this.state.objCus[element.Id_Cus].Username}</Text>
                             <Text style={{ color: 'white' }}>{element.Point} điểm</Text>
+                            <Text style={{ color: 'white' }}>{this.changeTime(element.TimeLeft_Res)}</Text>
                         </View>
                     </View>
                     )
@@ -210,8 +223,9 @@ export default class chartsComponent extends Component {
                     />
                     <View style={{ flexDirection: 'column', margin: '1%' }}>
                         <Text style={{ color: 'white' }}>Hạng 2</Text>
-                        <Text style={{ color: 'white' }}> Tài khoản : {this.state.objCus[element.Id_Cus].Username}</Text>
+                        <Text style={{ color: 'white' }}>Tài khoản : {this.state.objCus[element.Id_Cus].Username}</Text>
                             <Text style={{ color: 'white' }}>{element.Point} điểm</Text>
+                            <Text style={{ color: 'white' }}>{this.changeTime(element.TimeLeft_Res)}</Text>
                     </View>
                 </View>)
                 }
@@ -240,8 +254,9 @@ export default class chartsComponent extends Component {
                     />
                     <View style={{ flexDirection: 'column', margin: '1%' }}>
                         <Text style={{ color: 'white' }}>Hạng 3</Text>
-                        <Text style={{ color: 'white' }}> Tài khoản : {this.state.objCus[element.Id_Cus].Username}</Text>
+                        <Text style={{ color: 'white' }}>Tài khoản : {this.state.objCus[element.Id_Cus].Username}</Text>
                             <Text style={{ color: 'white' }}>{element.Point} điểm</Text>
+                            <Text style={{ color: 'white' }}>{this.changeTime(element.TimeLeft_Res)}</Text>
                     </View>
                 </View>)
                 }
@@ -260,16 +275,31 @@ export default class chartsComponent extends Component {
                             alignSelf: 'center'
                         }}
                     >
+                        <View   style={{
+                            width: 50,
+                            height: 50,
+                            alignItems:'center'
+                        }}>
+                        <Image
+                        style={{
+                            width: 40,
+                            height: 40
+                        }}
+                        source={require('thitracnghiem/icons/icons8-star-64.png')}
+                    />
+                        </View>
+                      
                         <View style={{ flexDirection: 'column', margin: '1%' }}>
                             <Text style={{ color: 'white' }}>Hạng {index +1}</Text>
-                            <Text style={{ color: 'white' }}> Tài khoản : {this.state.objCus[element.Id_Cus].Username}</Text>
+                            <Text style={{ color: 'white' }}>Tài khoản : {this.state.objCus[element.Id_Cus].Username}</Text>
                             <Text style={{ color: 'white' }}>{element.Point} điểm</Text>
+                            <Text style={{ color: 'white' }}>{this.changeTime(element.TimeLeft_Res)}</Text>
                         </View>
                     </View>
                     )
                 }
             }
-        })
+        }
         for (let index=last+1;index<10;index++)
         {
             if (index==0)
@@ -300,8 +330,9 @@ export default class chartsComponent extends Component {
                     </View>
                     <View style={{ flexDirection: 'column', margin: '1%' }}>
                         <Text style={{ color: 'white' }}>Hạng 1</Text>
-                        <Text style={{ color: 'white' }}> Tài khoản : Không có</Text>
-                        <Text style={{ color: 'white' }}> 0 điểm</Text>
+                        <Text style={{ color: 'white' }}>Tài khoản : Không có</Text>
+                        <Text style={{ color: 'white' }}>0 điểm</Text>
+                        <Text style={{ color: 'white' }}>0 s</Text>
                     </View>
                 </View>
                 )
@@ -331,8 +362,9 @@ export default class chartsComponent extends Component {
                 />
                 <View style={{ flexDirection: 'column', margin: '1%' }}>
                     <Text style={{ color: 'white' }}>Hạng 2</Text>
-                    <Text style={{ color: 'white' }}> Tài khoản : Không có</Text>
-                        <Text style={{ color: 'white' }}> 0 điểm</Text>
+                    <Text style={{ color: 'white' }}>Tài khoản : Không có</Text>
+                        <Text style={{ color: 'white' }}>0 điểm</Text>
+                        <Text style={{ color: 'white' }}>0 s</Text>
                 </View>
             </View>)
             }
@@ -361,8 +393,9 @@ export default class chartsComponent extends Component {
                 />
                 <View style={{ flexDirection: 'column', margin: '1%' }}>
                     <Text style={{ color: 'white' }}>Hạng 3</Text>
-                    <Text style={{ color: 'white' }}> Tài khoản : Không có</Text>
-                        <Text style={{ color: 'white' }}> 0 điểm</Text>
+                    <Text style={{ color: 'white' }}>Tài khoản : Không có</Text>
+                        <Text style={{ color: 'white' }}>0 điểm</Text>
+                        <Text style={{ color: 'white' }}>0 s</Text>
                 </View>
             </View>)
             }
@@ -381,10 +414,24 @@ export default class chartsComponent extends Component {
                         alignSelf: 'center'
                     }}
                 >
+                        <View   style={{
+                            width: 50,
+                            height: 50,
+                            alignItems:'center'
+                        }}>
+                        <Image
+                        style={{
+                            width: 40,
+                            height: 40
+                        }}
+                        source={require('thitracnghiem/icons/icons8-star-64.png')}
+                    />
+                        </View>
                     <View style={{ flexDirection: 'column', margin: '1%' }}>
                         <Text style={{ color: 'white' }}>Hạng {index +1}</Text>
-                       <Text style={{ color: 'white' }}> Tài khoản : Không có</Text>
-                        <Text style={{ color: 'white' }}> 0 điểm</Text>
+                       <Text style={{ color: 'white' }}>Tài khoản : Không có</Text>
+                        <Text style={{ color: 'white' }}>0 điểm</Text>
+                        <Text style={{ color: 'white' }}>0 s</Text>
                     </View>
                 </View>
                 )
