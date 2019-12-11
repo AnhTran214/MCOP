@@ -9,14 +9,16 @@ import {
     ImageBackground,
     Image,
     StatusBar,
-    ActivityIndicator
+    ActivityIndicator,
+    BackHandler
 } from 'react-native';
 import firebase from 'react-native-firebase';
 import Button from 'react-native-button';
 import { SignUp, fopass } from 'thitracnghiem/Navigation/screenName';
-import { setItemToAsyncStorage,setItemToAsyncStorage1 } from 'thitracnghiem/Function/function';
+import { setItemToAsyncStorage, setItemToAsyncStorage1 } from 'thitracnghiem/Function/function';
 import LinearGradient from 'react-native-linear-gradient';
 import md5 from 'md5';
+import OfflineNotice from 'thitracnghiem/Navigation/OfflineNotice.js';
 export default class loginComponent extends Component {
     constructor(props) {
         super(props);
@@ -42,7 +44,6 @@ export default class loginComponent extends Component {
         }
     };
 
-
     onLogin = () => {
         this.setState({
             loading: true
@@ -51,17 +52,15 @@ export default class loginComponent extends Component {
             Alert.alert('Thông báo', 'Email và Password không được bỏ trống');
             return;
         }
-        firebase
-            .database()
-            .ref("Customer").orderByChild("Username").equalTo(this.state.typedEmail).once('value', (value) => {
+        firebase.database().ref('Customer').orderByChild('Username').equalTo(this.state.typedEmail).once(
+            'value',
+            (value) => {
                 if (value.exists()) {
-                    value.forEach(async(data)=>
-                    {
+                    value.forEach(async (data) => {
                         if (data.toJSON().Password == md5(this.state.typedPassword)) {
                             if (data.toJSON().Status == 1) {
-    
-                               await setItemToAsyncStorage('userData', value.toJSON());
-                               await setItemToAsyncStorage1('key', data.key);
+                                await setItemToAsyncStorage('userData', value.toJSON());
+                                await setItemToAsyncStorage1('key', data.key);
                                 this.setState({
                                     loading: false
                                 });
@@ -82,8 +81,7 @@ export default class loginComponent extends Component {
                             });
                         }
                         return;
-                    }
-                    )
+                    });
                 }
                 else {
                     Alert.alert('Thông báo', 'Tài Khoản Không Tồn Tại');
@@ -91,18 +89,40 @@ export default class loginComponent extends Component {
                         loading: false
                     });
                 }
-
-            }, (error) => {
+            },
+            (error) => {
                 Alert.alert('Thông báo', 'Lỗi Server');
                 this.setState({
                     loading: false
                 });
-            });
+            }
+        );
     };
     checkValue = () => {
         return this.state.typedEmail === '' || this.state.typedPassword === '';
     };
-
+    componentDidMount() {
+        this.backButton = BackHandler.addEventListener('hardwareBackPress', () => {
+            Alert.alert(
+                'Thông báo',
+                'Bạn có muốn thoát ứng dụng',
+                [
+                    { text: 'Không', onPress: () => console.log('Cancel Pressed'), style: 'cancel' },
+                    {
+                        text: 'Có',
+                        onPress: async () => {
+                            BackHandler.exitApp();
+                        }
+                    }
+                ],
+                { cancelable: true }
+            );
+            return true;
+        });
+    }
+    componentWillUnmount() {
+        this.backButton.remove();
+    }
     render() {
         return (
             <View style={styles.contain}>
@@ -111,7 +131,7 @@ export default class loginComponent extends Component {
                     source={require('thitracnghiem/img/70331284_752704455184910_2392173157533351936_n.jpg')}
                     style={{ width: '100%', height: '100%' }}
                 >
-                    {/* <OfflineNotice /> */}
+                    <OfflineNotice />
                     <ScrollView>
                         <View style={{ alignItems: 'center', justifyContent: 'center' }}>
                             <Image
@@ -122,7 +142,7 @@ export default class loginComponent extends Component {
                                     marginTop: '5%'
                                 }}
                             />
-                            <View style={[styles.propertyValueRowView]}>
+                            <View style={[ styles.propertyValueRowView ]}>
                                 <Image
                                     style={{
                                         width: 30,
@@ -147,7 +167,7 @@ export default class loginComponent extends Component {
                                     }}
                                 />
                             </View>
-                            <View style={[styles.propertyValueRowView, { marginBottom: '5%' }]}>
+                            <View style={[ styles.propertyValueRowView, { marginBottom: '5%' } ]}>
                                 <Image
                                     style={{
                                         width: 30,
@@ -159,7 +179,7 @@ export default class loginComponent extends Component {
                                     source={require('thitracnghiem/icons/56255.png')}
                                 />
                                 <TextInput
-                                    style={[styles.multilineBox1]}
+                                    style={[ styles.multilineBox1 ]}
                                     keyboardType='default'
                                     placeholderTextColor='white'
                                     underlineColorAndroid='transparent'
@@ -187,11 +207,11 @@ export default class loginComponent extends Component {
                                             source={require('thitracnghiem/icons/2d4e09879b6f017f74ffaee0b0011c0a-eye-icon-by-vexels.png')}
                                         />
                                     ) : (
-                                            <Image
-                                                style={{ width: 30, height: 30, tintColor: 'white' }}
-                                                source={require('thitracnghiem/icons/mob32px045-512.png')}
-                                            />
-                                        )}
+                                        <Image
+                                            style={{ width: 30, height: 30, tintColor: 'white' }}
+                                            source={require('thitracnghiem/icons/mob32px045-512.png')}
+                                        />
+                                    )}
                                 </Button>
                             </View>
                             <Button
@@ -221,10 +241,10 @@ export default class loginComponent extends Component {
                                 end={{ x: 1, y: 0 }}
                                 colors={
                                     this.state.typedEmail === '' || this.state.typedPassword === '' ? (
-                                        ['grey', 'grey']
+                                        [ 'grey', 'grey' ]
                                     ) : (
-                                            ['rgb(86, 123, 248)', 'rgb(95,192,255)']
-                                        )
+                                        [ 'rgb(86, 123, 248)', 'rgb(95,192,255)' ]
+                                    )
                                 }
                                 style={{
                                     margin: '2%',
@@ -314,7 +334,7 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         color: 'white'
     },
-      multilineBox1: {
+    multilineBox1: {
         width: '80%',
         height: 50,
         marginTop: 20,
@@ -324,7 +344,7 @@ const styles = StyleSheet.create({
         marginLeft: '10%',
         marginRight: '2%',
         borderRadius: 5,
-        paddingRight:40,
+        paddingRight: 40,
         color: 'white'
     },
     propertyValueRowView: {

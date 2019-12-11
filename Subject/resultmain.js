@@ -1,62 +1,70 @@
 import React, { Component } from 'react';
 import AsyncStorage from '@react-native-community/async-storage';
-import {
-    Text,
-    View,
-    Image,
-    ImageBackground
-} from 'react-native';
+import { Text, View, Image, ImageBackground, BackHandler, Alert } from 'react-native';
 import Button from 'react-native-button';
 import { Home } from 'thitracnghiem/Navigation/screenName';
 import LinearGradient from 'react-native-linear-gradient';
 import firebase from 'react-native-firebase';
-import {
-	getItemFromAsyncStorage,
-} from 'thitracnghiem/Function/function';
+import { getItemFromAsyncStorage } from 'thitracnghiem/Function/function';
+import OfflineNotice from 'thitracnghiem/Navigation/OfflineNotice.js';
 export default class Resultmain extends Component {
     constructor(props) {
-		super(props);
-		this.state = {
+        super(props);
+        this.state = {
             succ: 0,
             fail: 0,
-            point:0,
-            total : 0,
-            time : 0
-		};
-
-	}
-  async  componentDidMount()
-    {
-       var  value=  await this.props.navigation.getParam('res_quest', null)
-            if (value!=null)
-            {
-            const res = value.split("|");
+            point: 0,
+            total: 0,
+            time: 0
+        };
+    }
+    async componentDidMount() {
+        var value = await this.props.navigation.getParam('res_quest', null);
+        if (value != null) {
+            const res = value.split('|');
             this.setState({
-                succ : res[0],
-                fail : res[1],
+                succ: res[0],
+                fail: res[1],
                 total: res[2],
-                point : res[3],
-                time : res[4]
-            })      
-            var Id_Con= await this.props.navigation.getParam('Id_Con', null) 
-            var user= await getItemFromAsyncStorage("userData");
-            var key_user='';
-            var date = (new Date()).toISOString().substr(0,10);
+                point: res[3],
+                time: res[4]
+            });
+            var Id_Con = await this.props.navigation.getParam('Id_Con', null);
+            var user = await getItemFromAsyncStorage('userData');
+            var key_user = '';
+            var date = new Date().toISOString().substr(0, 10);
             for (var key in JSON.parse(user)) {
-             key_user=key;
+                key_user = key;
             }
-            
-            await firebase.database().ref("Result").push(
-                {
-                    Id_Cus : key_user,
-                    Id_Con : Id_Con,
-                    TimeLeft_Res: parseInt(this.state.time),
-                    Point : parseFloat(this.state.point),
-                    Date_Res: date
-                }
-            )
+
+            await firebase.database().ref('Result').push({
+                Id_Cus: key_user,
+                Id_Con: Id_Con,
+                TimeLeft_Res: parseInt(this.state.time),
+                Point: parseFloat(this.state.point),
+                Date_Res: date
+            });
         }
-    
+        this.backButton = BackHandler.addEventListener('hardwareBackPress', () => {
+            Alert.alert(
+                'Thông báo',
+                'Bạn có muốn thoát ứng dụng',
+                [
+                    { text: 'Không', onPress: () => console.log('Cancel Pressed'), style: 'cancel' },
+                    {
+                        text: 'Có',
+                        onPress: async () => {
+                            BackHandler.exitApp();
+                        }
+                    }
+                ],
+                { cancelable: true }
+            );
+            return true;
+        });
+    }
+    componentWillUnmount() {
+        this.backButton.remove();
     }
     render() {
         return (
@@ -65,6 +73,7 @@ export default class Resultmain extends Component {
                     source={require('thitracnghiem/img/70331284_752704455184910_2392173157533351936_n.jpg')}
                     style={{ width: '100%', height: '100%' }}
                 >
+                    <OfflineNotice />
                     <View style={{ width: '100%', backgroundColor: '#1E90FF', height: 50 }}>
                         <Button
                             containerStyle={{
@@ -127,7 +136,7 @@ export default class Resultmain extends Component {
                                 textAlign: 'center'
                             }}
                         >
-    {this.state.succ}/{this.state.total}
+                            {this.state.succ}/{this.state.total}
                         </Text>
                         <Text
                             style={{
@@ -154,7 +163,8 @@ export default class Resultmain extends Component {
                                 margin: '5%'
                             }}
                         >
-                            Số câu không trả lời: {parseInt(this.state.total)-(parseInt(this.state.succ)+parseInt(this.state.fail))}
+                            Số câu không trả lời:{' '}
+                            {parseInt(this.state.total) - (parseInt(this.state.succ) + parseInt(this.state.fail))}
                         </Text>
                         <LinearGradient
                             start={{ x: 0, y: 0 }}

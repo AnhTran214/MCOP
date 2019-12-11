@@ -8,14 +8,13 @@ import {
     ImageBackground,
     StatusBar,
     Image,
-    ActivityIndicator
+    ActivityIndicator,
+    BackHandler
 } from 'react-native';
 import Button from 'react-native-button';
-import { Home, math, } from 'thitracnghiem/Navigation/screenName';
+import { Home, math } from 'thitracnghiem/Navigation/screenName';
 import firebase from 'react-native-firebase';
-import {
-    setItemToAsyncStorage,
-} from 'thitracnghiem/Function/function';
+import { setItemToAsyncStorage } from 'thitracnghiem/Function/function';
 /* import OfflineNotice from 'PhanAnh/miniComponent/OfflineNotice';*/
 import Header from 'thitracnghiem/subComponent/Header';
 import Footer from 'thitracnghiem/subComponent/footer';
@@ -40,15 +39,15 @@ export default class homeComponent extends Component {
             arrayTopic: []
         };
     }
-   async getdataTopic() {
-      await  topic.on('value', async(childSnapshot) => {
+    async getdataTopic() {
+        await topic.on('value', async (childSnapshot) => {
             const arrayTopic = [];
-           await childSnapshot.forEach((doc) => {
+            await childSnapshot.forEach((doc) => {
                 if (doc.toJSON().Status == 1)
                     arrayTopic.push({
                         Id: doc.key,
                         Name_Top: doc.toJSON().Name_Top,
-                        Image : doc.toJSON().Image,
+                        Image: doc.toJSON().Image,
                         Status: doc.toJSON().Status
                     });
             });
@@ -66,7 +65,7 @@ export default class homeComponent extends Component {
                 {
                     text: 'Sẵn sàng',
                     onPress: async () => {
-                        this.props.navigation.navigate(math,{Id_Top:id});
+                        this.props.navigation.navigate(math, { Id_Top: id });
                     }
                 }
             ],
@@ -74,16 +73,31 @@ export default class homeComponent extends Component {
         );
     }
     async componentDidMount() {
-
         await setItemToAsyncStorage('currentScreen', Home);
-        await this.getdataTopic().then(()=>
-        {
+        await this.getdataTopic().then(() => {
             this.gettopic();
-        }
-        );
+        });
 
-     
-
+        this.backButton = BackHandler.addEventListener('hardwareBackPress', () => {
+            Alert.alert(
+                'Thông báo',
+                'Bạn có muốn thoát ứng dụng',
+                [
+                    { text: 'Không', onPress: () => console.log('Cancel Pressed'), style: 'cancel' },
+                    {
+                        text: 'Có',
+                        onPress: async () => {
+                            BackHandler.exitApp();
+                        }
+                    }
+                ],
+                { cancelable: true }
+            );
+            return true;
+        });
+    }
+    componentWillUnmount() {
+        this.backButton.remove();
     }
     gettopic = () => {
         var arr = [];
@@ -108,7 +122,7 @@ export default class homeComponent extends Component {
                             width: 50,
                             height: 50
                         }}
-                        source = {{uri: item.Image}}
+                        source={{ uri: item.Image }}
                     />
                     <Text
                         style={{
@@ -116,7 +130,7 @@ export default class homeComponent extends Component {
                             fontSize: 18
                         }}
                     >
-                        {item.Name_Top} 
+                        {item.Name_Top}
                     </Text>
                     <LinearGradient
                         start={{ x: 0, y: 0 }}
@@ -192,7 +206,6 @@ export default class homeComponent extends Component {
                         >
                             {this.gettopic()}
                         </View>
-            
                     </ScrollView>
                     <Footer {...this.props} />
                 </ImageBackground>

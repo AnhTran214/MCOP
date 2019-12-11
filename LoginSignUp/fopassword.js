@@ -16,7 +16,8 @@ import Button from 'react-native-button';
 import { SignUp, Home, Login, takepass } from 'thitracnghiem/Navigation/screenName';
 import { setItemToAsyncStorage } from 'thitracnghiem/Function/function';
 import LinearGradient from 'react-native-linear-gradient';
-import RNSmtpMailer from "react-native-smtp-mailer";
+import RNSmtpMailer from 'react-native-smtp-mailer';
+import OfflineNotice from 'thitracnghiem/Navigation/OfflineNotice.js';
 export default class FopassCom extends Component {
     constructor(props) {
         super(props);
@@ -27,89 +28,94 @@ export default class FopassCom extends Component {
             loading: false,
             code: '',
             securenumber: '',
-            err_email:'',
-            key:''
+            err_email: '',
+            key: ''
         };
     }
     makeEmall = async () => {
         if (this.state.typedEmail.trim().length == 0 || this.state.typeUsername.trim().length == 0) {
-            Alert.alert("Thông báo", "Vui lòng nhập email và username trước");
+            Alert.alert('Thông báo', 'Vui lòng nhập email và username trước');
             return;
         }
-        this.setState({loading:true});
-        await firebase.database().ref("Customer").orderByChild("Username").equalTo(this.state.typeUsername).once("value", (value) => {
-            if (value.exists()) {
-               value.forEach((element)=>
-               {
-                if (element.toJSON().Email == this.state.typedEmail) {
-                    
-                    var rd = "";
-                    this.setState({
-                        key: element.key
-                    })
-                    for (var i = 0; i < 6; i++) {
-                        rd += Math.floor(Math.random() * 10).toString();
-                    }
-                
-                    RNSmtpMailer.sendMail({
-                        mailhost: "smtp.gmail.com",
-                        port: "465",
-                        ssl: true,
-                        username: "mcopf4@gmail.com",
-                        password: "mcop2019",
-                        from: "mcopf4@gmail.com",
-                        recipients: this.state.typedEmail,
-                        subject: "Mã xác nhận tài khoản " + this.state.typedEmail + " từ MCOP",
-                        htmlBody: "<p>Mã xác nhận của tài khoản "+this.state.typeUsername+" : " + rd + ".<p></br><p>Nếu xảy ra lỗi xin vui lòng liên hệ mcopf4@gmail.com để được giúp đỡ.</p>",
-                        attachmentPaths: [],
-                        attachmentNames: [],
-                        attachmentTypes: []
-                    })
-                        .then(() => {
-                            this.setState({ securenumber: rd,loading:false })
-                            Alert.alert("Thông báo", "Gửi thành công");
-                        })
-                        .catch(err => {
-                            console.log(err);
-                            this.setState({ securenumber: "",loading:false });
-                            
-                            Alert.alert("Thông báo", "Không gửi được mã xác nhận");
-                        })
+        this.setState({ loading: true });
+        await firebase
+            .database()
+            .ref('Customer')
+            .orderByChild('Username')
+            .equalTo(this.state.typeUsername)
+            .once('value', (value) => {
+                if (value.exists()) {
+                    value.forEach((element) => {
+                        if (element.toJSON().Email == this.state.typedEmail) {
+                            var rd = '';
+                            this.setState({
+                                key: element.key
+                            });
+                            for (var i = 0; i < 6; i++) {
+                                rd += Math.floor(Math.random() * 10).toString();
+                            }
+
+                            RNSmtpMailer.sendMail({
+                                mailhost: 'smtp.gmail.com',
+                                port: '465',
+                                ssl: true,
+                                username: 'mcopf4@gmail.com',
+                                password: 'mcop2019',
+                                from: 'mcopf4@gmail.com',
+                                recipients: this.state.typedEmail,
+                                subject: 'Mã xác nhận tài khoản ' + this.state.typedEmail + ' từ MCOP',
+                                htmlBody:
+                                    '<p>Mã xác nhận của tài khoản ' +
+                                    this.state.typeUsername +
+                                    ' : ' +
+                                    rd +
+                                    '.<p></br><p>Nếu xảy ra lỗi xin vui lòng liên hệ mcopf4@gmail.com để được giúp đỡ.</p>',
+                                attachmentPaths: [],
+                                attachmentNames: [],
+                                attachmentTypes: []
+                            })
+                                .then(() => {
+                                    this.setState({ securenumber: rd, loading: false });
+                                    Alert.alert('Thông báo', 'Gửi thành công');
+                                })
+                                .catch((err) => {
+                                    console.log(err);
+                                    this.setState({ securenumber: '', loading: false });
+
+                                    Alert.alert('Thông báo', 'Không gửi được mã xác nhận');
+                                });
+                        }
+                        else {
+                            this.setState({ loading: false });
+                            Alert.alert('Thông báo', 'Người dùng không tồn tại trong email nhập');
+                        }
+                        return;
+                    });
                 }
                 else {
-                    this.setState({loading:false});
-                    Alert.alert("Thông báo", "Người dùng không tồn tại trong email nhập");
+                    this.setState({ loading: false });
+                    Alert.alert('Thông báo', 'Người dùng không tồn tại');
+                    return;
                 }
-                return;
-               })
-               
-            }
-            else {
-                this.setState({loading:false});
-                Alert.alert("Thông báo", "Người dùng không tồn tại");
-                return;
-            }
-        })
-
-    }
+            });
+    };
     checkEmail = (text) => {
         if (text.trim().length == 0) {
-            this.setState({ err_email: "" })
+            this.setState({ err_email: '' });
         }
         else {
-            var reg = new RegExp("[a-zA-Z0-9.-_]{1,}@[a-zA-Z.-]{2,}[.]{1}[a-zA-Z]{2,}");
+            var reg = new RegExp('[a-zA-Z0-9.-_]{1,}@[a-zA-Z.-]{2,}[.]{1}[a-zA-Z]{2,}');
             if (reg.test(text) === false) {
-                this.setState({ err_email: "Định dạng Email không đúng" })
+                this.setState({ err_email: 'Định dạng Email không đúng' });
             }
             else {
-                this.setState({ err_email: "" })
+                this.setState({ err_email: '' });
             }
         }
-        this.setState({ typedEmail: text })
-
-    }
+        this.setState({ typedEmail: text });
+    };
     checkValue = () => {
-        return this.state.typedEmail === '' || this.state.typeUsername === '' || this.state.err_email.length>0;
+        return this.state.typedEmail === '' || this.state.typeUsername === '' || this.state.err_email.length > 0;
     };
 
     render() {
@@ -120,7 +126,7 @@ export default class FopassCom extends Component {
                     source={require('thitracnghiem/img/70331284_752704455184910_2392173157533351936_n.jpg')}
                     style={{ width: '100%', height: '100%' }}
                 >
-                    {/* <OfflineNotice /> */}
+                    <OfflineNotice />
                     <ScrollView>
                         <View
                             style={{
@@ -162,7 +168,7 @@ export default class FopassCom extends Component {
                                     marginTop: '5%'
                                 }}
                             />
-                            <View style={[styles.propertyValueRowView]}>
+                            <View style={[ styles.propertyValueRowView ]}>
                                 <Image
                                     style={{
                                         width: 30,
@@ -198,13 +204,17 @@ export default class FopassCom extends Component {
                                         opacity: 0.5
                                     }}
                                     style={{ fontSize: 13, padding: 5, color: 'white' }}
-                                    onPress={()=>this.makeEmall()}
+                                    onPress={() => this.makeEmall()}
                                 >
                                     Gửi mã
                                 </Button>
                             </View>
-                          {this.state.err_email.length>0?  <Text style={{ color: 'red', flex: 0, textAlign: 'center' }}>{this.state.err_email}</Text>:null}
-                            <View style={[styles.propertyValueRowView, { marginBottom: '5%' }]}>
+                            {this.state.err_email.length > 0 ? (
+                                <Text style={{ color: 'red', flex: 0, textAlign: 'center' }}>
+                                    {this.state.err_email}
+                                </Text>
+                            ) : null}
+                            <View style={[ styles.propertyValueRowView, { marginBottom: '5%' } ]}>
                                 <Image
                                     style={{
                                         width: 30,
@@ -216,7 +226,7 @@ export default class FopassCom extends Component {
                                     source={require('thitracnghiem/icons/user.png')}
                                 />
                                 <TextInput
-                                    style={[styles.multilineBox]}
+                                    style={[ styles.multilineBox ]}
                                     keyboardType='default'
                                     placeholderTextColor='white'
                                     underlineColorAndroid='transparent'
@@ -230,7 +240,7 @@ export default class FopassCom extends Component {
                                     }}
                                 />
                             </View>
-                            <View style={[styles.propertyValueRowView, { marginBottom: '5%' }]}>
+                            <View style={[ styles.propertyValueRowView, { marginBottom: '5%' } ]}>
                                 <Image
                                     style={{
                                         width: 30,
@@ -242,7 +252,7 @@ export default class FopassCom extends Component {
                                     source={require('thitracnghiem/icons/icons8-qr-code-64.png')}
                                 />
                                 <TextInput
-                                    style={[styles.multilineBox]}
+                                    style={[ styles.multilineBox ]}
                                     keyboardType='default'
                                     placeholderTextColor='white'
                                     underlineColorAndroid='transparent'
@@ -260,11 +270,7 @@ export default class FopassCom extends Component {
                                 start={{ x: 0, y: 0 }}
                                 end={{ x: 1, y: 0 }}
                                 colors={
-                                    this.checkValue() ? (
-                                            ['grey', 'grey']
-                                        ) : (
-                                            ['rgb(86, 123, 248)', 'rgb(95,192,255)']
-                                        )
+                                    this.checkValue() ? [ 'grey', 'grey' ] : [ 'rgb(86, 123, 248)', 'rgb(95,192,255)' ]
                                 }
                                 style={{
                                     margin: '2%',
@@ -274,19 +280,17 @@ export default class FopassCom extends Component {
                                 }}
                             >
                                 <Button
-                                    disabled={
-                                      this.checkValue()? true :false
-                                    }
+                                    disabled={this.checkValue() ? true : false}
                                     style={{
                                         fontSize: 16,
                                         color: 'white'
                                     }}
                                     onPress={/* this.onLogin */ () => {
                                         if (this.state.code == this.state.securenumber) {
-                                            this.props.navigation.navigate(takepass,{key:this.state.key});
+                                            this.props.navigation.navigate(takepass, { key: this.state.key });
                                         }
                                         else {
-                                            Alert.alert("Mã xác nhận không đúng")
+                                            Alert.alert('Mã xác nhận không đúng');
                                         }
                                     }}
                                 >
@@ -352,7 +356,7 @@ const styles = StyleSheet.create({
         marginRight: '2%',
         borderRadius: 5,
         color: 'white',
-        paddingRight:'12%'
+        paddingRight: '12%'
     },
     propertyValueRowView: {
         flexDirection: 'row',

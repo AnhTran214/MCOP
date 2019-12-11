@@ -7,6 +7,7 @@ import firebase from 'react-native-firebase';
 import { Login, Home } from 'thitracnghiem/Navigation/screenName';
 import { setItemToAsyncStorage, getItemFromAsyncStorage } from 'thitracnghiem/Function/function';
 import LinearGradient from 'react-native-linear-gradient';
+import OfflineNotice from 'thitracnghiem/Navigation/OfflineNotice.js';
 
 export default class Header extends Component {
     constructor(props) {
@@ -38,9 +39,7 @@ export default class Header extends Component {
             { cancelable: true }
         );
     };
-    async componentDidMount() {
-
-    }
+    async componentDidMount() {}
     render() {
         const { currentUser } = this.state;
         return (
@@ -87,7 +86,7 @@ export default class Header extends Component {
                         />
                     </TouchableHighlight>
                 </View>
-                {/* <OfflineNotice /> */}
+                <OfflineNotice />
             </View>
         );
     }

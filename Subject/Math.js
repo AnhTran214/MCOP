@@ -10,7 +10,8 @@ import {
 	Image,
 	TextInput,
 	FlatList,
-	ActivityIndicator
+	ActivityIndicator,
+	BackHandler
 } from 'react-native';
 import Button from 'react-native-button';
 import {  Home,  math } from 'thitracnghiem/Navigation/screenName';
@@ -20,6 +21,7 @@ import {
 } from 'thitracnghiem/Function/function';
 import CountDown from 'react-native-countdown-component';
 import { NavigationActions, StackActions } from 'react-navigation';
+import OfflineNotice from 'thitracnghiem/Navigation/OfflineNotice.js'
 const quest = firebase.database().ref('Question');
 const con = firebase.database().ref('Contest');
 const inc = firebase.database().ref('Include');
@@ -260,13 +262,33 @@ export default class MathComponent extends Component {
 			}
 		)
 		await this.getCon();
+		this.backButton = BackHandler.addEventListener('hardwareBackPress', () => {
+            Alert.alert(
+                'Thông báo',
+                'Bạn có muốn thoát ứng dụng',
+                [
+                    { text: 'Không', onPress: () => console.log('Cancel Pressed'), style: 'cancel' },
+                    {
+                        text: 'Có',
+                        onPress: async () => {
+                            BackHandler.exitApp();
+                        }
+                    }
+                ],
+                { cancelable: true }
+            );
+            return true;
+        });
 	}
+	componentWillUnmount() {
+        this.backButton.remove();
+    }
 	render() {
 
 		return (
 			<View style={styles.contain}>
 				<ImageBackground source={require('thitracnghiem/img/70331284_752704455184910_2392173157533351936_n.jpg')} style={{ width: '100%', height: '100%' }}>
-					{/*<OfflineNotice/>*/}
+					<OfflineNotice/>
 					<View
 						style={{
 							flexDirection: 'row',

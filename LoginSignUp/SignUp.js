@@ -17,6 +17,7 @@ import {Login} from 'thitracnghiem/Navigation/screenName';
 import {setItemToAsyncStorage,setItemToAsyncStorage1} from 'thitracnghiem/Function/function';
 import LinearGradient from 'react-native-linear-gradient';
 import md5 from 'md5';
+import OfflineNotice from 'thitracnghiem/Navigation/OfflineNotice.js'
  
  const LearnAppRefUsers = firebase.database().ref('Customer');
 export default class signupComponent extends Component {
@@ -126,7 +127,7 @@ export default class signupComponent extends Component {
                 barStyle = "light-content"
                 />
 			<ImageBackground source = {require('thitracnghiem/img/70331284_752704455184910_2392173157533351936_n.jpg')} style={{width: '100%', height: '100%'}}>
-				{/* <OfflineNotice /> */}
+				 <OfflineNotice />
 				<ScrollView>
 					<View
 					style = {{
