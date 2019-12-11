@@ -11,14 +11,10 @@ import {
     StyleSheet,
     ImageBackground
 } from 'react-native';
-import Button from 'react-native-button';
 import AsyncStorage from '@react-native-community/async-storage';
 import firebase from 'react-native-firebase';
-import { setItemToAsyncStorage, getItemFromAsyncStorage } from 'thitracnghiem/Function/function';
 import Header from 'thitracnghiem/subComponent/Header';
 import Footer from 'thitracnghiem/subComponent/footer';
-import LinearGradient from 'react-native-linear-gradient';
-import { thisExpression } from '@babel/types';
 
 export default class HistoryCom extends Component {
     static navigationOptions = ({ navigation }) => {
@@ -109,7 +105,9 @@ export default class HistoryCom extends Component {
     }
     showHis = () => {
         var show_his = [];
-        this.state.his.forEach((element, index) => {
+        var index=0;
+        this.state.his.forEach((element) => {
+            index++;
             show_his.push(
                 <View
                     key={index}

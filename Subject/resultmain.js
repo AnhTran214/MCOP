@@ -3,24 +3,15 @@ import AsyncStorage from '@react-native-community/async-storage';
 import {
     Text,
     View,
-    FlatList,
-    StyleSheet,
     Image,
-    Alert,
-    Platform,
-    TouchableHighlight,
-    TextInput,
-    Dimensions,
     ImageBackground
 } from 'react-native';
 import Button from 'react-native-button';
-import { Login, Home, info, math } from 'thitracnghiem/Navigation/screenName';
+import { Home } from 'thitracnghiem/Navigation/screenName';
 import LinearGradient from 'react-native-linear-gradient';
 import firebase from 'react-native-firebase';
 import {
-	setItemToAsyncStorage,
 	getItemFromAsyncStorage,
-	setItemToAsyncStorage1
 } from 'thitracnghiem/Function/function';
 export default class Resultmain extends Component {
     constructor(props) {

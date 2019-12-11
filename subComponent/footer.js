@@ -1,10 +1,8 @@
 import React, { Component } from 'react';
-import { Text, View, TouchableHighlight, Image, Alert } from 'react-native';
+import {  View,  Image} from 'react-native';
 import Button from 'react-native-button';
-import AsyncStorage from '@react-native-community/async-storage';
-import firebase from 'react-native-firebase';
-import { Home, info, addques, listques, charts, histo } from 'thitracnghiem/Navigation/screenName';
-import { setItemToAsyncStorage, getItemFromAsyncStorage } from 'thitracnghiem/Function/function';
+
+import { Home, info, charts, histo } from 'thitracnghiem/Navigation/screenName';
 
 export default class Footer extends Component {
     constructor(props) {

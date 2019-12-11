@@ -15,16 +15,11 @@ import Button from 'react-native-button';
 import {Login} from 'thitracnghiem/Navigation/screenName';
  import AsyncStorage from '@react-native-community/async-storage';
 import {setItemToAsyncStorage,setItemToAsyncStorage1} from 'thitracnghiem/Function/function';
-/*import OfflineNotice from 'Demon/Democode/infor/OfflineNotice' */
 import LinearGradient from 'react-native-linear-gradient';
 import md5 from 'md5';
  
  const LearnAppRefUsers = firebase.database().ref('Customer');
 export default class signupComponent extends Component {
-	/* static navigationOptions = ({ navigation }) => {
-		let drawerLabel = 'Register';
-		return { drawerLabel};
-	} */
 	constructor(props) {
 		super(props);
 		this.state = {

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Dimensions, Image, View, Text, ScrollView, ImageBackground } from 'react-native';
+import { Image,  ScrollView, ImageBackground } from 'react-native';
 import { createAppContainer, createBottomTabNavigator, createSwitchNavigator } from 'react-navigation';
 import { createStackNavigator } from 'react-navigation-stack';
 import { createDrawerNavigator, DrawerNavigatorItems } from 'react-navigation-drawer';
@@ -10,8 +10,6 @@ import homeComponent from 'thitracnghiem/Main/Home';
 import AuthLoadingScreen from 'thitracnghiem/subComponent/Loading';
 import infoAccComponent from 'thitracnghiem/Main/infoAcc';
 import MathComponent from 'thitracnghiem/Subject/Math';
-import liteComponent from 'thitracnghiem/Subject/Literature';
-import engComponent from 'thitracnghiem/Subject/English';
 import ListquesComponent from 'thitracnghiem/subComponent/Listques';
 import HeaderDrawer from 'thitracnghiem/Navigation/HeaderDrawer';
 import chartsComponent from 'thitracnghiem/Main/Charts';
@@ -28,8 +26,6 @@ import {
     AuthLoading,
     info,
     math,
-    lite,
-    eng,
     listques,
     charts,
     changePass,
@@ -49,8 +45,6 @@ const HomeStack = createStackNavigator(
     {
         //'Home': homeComponent
         Home: homeComponent,
-        lite: liteComponent,
-        eng: engComponent,
         listques: ListquesComponent
     },
     { headerMode: 'none' }

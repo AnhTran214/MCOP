@@ -1,10 +1,9 @@
 import React, { Component } from 'react';
-import { Text, View, TouchableHighlight, Image, Alert, StatusBar } from 'react-native';
-import Button from 'react-native-button';
+import { Text, Image } from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
 import firebase from 'react-native-firebase';
-import { Login, Home } from 'thitracnghiem/Navigation/screenName';
-import { setItemToAsyncStorage, getItemFromAsyncStorage } from 'thitracnghiem/Function/function';
+import { Home } from 'thitracnghiem/Navigation/screenName';
+import { setItemToAsyncStorage } from 'thitracnghiem/Function/function';
 import LinearGradient from 'react-native-linear-gradient';
 
 export default class HeaderDrawer extends Component {

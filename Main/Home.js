@@ -11,19 +11,15 @@ import {
     ActivityIndicator
 } from 'react-native';
 import Button from 'react-native-button';
-import { Login, Home, lite, math, eng, listques } from 'thitracnghiem/Navigation/screenName';
-import AsyncStorage from '@react-native-community/async-storage';
+import { Home, math, } from 'thitracnghiem/Navigation/screenName';
 import firebase from 'react-native-firebase';
 import {
     setItemToAsyncStorage,
-    getItemFromAsyncStorage,
-    setItemToAsyncStorage1
 } from 'thitracnghiem/Function/function';
 /* import OfflineNotice from 'PhanAnh/miniComponent/OfflineNotice';*/
 import Header from 'thitracnghiem/subComponent/Header';
 import Footer from 'thitracnghiem/subComponent/footer';
 import LinearGradient from 'react-native-linear-gradient';
-import { FlatList } from 'react-native-gesture-handler';
 
 const topic = firebase.database().ref('Topic');
 export default class homeComponent extends Component {

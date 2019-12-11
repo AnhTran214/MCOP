@@ -1,20 +1,13 @@
 import React, { Component } from 'react';
-import { Text, View, ScrollView, StyleSheet, Alert, TextInput, FlatList, Image } from 'react-native';
+import {  View, StyleSheet,FlatList, Image } from 'react-native';
 import Button from 'react-native-button';
-/* import OfflineNotice from 'PhanAnh/miniComponent/OfflineNotice'; */
-import { Home, info, math, listques } from 'thitracnghiem/Navigation/screenName';
+import { Home,  math} from 'thitracnghiem/Navigation/screenName';
 import AsyncStorage from '@react-native-community/async-storage';
 import firebase from 'react-native-firebase';
 import {
     setItemToAsyncStorage,
-    getItemFromAsyncStorage,
     setItemToAsyncStorage1
 } from 'thitracnghiem/Function/function';
-import Header from 'thitracnghiem/subComponent/Header';
-import Footer from 'thitracnghiem/subComponent/footer';
-import { TouchableHighlight } from 'react-native-gesture-handler';
-
-/* import ScrollableTabView, { DefaultTabBar } from 'react-native-scrollable-tab-view'; */
 
 const quesRef = firebase.database().ref('Manager/Question/Math/Exam1');
 export default class ListquesComponent extends Component {

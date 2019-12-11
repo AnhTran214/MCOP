@@ -13,12 +13,10 @@ import {
 } from 'react-native';
 import firebase from 'react-native-firebase';
 import Button from 'react-native-button';
-import { SignUp, Home, fopass } from 'thitracnghiem/Navigation/screenName';
+import { SignUp, fopass } from 'thitracnghiem/Navigation/screenName';
 import { setItemToAsyncStorage,setItemToAsyncStorage1 } from 'thitracnghiem/Function/function';
-/*import OfflineNotice from 'PhanAnh/miniComponent/OfflineNotice' */
 import LinearGradient from 'react-native-linear-gradient';
 import md5 from 'md5';
-const LearnAppRefUsers = firebase.database().ref('Customer');
 export default class loginComponent extends Component {
     constructor(props) {
         super(props);

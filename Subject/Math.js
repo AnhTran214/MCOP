@@ -13,24 +13,13 @@ import {
 	ActivityIndicator
 } from 'react-native';
 import Button from 'react-native-button';
-import { Login, Home, info, math, result } from 'thitracnghiem/Navigation/screenName';
-import AsyncStorage from '@react-native-community/async-storage';
+import {  Home,  math } from 'thitracnghiem/Navigation/screenName';
 import firebase from 'react-native-firebase';
 import {
 	setItemToAsyncStorage,
-	getItemFromAsyncStorage,
-	setItemToAsyncStorage1
 } from 'thitracnghiem/Function/function';
-/* import OfflineNotice from 'PhanAnh/miniComponent/OfflineNotice';*/
-import Header from 'thitracnghiem/subComponent/Header';
-import FooterSub from 'thitracnghiem/subComponent/footerSub';
-import ListquesComponent from 'thitracnghiem/subComponent/Listques';
-import Result from 'thitracnghiem/Subject/Result';
 import CountDown from 'react-native-countdown-component';
-import { thisExpression } from '@babel/types';
 import { NavigationActions, StackActions } from 'react-navigation';
-const quesRef = firebase.database().ref('Manager/Question/Math/Exam1');
-const topic = firebase.database().ref('Topic');
 const quest = firebase.database().ref('Question');
 const con = firebase.database().ref('Contest');
 const inc = firebase.database().ref('Include');

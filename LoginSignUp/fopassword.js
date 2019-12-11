@@ -15,11 +15,8 @@ import firebase from 'react-native-firebase';
 import Button from 'react-native-button';
 import { SignUp, Home, Login, takepass } from 'thitracnghiem/Navigation/screenName';
 import { setItemToAsyncStorage } from 'thitracnghiem/Function/function';
-/*import OfflineNotice from 'PhanAnh/miniComponent/OfflineNotice' */
 import LinearGradient from 'react-native-linear-gradient';
 import RNSmtpMailer from "react-native-smtp-mailer";
-import { thisExpression } from '@babel/types';
-const LearnAppRefUsers = firebase.database().ref('Manager/User');
 export default class FopassCom extends Component {
     constructor(props) {
         super(props);
@@ -57,7 +54,7 @@ export default class FopassCom extends Component {
                     RNSmtpMailer.sendMail({
                         mailhost: "smtp.gmail.com",
                         port: "465",
-                        ssl: true, //if ssl: false, TLS is enabled,**note:** in iOS TLS/SSL is determined automatically, so either true or false is the same
+                        ssl: true,
                         username: "mcopf4@gmail.com",
                         password: "mcop2019",
                         from: "mcopf4@gmail.com",

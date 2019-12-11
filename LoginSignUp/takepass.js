@@ -13,8 +13,7 @@ import {
 } from 'react-native';
 import firebase from 'react-native-firebase';
 import Button from 'react-native-button';
-import { SignUp, Home, Login } from 'thitracnghiem/Navigation/screenName';
-import { setItemToAsyncStorage } from 'thitracnghiem/Function/function';
+import {  Login } from 'thitracnghiem/Navigation/screenName';
 /*import OfflineNotice from 'PhanAnh/miniComponent/OfflineNotice' */
 import LinearGradient from 'react-native-linear-gradient';
 import md5 from 'md5';

@@ -1,10 +1,6 @@
 import React, { Component } from 'react';
-import { Text, View, TouchableHighlight, Image, Alert } from 'react-native';
+import {  View,  Alert } from 'react-native';
 import Button from 'react-native-button';
-import AsyncStorage from '@react-native-community/async-storage';
-import firebase from 'react-native-firebase';
-import { Home, info } from 'thitracnghiem/Navigation/screenName';
-import { setItemToAsyncStorage, getItemFromAsyncStorage } from 'thitracnghiem/Function/function';
 import Result from 'thitracnghiem/Subject/Result';
 
 export default class FooterSub extends Component {

@@ -1,23 +1,19 @@
 import React, { Component } from 'react';
 import {
-    FlatList,
     StyleSheet,
     Text,
     View,
     Image,
     Alert,
     Platform,
-    TouchableHighlight,
-    RefreshControl,
     TextInput,
     ScrollView,
-    Modal,
     ImageBackground,
     ActivityIndicator
 } from 'react-native';
 import firebase from 'react-native-firebase';
 import Button from 'react-native-button';
-import { setItemToAsyncStorage, getItemFromAsyncStorage, getStatusColor } from 'thitracnghiem/Function/function';
+import { setItemToAsyncStorage } from 'thitracnghiem/Function/function';
 import AsyncStorage from '@react-native-community/async-storage';
 import { Home, info, changePass } from 'thitracnghiem/Navigation/screenName';
 import Header from 'thitracnghiem/subComponent/Header';
