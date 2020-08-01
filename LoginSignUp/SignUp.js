@@ -24,18 +24,9 @@ export default class signupComponent extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			user: '',
-			role: 'Người dùng',
-			isUploading: false,
 			Username: '',
+			Password: '',
             Fullname: '',
-            Phone: '',
-            Email: '',
-            Address: '',
-            Birthday: '',
-            Password: '',
-			Status: 1,
-			Image:'',
 			rePassword:'' ,
 			loading: false,
 			showhidenPass: true,
@@ -50,16 +41,26 @@ export default class signupComponent extends Component {
             this.setState({ showhidenPass: true });
         }
     };
-	//ham thuc thi dang ky
 	 onRegister = () => {
-		if (this.state.Username == '' || this.state.Password == '' || this.state.Fullname == '') {
-			Alert.alert('Thông báo','Xin bạn hãy nhập đầy đủ thông tin...');
+		if (this.state.Username == '' || this.state.Password == '') {
+			Alert.alert('Thông báo','Tài Khoản và Mật Khẩu không được để trống');
+			return;
+		}
+		if (this.state.Password.length<6)
+		{
+			Alert.alert('Thông báo','Mật khẩu phải từ 6 kí tự trở lên');
+			return;
+		}
+		if (this.state.Password!=this.state.rePassword) {
+			Alert.alert('Thông báo','Tài Khoản và Mật Khẩu không được để trống');
 			return;
 		}
 		this.setState({
 			loading: true
 		});
-		LearnAppRefUsers.orderByChild("Username").equalTo(this.state.Username).once('value', (value) => {
+		var username= this.state.Username.trim();
+		var fullname= this.state.Fullname.trim();
+		LearnAppRefUsers.orderByChild("Username").equalTo(username).limitToFirst(1).once('value', async(value) => {
 			if (value.exists()) {
 				Alert.alert('Thông báo', 'Tài Khoản Đã Tồn Tại');
 				this.setState({
@@ -67,47 +68,35 @@ export default class signupComponent extends Component {
 				});
 			}
 			else {
-				LearnAppRefUsers.push(
-					{
-						Username: this.state.Username,
-						Fullname: this.state.Fullname,
-						Phone: '',
-						Email:  '',
-						Address: '',
-						Birthday: '',
-						Password: md5(this.state.Password),
-						Status: 1,
-						Image:'',
-					}
-				);
-				LearnAppRefUsers.orderByChild("Username").equalTo(this.state.Username).once('value', (value) => {
-					if (value.exists()) {
-						value.forEach(async(data)=>
-						{
-								   await setItemToAsyncStorage('userData', value.val());
-								   await setItemToAsyncStorage1('key', data.key);
-									this.setState({
-										loading: false
-									});
-									Alert.alert('Thông báo','Đăng ký thành công\nTự động đăng nhập...');
-									console.log(value.val());
-									this.props.navigation.navigate('App');
-							return;
-						})
-					}
-					else {
-						Alert.alert('Thông báo', 'Tài Khoản Không Tồn Tại');
-						this.setState({
-							loading: false
-						});
-					}
-		
-				}, (error) => {
-					Alert.alert('Thông báo', 'Lỗi Server');
+				var userData={
+					Username: username,
+					Fullname:fullname,
+					Phone: '',
+					Email:  '',
+					Address: '',
+					Birthday: '',
+					Password: md5(this.state.Password),
+					Status: 1,
+					Image:'',
+				};
+			var key=LearnAppRefUsers.push(userData).key;
+				if (key!=null)
+				{
+					userData["Id"]=key;
+					await setItemToAsyncStorage('userData', userData);
 					this.setState({
 						loading: false
 					});
-				});
+					Alert.alert('Thông báo','Đăng ký thành công\nTự động đăng nhập...');
+					this.props.navigation.navigate('App');
+				}
+				else
+				{
+					Alert.alert('Thông báo', 'Đăng Ký Thất Bại');
+					this.setState({
+						loading: false
+					});
+				}
 			}
 
 		})
@@ -116,134 +105,108 @@ export default class signupComponent extends Component {
 
 	  checkValue = () =>
 	  {
-		return this.state.Password !== this.state.rePassword || (this.state.typedUsername ==='' || this.state.Fullname ==='' || this.state.Password ==='' || this.state.rePassword === '');
+		return this.state.Username.trim() ==='' || this.state.Fullname.trim() ==='' || this.state.Password ==='' || this.state.rePassword === '';
 	  }
 
 	render() {
 		return (
-            <View style = {styles.contain}>
-				<StatusBar 
-                backgroundColor = "#1E90FF"
-                barStyle = "light-content"
-                />
-			<ImageBackground source = {require('thitracnghiem/img/70331284_752704455184910_2392173157533351936_n.jpg')} style={{width: '100%', height: '100%'}}>
-				 <OfflineNotice />
-				<ScrollView>
+            <View style={styles.contain}>
+                <StatusBar backgroundColor='#1E90FF' barStyle='light-content' />
+                <ImageBackground
+                    source={require('thitracnghiem/img/70331284_752704455184910_2392173157533351936_n.jpg')}
+                    style={{ width: '100%', height: '100%' }}
+                    pointerEvents={this.state.loading?'none':'auto'}
+                >
+                    <OfflineNotice />
+                    <ScrollView  contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}>
 					<View
 					style = {{
-						flexDirection: 'row',
-						justifyContent: 'flex-start',
-						marginLeft:'5%',
-						marginRight: '5%',
-						marginTop: '5%',
-						justifyContent: 'space-between',
-						width:'90%',
-						/* backgroundColor: 'red' */
+						position:'absolute',
+						left:0,
+						top:0
 					}}
 					>
 						<Button
 						containerStyle = {{
 							padding:10,
-							/* backgroundColor:'white', */
 						}}
 						style = {{
 							color:'white',
-							marginBottom: '20%'
 						}}
 						onPress = {() => {
-							const { navigate } = this.props.navigation;//chu y
-							navigate(Login);
+							this.props.navigation.navigate(Login);
 						}}>
 						<Image 
 						style = {{width:30, height:30, tintColor: 'white'}}
 						source = {require('thitracnghiem/icons/back.png')}/>
 					</Button>
-						<Button
-						containerStyle = {{
-							padding:10,
-							/* backgroundColor:'white' */
-						}}
-						style = {{
-							color:'white',
-							marginBottom: '20%'
-						}}
-						onPress = {() => {
-							const { navigate } = this.props.navigation;//chu y
-							navigate(Login);
-						}}>
-						Login
-					</Button>
 					</View>
-			<View
-				style={{
-					flex: 1,
-					alignItems: 'center',
-					justifyContent:'center',
-					marginTop: Platform.OS == 'ios' ? '5%' : 0,
-					borderRadius: Platform.OS == 'ios' ? '5%' : 0
-				}}>
-					<View style = {{alignItems: 'center',marginTop: '5%'}}>
-				<Text
-					style={{
-						fontSize: 22,
-						fontWeight: 'bold',
-						textAlign: 'center',
-						color: 'white',
-					}}>
-					ĐĂNG KÝ
-				</Text>
-				<View style={[styles.propertyValueRowView]}>
-				<TextInput
-					style={styles.multilineBox }
-					keyboardType='default'
-					underlineColorAndroid="transparent"
-					placeholderTextColor = "white"
-					placeholder='Nhập họ và tên'
-					maxLength={255}
-					autoCapitalize='none' // khong tu dong viet hoa
-					onChangeText={(text) => {
-						this.setState({
-							Fullname: text
-						});
-					}}
-				/>
-				</View>
-				<View style={[styles.propertyValueRowView]}>
-				<TextInput
-					style={styles.multilineBox }
-					underlineColorAndroid="transparent"
-					placeholderTextColor = "white"
-					keyboardType='default'
-					maxLength={255}
-					placeholder='Nhập Username'
-					autoCapitalize='none' // khong tu dong viet hoa
-					onChangeText={(text) => {
-						this.setState({
-							Username: text
-						});
-					}}
-				/>
-				</View>
-				<View style={[styles.propertyValueRowView]}>
-				<TextInput
-					style={styles.multilineBox1}
-					keyboardType='default'
-					placeholderTextColor = "white"
-					placeholder='Nhập mật khẩu'
-					secureTextEntry={this.state.showhidenPass} 
-					autoCapitalize='none'
-					maxLength={100}
-					onChangeText={(text) => {
-						this.setState({
-							Password: text
-						});
-					}}
-				/>
-				  <Button
+		
+					    <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+                            <Image
+                                source={require('thitracnghiem/img/imageedit_18_6287752576.png')}
+                                style={{
+                                    width: 200,
+                                    height: 200,
+                                    marginTop: '5%'
+                                }}
+                            />
+                            <View style={[ styles.propertyValueRowView ]}>
+                                <TextInput
+                                    style={styles.multilineBox}
+                                    underlineColorAndroid='transparent'
+                                    placeholderTextColor='white'
+                                    keyboardType='default'
+                                    autoCapitalize='none'
+                                    placeholder='Tài khoản *'
+                                    editable={true}
+                                    maxLength={100}
+                                    onChangeText={(text) => {
+                                        this.setState({ Username: text });
+									}}
+									onSubmitEditing={()=>this.refs.Fullname.focus()}
+                                />
+                            </View>
+							<View style={[ styles.propertyValueRowView ]}>
+                                <TextInput
+                                    style={styles.multilineBox}
+                                    underlineColorAndroid='transparent'
+                                    placeholderTextColor='white'
+                                    keyboardType='default'
+                                    autoCapitalize='none'
+                                    placeholder='Họ Tên'
+                                    editable={true}
+                                    maxLength={100}
+                                    onChangeText={(text) => {
+                                        this.setState({ Fullname: text });
+									}}
+									ref={'Fullname'}
+									onSubmitEditing={()=>this.refs.Password.focus()}
+                                />
+                            </View>
+                            <View style={[ styles.propertyValueRowView ]}>
+                                <TextInput
+                                    style={[ styles.multilineBox,{paddingRight:50} ]}
+                                    keyboardType='default'
+                                    placeholderTextColor='white'
+                                    underlineColorAndroid='transparent'
+                                    autoCapitalize='none'
+                                    secureTextEntry={this.state.showhidenPass} 
+                                    placeholder='Mật khẩu *'
+                                    editable={true}
+                                    maxLength={100}
+                                    onChangeText={(text) => {
+                                        this.setState({ Password: text });
+									}}
+									ref={'Password'}
+									onSubmitEditing={()=>this.refs.rePassword.focus()}
+                                />
+                                <Button
                                     containerStyle={{
                                         position: 'absolute',
-                                        right:'5%',
-                                        top: '40%'
+                                        right:'10%',
+                                        height:'100%',
+                                        justifyContent:'center'
                                     }}
                                     onPress={this.showhidenPassword.bind(this.state.showhidenPass)}
                                 >
@@ -253,57 +216,63 @@ export default class signupComponent extends Component {
                                             source={require('thitracnghiem/icons/2d4e09879b6f017f74ffaee0b0011c0a-eye-icon-by-vexels.png')}
                                         />
                                     ) : (
-                                            <Image
-                                                style={{ width: 30, height: 30, tintColor: 'white' }}
-                                                source={require('thitracnghiem/icons/mob32px045-512.png')}
-                                            />
-                                        )}
+                                        <Image
+                                            style={{ width: 30, height: 30, tintColor: 'white' }}
+                                            source={require('thitracnghiem/icons/mob32px045-512.png')}
+                                        />
+                                    )}
                                 </Button>
-				</View>
-				<View style={[styles.propertyValueRowView]}>
-				<TextInput
-					style={styles.multilineBox }
-					keyboardType='default'
-					placeholderTextColor = "white"
-					placeholder='Nhập lại mật khẩu'
-					secureTextEntry={this.state.showhidenPass} 
-					autoCapitalize='none'
-					onChangeText={(text) => {
-						this.setState({
-							rePassword: text
-						});
-					}}
-				/>
-				</View>
-				{this.state.rePassword.trim().length>0 && this.state.rePassword!=this.state.Password?<Text style={{color:'red',textAlign:'center'}}>Mật khẩu nhập lại không trùng khớp</Text>:null}
-				<LinearGradient  start={{x: 0, y: 0}} end={{x: 1, y: 0}} 
-				colors = {this.checkValue()?['grey','grey']:['rgb(86, 123, 248)', 'rgb(95,192,255)']}
-				style = {{
-					margin: '3%',
-					padding: '3%',
-					width: 250,
-					borderRadius: 20 ,
-				}}
-				>
-					<Button
-					disabled = {this.checkValue()? true: false}
-						style={{
-							fontSize: 16,
-							color: 'white'
-						}}
-						onPress= { 
-							 this.onRegister}>
-						{/* <Image source={require('Demon/icons/design-team-512.png')} style={{
-						padding: 10,
-						height: 25,
-						width: 25,
-						resizeMode : 'stretch',
-						marginRight: '2%'
-				}} /> */}
-						ĐĂNG KÝ
-					</Button>
-				</LinearGradient>
-				{this.state.loading ? (
+                            </View>
+                            <View style={[ styles.propertyValueRowView ]}>
+                                <TextInput
+                                    style={[ styles.multilineBox ]}
+                                    keyboardType='default'
+                                    placeholderTextColor='white'
+                                    underlineColorAndroid='transparent'
+                                    autoCapitalize='none'
+                                    secureTextEntry={this.state.showhidenPass} 
+                                    placeholder='Nhập Lại Mật khẩu *'
+                                    editable={true}
+                                    maxLength={100}
+                                    onChangeText={(text) => {
+                                        this.setState({ rePassword: text });
+									}}
+									ref={'rePassword'}
+									onSubmitEditing={()=>!this.checkValue() && !this.state.loading?this.onRegister():null}
+                                />
+                            </View>
+						    <LinearGradient
+                                start={{ x: 0, y: 0 }}
+                                end={{ x: 1, y: 0 }}
+                                colors={
+									this.checkValue() ||	 this.state.loading?  (
+                                        [ 'grey', 'grey' ]
+                                    ) : (
+                                        [ 'rgb(86, 123, 248)', 'rgb(95,192,255)' ]
+                                    )
+                                }
+                                style={{
+                                    margin: 10,
+                                    padding: '3%',
+                                    borderRadius: 20,
+                                    width: 250
+                                }}
+                            >
+                                <Button
+                                    disabled={this.checkValue() || this.state.loading? true : false}
+                                    style={{
+                                        fontSize: 16,
+                                        color: 'white'
+                                    }}
+                                    onPress={this.onRegister}
+                                >
+                                    ĐĂNG KÝ
+                                </Button>
+                            </LinearGradient>
+                        </View>
+                    </ScrollView>
+                </ImageBackground>
+                {this.state.loading ? (
                                 <View
                                     style={{
                                         position: 'absolute',
@@ -318,51 +287,30 @@ export default class signupComponent extends Component {
                                     <ActivityIndicator size={70} />
                                 </View>
                             ) : null}
-				</View>
-			</View>
-			</ScrollView>
-			 </ImageBackground>
             </View>
-		);
+        	);
 	}
 }
 const styles = StyleSheet.create({
     contain: {
         flex: 1,
-        backgroundColor:'#00008B'
+        backgroundColor: '#00008B'
     },
     multilineBox: {
-		width: '96%',
-		height: 50,
-		marginTop: 20,
-		borderColor: 'rgba(255,255,255,0.7)',
-		borderBottomWidth: 1,
-        textAlignVertical: 'top',
-        marginLeft: '2%',
-        marginRight: '2%',
-		borderRadius:5,
-		color: 'white'
-  },
-  multilineBox1: {
-	width: '96%',
-	height: 50,
-	marginTop: 20,
-	borderColor: 'rgba(255,255,255,0.7)',
-	borderBottomWidth: 1,
-	textAlignVertical: 'top',
-	marginLeft: '2%',
-	marginRight: '2%',
-	paddingRight: 50,
-	borderRadius:5,
-	color: 'white'
-},
-  propertyValueRowView: {
-		flexDirection: 'row',
-        justifyContent: 'flex-start',
-		marginTop: 0,
-		marginBottom: 0,
-		width: '100%'
-  },
+        width: '90%',
+        borderColor: 'rgba(255,255,255,0.7)',
+        borderBottomWidth: 1,
+        justifyContent:'center',
+        borderRadius: 5,
+        color: 'white',
+        paddingVertical:15
+    },
+    propertyValueRowView: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        marginBottom:0,
+        width: '90%'
+    },
   dropdownView: {
     width: '100%',
     height: 25,

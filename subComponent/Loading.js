@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import { ActivityIndicator, StyleSheet, View, ImageBackground, Text } from 'react-native';
+import { ActivityIndicator, StyleSheet, View, ImageBackground, Text,Dimensions } from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
-
+    import global from 'thitracnghiem/Function/global.js';
 export default class AuthLoadingScreen extends Component {
     constructor(props) {
         super(props);
@@ -9,6 +9,8 @@ export default class AuthLoadingScreen extends Component {
     }
 
     getEmail = async () => {
+      global.height =Dimensions.get('window').height;
+      global.width =Dimensions.get('window').width;
         await AsyncStorage.getItem('userData').then((value) => {
             const userData = JSON.parse(value);
             this.props.navigation.navigate(userData ? 'App' : 'Auth');
