@@ -19,6 +19,10 @@ import { setItemToAsyncStorage, setItemToAsyncStorage1 } from 'thitracnghiem/Fun
 import LinearGradient from 'react-native-linear-gradient';
 import md5 from 'md5';
 import OfflineNotice from 'thitracnghiem/Navigation/OfflineNotice.js';
+import { NavigationActions, StackActions } from 'react-navigation';
+import { AccessToken, LoginManager } from 'react-native-fbsdk';
+import { GoogleSignin } from '@react-native-community/google-signin';
+GoogleSignin.configure();
 export default class loginComponent extends Component {
     constructor(props) {
         super(props);
@@ -60,7 +64,9 @@ export default class loginComponent extends Component {
                     value.forEach(async (data) => {
                         if (data.toJSON().Password == md5(this.state.Password)) {
                             if (data.toJSON().Status == 1) {
-                                await setItemToAsyncStorage('userData', value.toJSON());
+                                var userData=data.toJSON();
+                                userData.Id=data.key;
+                                await setItemToAsyncStorage('userData', userData);
                                 await setItemToAsyncStorage1('key', data.key);
                                 this.setState({
                                     loading: false
@@ -102,6 +108,134 @@ export default class loginComponent extends Component {
     checkValue = () => {
         return this.state.Username.trim() === '' || this.state.Password === '';
     };
+    connectfb = (token) => {
+        this.setState({ loading: true });
+        if (token!=null)
+        {
+            fetch('https://graph.facebook.com/v2.8/me?fields=id&access_token=' + token)
+            .then((response) => response.json())
+            .then((json) => {
+             firebase.database().ref('Customer').orderByChild('Facebook').equalTo(json.id).limitToFirst(1).once(
+                'value',
+                (value) => {
+                    if (value.exists()) {
+                        value.forEach(async (data) => {
+                            var userData=data.toJSON();
+                            userData.Id=data.key;
+                            await setItemToAsyncStorage('userData', userData);
+                            await setItemToAsyncStorage1('key', data.key);
+                            this.setState({
+                                loading: false
+                            });
+                            Alert.alert('Thông báo', 'Đăng nhập thành công');
+                            this.props.navigation.navigate('App');
+                        });
+                    }
+                    else {
+                        this.setState({
+                            loading: false
+                        });
+                        Alert.alert(
+                            'Thông báo',
+                            'Facebook chưa liên kết với tài khoản, bạn có muốn đăng ký tài khoản mới và liên kết với Facebook?',
+                            [
+                                { text: 'Không', onPress: () => console.log('Cancel Pressed'), style: 'cancel' },
+                                {
+                                    text: 'Có',
+                                    onPress: async () => {
+                                        this.props.navigation.dispatch(
+                                            StackActions.reset({
+                                                index: 0,
+                                                actions: [
+                                                    NavigationActions.navigate({
+                                                        routeName: 'SignUp',
+                                                        params: {
+                                                            facebook: json.id
+                                                        }
+                                                    })
+                                                ]
+                                            }))
+                                    }
+                                }
+                            ],
+                            { cancelable: true }
+                        )
+                    }
+                },
+                (error) => {
+                    Alert.alert('Thông báo', 'Lỗi Server');
+                    this.setState({
+                        loading: false
+                    });
+                }
+            );
+            })
+            .catch(() => {
+                this.setState({
+                    loading: false
+                });
+                Alert.alert('Thông báo', 'Không thể lấy dữ liệu Facebook');
+                return;
+            });
+        }
+	}
+	connectgg = (id) => {
+        this.setState({ loading: true });
+             firebase.database().ref('Customer').orderByChild('Google').equalTo(id).limitToFirst(1).once(
+                'value',
+                (value) => {
+                    if (value.exists()) {
+                        value.forEach(async (data) => {
+                            var userData=data.toJSON();
+                                userData.Id=data.key;
+                                await setItemToAsyncStorage('userData', userData);
+                            await setItemToAsyncStorage1('key', data.key);
+                            this.setState({
+                                loading: false
+                            });
+                            Alert.alert('Thông báo', 'Đăng nhập thành công');
+                            this.props.navigation.navigate('App');
+                        });
+                    }
+                    else {
+                        this.setState({
+                            loading: false
+                        });
+                        Alert.alert(
+                            'Thông báo',
+                            'Google chưa liên kết với tài khoản, bạn có muốn đăng ký tài khoản mới và liên kết với Google?',
+                            [
+                                { text: 'Không', onPress: () => console.log('Cancel Pressed'), style: 'cancel' },
+                                {
+                                    text: 'Có',
+                                    onPress: async () => {
+                                        this.props.navigation.dispatch(
+                                            StackActions.reset({
+                                                index: 0,
+                                                actions: [
+                                                    NavigationActions.navigate({
+                                                        routeName: 'SignUp',
+                                                        params: {
+                                                            google: id
+                                                        }
+                                                    })
+                                                ]
+                                            }))
+                                    }
+                                }
+                            ],
+                            { cancelable: true }
+                        )
+                    }
+                },
+                (error) => {
+                    Alert.alert('Thông báo', 'Lỗi Server');
+                    this.setState({
+                        loading: false
+                    });
+                }
+            );
+	}
     componentDidMount() {
         this.backButton = BackHandler.addEventListener('hardwareBackPress', () => {
             Alert.alert(
@@ -121,8 +255,20 @@ export default class loginComponent extends Component {
             return true;
         });
     }
-    componentWillUnmount() {
-        this.backButton.remove();
+    async componentWillUnmount() {
+        AccessToken.getCurrentAccessToken().then(() => {
+			LoginManager.logOut();
+		}).catch(() => {
+		});
+		const isSignedIn = await GoogleSignin.isSignedIn();
+		if (isSignedIn) {
+			try {
+				await GoogleSignin.revokeAccess();
+				await GoogleSignin.signOut();
+			} catch (error) {
+				console.error(error);
+			}
+		}
     }
     render() {
         return (
@@ -271,6 +417,58 @@ export default class loginComponent extends Component {
                                     <Text style={{ color: '#1E90FF', fontStyle: 'italic' }}>Đăng ký</Text>
                                 </Text>
                             </Button>
+                            <View style={{ alignSelf: 'center', flexDirection: 'row', marginBottom: '5%' }}>
+								<Button
+									onPress={() => {
+										LoginManager.logInWithPermissions(["public_profile"]).then(
+											(result) => {
+												if (result.isCancelled) {
+													console.log("Login cancelled");
+												} else {
+													AccessToken.getCurrentAccessToken().then(
+														(data) => {
+															this.connectfb(data.accessToken.toString());
+														}
+													).catch(() => {
+                                                        Alert.alert('Thông báo', 'Không thành công!')
+													})
+
+												}
+											},
+											(error) => {
+                                                Alert.alert(
+                                                    'Thông báo', 'Kết nối Facebook không thành công.'
+                                                )
+											}
+										)
+									}
+									}
+								>
+									<Image
+										style={{ width: 30, height: 30, marginRight: '5%' }}
+										source={require('thitracnghiem/icons/icons8-facebook-480.png')} />
+								</Button>
+								<Button
+									onPress={async () => {
+										try {
+											await GoogleSignin.hasPlayServices();
+											var userInfo = await GoogleSignin.signIn();
+											this.connectgg(userInfo.user.id);
+										}
+										catch (error) {
+                                            console.log(error)
+                                            Alert.alert(
+                                                'Thông báo', 'Kết nối Google không thành công.'
+                                            )
+										}
+									}}
+								>
+									<Image
+										style={{ width: 30, height: 30 }}
+										source={require('thitracnghiem/icons/icons8-google-plus-480.png')} />
+								</Button>
+							</View> 
+					
                         </View>
                     </ScrollView>
                 </ImageBackground>

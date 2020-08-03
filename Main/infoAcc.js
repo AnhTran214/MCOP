@@ -9,7 +9,8 @@ import {
     TextInput,
     ScrollView,
     ImageBackground,
-    ActivityIndicator
+    ActivityIndicator,
+    BackHandler
 } from 'react-native';
 import firebase from 'react-native-firebase';
 import Button from 'react-native-button';
@@ -21,7 +22,8 @@ import Footer from 'thitracnghiem/subComponent/footer';
 import LinearGradient from 'react-native-linear-gradient';
 import DatePicker from 'react-native-datepicker';
 import ImagePicker from 'react-native-image-crop-picker';
-//tham chieu den root
+import { AccessToken, LoginManager } from 'react-native-fbsdk';
+import { GoogleSignin } from '@react-native-community/google-signin';
 const LearnAppUser = firebase.database().ref('Customer');
 export default class infoAccComponent extends Component {
     static navigationOptions = ({ navigation }) => {
@@ -39,10 +41,6 @@ export default class infoAccComponent extends Component {
         super(props);
         this.state = {
             loading: false,
-            currentItemId: '',
-            itemData: {},
-            typedEmail: '',
-            shortEmail: '',
             userData: {},
             pickerDisplayed: false,
             key: "",
@@ -53,36 +51,15 @@ export default class infoAccComponent extends Component {
             Address: '',
             Birthday: '',
             Password: '',
+            Facebook:'',
+            Google:'',
             Status: 1,
             err_email: "",
             err_phone:"",
         };
     }
 
-    async componentDidMount() {
-        await setItemToAsyncStorage('currentScreen', info);
-        // const currentItemId = await getItemFromAsyncStorage('currentItemId');
-        //console.log(`get currentItemId = ${currentItemId}`);
-        await AsyncStorage.getItem('userData').then((value) => {
-            const userData = JSON.parse(value);
-            for (var key in userData) {
-                this.setState({
-                    key: key,
-                    userData: userData[key],
-                    itemData: userData,
-                    Username: userData[key].Username,
-                    Fullname: userData[key].Fullname,
-                    Phone: userData[key].Phone,
-                    Email: userData[key].Email,
-                    Address: userData[key].Address,
-                    Birthday: userData[key].Birthday,
-                    Password: userData[key].Password,
-                    Status: userData[key].Status,
-                    Image: userData[key].Image
-                });
-            }
-        });
-    }
+
     async update() {
         this.setState({loading:true});
         LearnAppUser.child(this.state.key)
@@ -93,9 +70,12 @@ export default class infoAccComponent extends Component {
                 Address: this.state.Address,
                 Birthday: this.state.Birthday,
                 Status: this.state.Status,
-                Image: this.state.Image
+                Image: this.state.Image,
+                Facebook: this.state.Facebook,
+                Google: this.state.Google
             })
-            .then(async () => {
+            .then(async (value) => {
+                console.log(value);
                 this.state.userData.Fullname = this.state.Fullname;
                 this.state.userData.Phone = this.state.Phone;
                 this.state.userData.Email = this.state.Email;
@@ -104,15 +84,12 @@ export default class infoAccComponent extends Component {
                 this.state.userData.Status = this.state.Status;
                 this.state.userData.Image = this.state.Image;
                 this.state.userData.Password = this.state.Password;
-                var Ojb={};
-                Ojb[this.state.key] = this.state.userData;
-                console.log("haha",Ojb[this.state.key].Fullname);
+                this.state.userData.Facebook = this.state.Facebook;
+                this.state.userData.Google = this.state.Google;
                 await setItemToAsyncStorage('userData',
-                Ojb);
+                this.state.userData);
                     this.setState({loading:false});
-                    this.forceUpdate();
                 Alert.alert('Thông báo', 'Cập nhật thành công!');
-                this.props.navigation.navigate(Home);
             }).catch((error) => {
                 this.setState({loading:false});
                 Alert.alert("Thay đổi không thành công");
@@ -129,7 +106,11 @@ export default class infoAccComponent extends Component {
                 Birthday: this.state.userData.Birthday,
                 Password: this.state.userData.Password,
                 Status: this.state.userData.Status,
-                Image: this.state.userData.Image
+                Image: this.state.userData.Image,
+                Facebook: this.state.userData.Facebook,
+                Google: this.state.userData.Google,
+                err_email:'',
+                err_phone:''
             }
         )
     }
@@ -149,14 +130,112 @@ export default class infoAccComponent extends Component {
             { cancelable: true }
         );
     };
+    connectfb = (token) => {
+        this.setState({
+            loading:true
+        })
+        if (token!=null)
+        {
+            fetch('https://graph.facebook.com/v2.8/me?fields=id&access_token=' + token)
+            .then((response) => response.json())
+            .then((json) => {
+                firebase.database().ref('Customer').orderByChild('Facebook').equalTo(json.id).limitToFirst(1).once(
+                    'value',
+                    (value) => {
+                        if (value.exists()) {
+                            this.setState({
+                                loading:false
+                            });
+                           var kt= value.toJSON().hasOwnProperty(this.state.key);
+                            if (kt)
+                            {
+                                Alert.alert('Thông báo', 'Facebook đã được liên kết với tài khoản này');
+                            return;
+                            }
+                            else
+                            {
+                            Alert.alert('Thông báo', 'Facebook đã được liên kết với tài khoản khác');
+                            return;
+                            }
+                        }
+                        else {
+                            this.setState({
+                                Facebook:json.id,
+                                loading:false
+                            });
+                            Alert.alert('Thông báo', 'Facebook đã được thêm');
+                            return;
+                        }
+                    });
+            })
+            .catch(() => {
+                this.setState({
+                    loading:false
+                })
+                Alert.alert('Thông báo', 'Không thể lấy dữ liệu Facebook');
+                return;
+            });
+        }
+	}
+	connectgg = (id) => {
+        firebase.database().ref('Customer').orderByChild('Google').equalTo(id).limitToFirst(1).once(
+            'value',
+            (value) => {
+                if (value.exists()) {
+                        this.setState({
+                            loading:false
+                        });
+                       var kt= value.toJSON().hasOwnProperty(this.state.key);
+                        if (kt)
+                        {
+                            Alert.alert('Thông báo', 'Google đã được liên kết với tài khoản này');
+                        return;
+                        }
+                        else
+                        {
+                        Alert.alert('Thông báo', 'Google đã được liên kết với tài khoản khác');
+                        return;
+                        }
+                }
+                else {
+                    this.setState({
+                        Google:id,
+                        loading:false
+                    });
+                    Alert.alert('Thông báo', 'Google đã được thêm');
+                    return;
+                }
+            });
+	}
     renderImage(image) {
-        if (image=='')
-        return <Image
-        style={{ width: 125, height: 125, borderRadius: 125, tintColor: 'white'}}
-        source={require('thitracnghiem/icons/user.png')}
-    />
+        if (image==null || image=='')
+        return <View
+        style={{
+            width: 125,
+            height: 125,
+            borderRadius: 125,
+            flexDirection: 'row',
+            justifyContent: 'center',
+            borderColor: 'black',
+            borderWidth: 1,
+        }}>
+            <Image
+                style={{ width: 125, height: 125,borderRadius: 125,tintColor: 'black'}}
+                source={require('thitracnghiem/icons/user.png')}
+            />
+    </View>
         else
-        return <Image style={{ width: 125, height: 125, borderRadius: 125 }} source={{ uri: image }} />;
+        return <View
+        style={{
+            width: 125,
+            height: 125,
+            borderRadius: 125,
+            flexDirection: 'row',
+            justifyContent: 'center'
+        }}
+    >
+        <Image style={{ width: 125, height: 125,borderRadius: 125}} source={{ uri: image }} />
+    </View>;
     }
     pickSig() {
         ImagePicker.openPicker({
@@ -170,7 +249,7 @@ export default class infoAccComponent extends Component {
                     Image: `data:${image.mime};base64,${image.data}`
                 });
             })
-            .catch((e) => alert(e));
+            .catch((e) =>Alert.alert("Thông Báo","Không chọn được ảnh"));
     }
     checkEmail = (text) => {
         if (text.trim().length == 0) {
@@ -204,6 +283,42 @@ export default class infoAccComponent extends Component {
         }
         this.setState({ Phone: text })
     }
+   async componentDidMount() {
+        await setItemToAsyncStorage('currentScreen', info);
+        await AsyncStorage.getItem('userData').then((value) => {
+            const userData = JSON.parse(value);
+                this.setState({
+                    key: userData.Id,
+                    userData: userData,
+                    Username: userData.Username,
+                    Fullname: userData.Fullname,
+                    Phone: userData.Phone,
+                    Email: userData.Email,
+                    Address: userData.Address,
+                    Birthday: userData.Birthday,
+                    Password: userData.Password,
+                    Status: userData.Status,
+                    Facebook: userData.Facebook,
+                    Google: userData.Google,
+                    Image: userData.Image
+                });
+        });
+    }
+    async componentWillUnmount() {
+        AccessToken.getCurrentAccessToken().then(() => {
+			LoginManager.logOut();
+		}).catch(() => {
+		});
+		const isSignedIn = await GoogleSignin.isSignedIn();
+		if (isSignedIn) {
+			try {
+				await GoogleSignin.revokeAccess();
+				await GoogleSignin.signOut();
+			} catch (error) {
+				console.error(error);
+			}
+		}
+    }
     render() {
         return (
             <View style={{ flex: 1, marginTop: Platform.OS === 'ios' ? 34 : 0 }}>
@@ -211,33 +326,8 @@ export default class infoAccComponent extends Component {
                     source={require('thitracnghiem/img/70331284_752704455184910_2392173157533351936_n.jpg')}
                     style={{ width: '100%', height: '100%' }}
                 >
-                    <Header {...this.props} />
-                    <ScrollView>
-                        <View
-                            style={{
-                                backgroundColor: '#1E90FF',
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                                height: 64,
-                                marginLeft: '1%',
-                                marginRight: '1%',
-                                borderTopLeftRadius: 5,
-                                borderTopRightRadius: 5,
-                                marginTop: '1%'
-                            }}
-                        >
-                            <Text
-                                style={{
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                    color: 'white',
-                                    fontWeight: 'bold',
-                                    fontSize: 13
-                                }}
-                            >
-                                Thông tin cá nhân
-                            </Text>
-                        </View>
+                    <Header {...this.props} title={'Thông tin tài khoản'}/>
+                    <ScrollView style={{marginVertical:10}}>
                         <View
                             style={{
                                 borderLeftWidth: 2,
@@ -246,10 +336,9 @@ export default class infoAccComponent extends Component {
                                 borderColor: '#1E90FF',
                                 marginLeft: '1%',
                                 marginRight: '1%',
-                                marginBottom: '2%',
                                 borderBottomLeftRadius: 5,
                                 borderBottomRightRadius: 5,
-                                backgroundColor: 'rgba(241,241,241,0.7)'
+                                backgroundColor: 'rgba(241,241,241,0.7)',
                             }}
                         >
                             <View
@@ -278,28 +367,16 @@ export default class infoAccComponent extends Component {
                                         alignItems: 'center',
                                     }}
                                 >
-                                    <View
-                                        style={{
-                                            width: 125,
-                                            height: 125,
-                                            borderRadius: 125,
-                                            flexDirection: 'row',
-                                            justifyContent: 'center',
-                                            borderColor: 'white',
-                                            borderWidth: 3,
-                                        }}
-                                    >
                                         {this.renderImage(this.state.Image)}
-                                    </View>
                                     <Button onPress={() => this.pickSig()}>
                                         <Text
                                             style={{
-                                                fontSize: 11,
+                                                fontSize: 12,
                                                 fontStyle: 'italic',
-                                                color: 'rgb(26,141,255)'
+                                                color: 'black'
                                             }}
                                         >
-                                            Thay đổi
+                                            Chọn ảnh
                                             </Text>
                                     </Button>
                                 </View>
@@ -307,7 +384,7 @@ export default class infoAccComponent extends Component {
                                     style={{
                                         marginLeft: '2%',
                                         alignSelf: 'flex-start',
-                                        color: 'grey'
+                                        color: 'black'
                                     }}
                                 >
                                     Họ và tên:
@@ -332,7 +409,7 @@ export default class infoAccComponent extends Component {
                                     style={{
                                         marginLeft: '2%',
                                         alignSelf: 'flex-start',
-                                        color: 'grey'
+                                        color: 'black'
                                     }}
                                 >
                                     Email:
@@ -352,12 +429,12 @@ export default class infoAccComponent extends Component {
                                         }}
                                     />
                                 </View>
-                                <Text style={{ color: 'red', flex: 0, textAlign: 'center' }}>{this.state.err_email}</Text>
+                               {this.state.err_email.length>0?<Text style={{ color: 'red', flex: 0, textAlign: 'center' }}>{this.state.err_email}</Text>:null}
                                 <Text
                                     style={{
                                         marginLeft: '2%',
                                         alignSelf: 'flex-start',
-                                        color: 'grey'
+                                        color: 'black'
                                     }}
                                 >
                                     Ngày sinh:
@@ -377,11 +454,21 @@ export default class infoAccComponent extends Component {
                                             dateIcon: {
                                                 position: 'absolute',
                                                 right: 0,
-                                                top: 4,
+                                                top: 0,
                                                 marginLeft: 0
                                             },
                                             dateInput: {
-
+                                                borderLeftWidth:0,
+                                                borderRightWidth:0,
+                                                borderTopWidth:0,
+                                                width: '96%',
+                                                height: 50,
+                                                borderColor: '#1E90FF',
+                                                borderBottomWidth: 2,
+                                                textAlignVertical: 'top',
+                                                marginLeft: '2%',
+                                                marginRight: '2%',
+                                                marginBottom:10
                                             }
                                         }}
                                         onDateChange={(date) => { this.setState({ Birthday: date }) }}
@@ -391,7 +478,7 @@ export default class infoAccComponent extends Component {
                                     style={{
                                         marginLeft: '2%',
                                         alignSelf: 'flex-start',
-                                        color: 'grey'
+                                        color: 'black'
                                     }}
                                 >
                                     Số điện thoại:
@@ -411,19 +498,19 @@ export default class infoAccComponent extends Component {
                                         }}
                                     />
                                 </View>
-                                <Text style={{ color: 'red', flex: 0, textAlign: 'center' }}>{this.state.err_phone}</Text>
+                                {this.state.err_phone.length>0?<Text style={{ color: 'red', flex: 0, textAlign: 'center' }}>{this.state.err_phone}</Text>:null}
                                 <Text
                                     style={{
                                         marginLeft: '2%',
                                         alignSelf: 'flex-start',
-                                        color: 'grey'
+                                        color: 'black'
                                     }}
                                 >
                                     Địa chỉ:
                                 </Text>
                                 <View style={[styles.propertyValueRowView]}>
                                     <TextInput
-                                        style={[styles.multilineBox, { height: 100 }]}
+                                        style={[styles.multilineBox]}
                                         underlineColorAndroid='transparent'
                                         placeholderTextColor='black'
                                         placeholder={this.state.Address}
@@ -439,21 +526,59 @@ export default class infoAccComponent extends Component {
                                     />
                                 </View>
                             </View>
-                        </View>
-                        <View
-                            style={{
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                                marginVertical: '1%'
-                            }}
-                        >
-                            <Button
+                            <View style={{ alignSelf: 'center', flexDirection: 'row',marginVertical:20 }}>
+								<Button
+									onPress={() => {
+										LoginManager.logInWithPermissions(["public_profile"]).then(
+											(result) => {
+												if (result.isCancelled) {
+													console.log("Login cancelled");
+												} else {
+													AccessToken.getCurrentAccessToken().then(
+														(data) => {
+															this.connectfb(data.accessToken.toString());
+														}
+													).catch(() => {
+                                                        Alert.alert('Thông báo', 'Không thành công!')
+													})
 
-                                onPress={this.Reset}
-                            >
-                                <Image source={require('thitracnghiem/icons/icons8-available-updates-16.png')} style={{ width: 30, height: 30, tintColor: 'red' }} />
-                            </Button>
-                        </View>
+												}
+											},
+											(error) => {
+                                                Alert.alert(
+                                                    'Thông báo', 'Kết nối Facebook không thành công.'
+                                                )
+											}
+										)
+									}
+									}
+								>
+									<Image
+										style={{ width: 30, height: 30, marginRight: '5%' }}
+										source={require('thitracnghiem/icons/icons8-facebook-480.png')} />
+								</Button>
+								<Button
+									onPress={async () => {
+										try {
+											await GoogleSignin.hasPlayServices();
+											var userInfo = await GoogleSignin.signIn();
+											this.connectgg(userInfo.user.id);
+										}
+										catch (error) {
+                                            console.log(error)
+                                            Alert.alert(
+                                                'Thông báo', 'Kết nối Google không thành công.'
+                                            )
+										}
+									}}
+								>
+									<Image
+										style={{ width: 30, height: 30 }}
+										source={require('thitracnghiem/icons/icons8-google-plus-480.png')} />
+								</Button>
+							</View> 
+					
+                              </View>
                         {this.state.loading ? (
                                 <View
                                     style={{
@@ -469,15 +594,30 @@ export default class infoAccComponent extends Component {
                                     <ActivityIndicator size={70} />
                                 </View>
                             ) : null}
-                        <LinearGradient
+        
+                    </ScrollView>
+                    <View
+                            style={{
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                marginBottom:10
+                            }}
+                        >
+                            <Button
+                                
+                                onPress={this.Reset}
+                            >
+                                <Image source={require('thitracnghiem/icons/icons8-available-updates-16.png')} style={{ width: 30, height: 30, tintColor:'white' }} />
+                            </Button>
+                        </View>
+                    
+                    <LinearGradient
                             start={{ x: 0, y: 0 }}
                             end={{ x: 1, y: 0 }}
                             colors={this.state.err_email.length>0 || this.state.err_phone.length>0 ?['grey', 'grey']: ['rgb(86, 123, 248)', 'rgb(95,192,255)']  }
                             style={{
                                 width: '75%',
                                 height: 60,
-                                marginTop: '1%',
-                                marginBottom: '1%',
                                 backgroundColor: '#1E90FF',
                                 alignSelf: 'center',
                                 justifyContent: 'center',
@@ -500,9 +640,9 @@ export default class infoAccComponent extends Component {
                         </LinearGradient>
                         <Button
                             containerStyle={{
-                                padding: '3%',
                                 borderRadius: 5,
-                                alignSelf: 'center'
+                                alignSelf: 'center',
+                                marginVertical:10
                             }}
                             onPress={() => {
                                 const { navigate } = this.props.navigation; //chu y
@@ -512,14 +652,13 @@ export default class infoAccComponent extends Component {
                             <Text
                                 style={{
                                     fontSize: 13,
-                                    color: '#1E90FF',
+                                    color: 'white',
                                     fontStyle: 'italic'
                                 }}
                             >
                                 Đổi mật khẩu
                             </Text>
                         </Button>
-                    </ScrollView>
                     <Footer {...this.props} />
                 </ImageBackground>
             </View>
@@ -534,13 +673,11 @@ const styles = StyleSheet.create({
     multilineBox: {
         width: '96%',
         height: 50,
-        marginTop: '2%',
         borderColor: '#1E90FF',
         borderBottomWidth: 2,
         textAlignVertical: 'top',
         marginLeft: '2%',
         marginRight: '2%',
-        marginBottom: '2%'
     },
     propertyValueRowView: {
         flexDirection: 'row',

@@ -1,25 +1,12 @@
 import React, { Component } from 'react';
-import { Text, View, TouchableHighlight, Image, Alert, StatusBar } from 'react-native';
-import Button from 'react-native-button';
+import { Text, View, TouchableHighlight, Image, Alert, StatusBar,BackHandler } from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
-import firebase from 'react-native-firebase';
-/* import OfflineNotice from 'PhanAnh/miniComponent/OfflineNotice.js'; */
-import { Login, Home } from 'thitracnghiem/Navigation/screenName';
-import { setItemToAsyncStorage, getItemFromAsyncStorage } from 'thitracnghiem/Function/function';
-import LinearGradient from 'react-native-linear-gradient';
+import { Login } from 'thitracnghiem/Navigation/screenName';
 import OfflineNotice from 'thitracnghiem/Navigation/OfflineNotice.js';
 
 export default class Header extends Component {
     constructor(props) {
         super(props);
-        this.state = {
-            loading: false,
-            currentItemId: '',
-            typedEmail: '',
-            shortEmail: '',
-            userData: {},
-            currentUser: null
-        };
     }
     logout = () => {
         Alert.alert(
@@ -39,9 +26,26 @@ export default class Header extends Component {
             { cancelable: true }
         );
     };
-    async componentDidMount() {}
+    async componentDidMount() {
+        this.backButton = BackHandler.addEventListener('hardwareBackPress', () => {
+            Alert.alert(
+                'Thông báo',
+                'Bạn có muốn thoát ứng dụng',
+                [
+                    { text: 'Không', onPress: () => console.log('Cancel Pressed'), style: 'cancel' },
+                    {
+                        text: 'Có',
+                        onPress: async () => {
+                            BackHandler.exitApp();
+                        }
+                    }
+                ],
+                { cancelable: true }
+            );
+            return true;
+        });
+    }
     render() {
-        const { currentUser } = this.state;
         return (
             <View>
                 <StatusBar backgroundColor='#1E90FF' barStyle='light-content' />
@@ -69,9 +73,8 @@ export default class Header extends Component {
                             style={{ width: 32, height: 32, tintColor: 'white' }}
                         />
                     </TouchableHighlight>
-                    <Text style={{ color: 'white', fontStyle: 'italic', fontWeight: 'bold' }}>
-                        {this.state.userData.name}
-                        {/*  M.C.O.P */}
+                    <Text style={{ color: 'white',fontSize:16,  fontWeight: 'bold' }}>
+                        {this.props.title}
                     </Text>
                     <TouchableHighlight
                         style={{
@@ -82,7 +85,7 @@ export default class Header extends Component {
                     >
                         <Image
                             source={require('thitracnghiem/icons/icons8-export-40.png')}
-                            style={{ width: 32, height: 32 }}
+                            style={{ width: 32, height: 32,tintColor:'white' }}
                         />
                     </TouchableHighlight>
                 </View>

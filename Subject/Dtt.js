@@ -23,138 +23,103 @@ import OfflineNotice from 'thitracnghiem/Navigation/OfflineNotice.js'
 const quest = firebase.database().ref('Question');
 const con = firebase.database().ref('Contest');
 const inc = firebase.database().ref('Include');
-export default class MathComponent extends Component {
+export default class DttComponent extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
 			loading: false,
-			quesNumArray: [],
-			ls: [],
-			id: '',
-			idtopic: {},
-			questitem: {},
-			questArray: [],
-			currentid: 0,
-			Time_Left:0,
-			timeleft: 0,
-			Max_Point: 0,
-			TTQuest: [],
-			ojbQuest: {},
-			objCon: {},
-			Id_Top: '',
-			Id_Con: '',
-			stop: false,
-			scrollViewWidth:0,
-			currentXOffset:0
+            TTQuest: [],
+            Id_Top:'',
+            Name_Top:'',
+            currentid:0,
+            Time_Left:0
 		};
-	}
+    }
+    shuffle(array) {
+        var tmp, current, top = array.length;
+        if(top) while(--top) {
+          current = Math.floor(Math.random() * (top + 1));
+          tmp = array[current];
+          array[current] = array[top];
+          array[top] = tmp;
+        }
+        return array;
+      }
 	getCon = async () => {
-			var Id_Top= await this.props.navigation.getParam('Id_Top', '');
-			var Name_Top= await this.props.navigation.getParam('Name_Top', '');
-			if (Id_Top==null)
-			{
-				Alert.alert('Không Tìm Thấy Chủ Đề');
-				this.props.navigation.navigate(Home);
-				return;
-			}
-			this.setState({
-					Id_Top: Id_Top,
-					Name_Top:Name_Top
-			});
-		await con.orderByChild("Id_Top").equalTo(Id_Top).once("value", async (value) => {
-				if (value.exists()) {
-					var listCon = [];
-					await value.forEach((data) => {
-						if (data.toJSON().Status == 1)
-							listCon.push(
-								{
-									Id_Con: data.key,
-									Max_Point: data.toJSON().Max_Point,
-									Time_Left: data.toJSON().Time_Left
-								}
-							)
-					})
-					var leng = listCon.length;
-					var x = Math.floor(Math.random() * leng);
-					this.setState(
-						{
-							Id_Con: listCon[x].Id_Con,
-							Max_Point: listCon[x].Max_Point,
-							Time_Left:listCon[x].Time_Left,
-							timeleft: listCon[x].Time_Left
-						}
-					);
-					if (leng>0)
-					{
-						this.getInclude();
-					}
-				}
-				else
-				{
-					this.setState({
-						loading:false
-					})
-				}
-			});
-			await quest.orderByChild("Id_Top").equalTo(this.state.Id_Top).once('value', async (childSnapshot) => {
-				var list = {};
-				list = await childSnapshot.val();
-				this.setState({
-					ojbQuest: list
-				})
-			});
+        var Id_Top= await this.props.navigation.getParam('Id_Top', '');
+        var Name_Top= await this.props.navigation.getParam('Name_Top', '');
+        if (Id_Top==null)
+        {
+            Alert.alert('Không Tìm Thấy Chủ Đề');
+            this.props.navigation.navigate(Home);
+            return;
+        }
+        this.setState({
+                Id_Top: Id_Top,
+                Name_Top:Name_Top
+        });
+        var list=[];
+			await quest.orderByChild("Status").equalTo(1).once('value',  (value) => {
+                if (value.exists())
+                {
+                    value.forEach((data) => {
+                            list.push(data.toJSON())
+                    });
+                    list=this.shuffle(list);
+                    this.setState({
+                        TTQuest:list,
+                        loading:false,
+                        currentid:0,
+                        stop: true,
+                        Time_Left:10*list[0].Level,
+                        timeleft:10*list[0].Level
+                    });
+                }
+                else
+                {
+                    this.setState({
+                        loading:false
+                    });
+                }
+            });
 	}
-	changeAw = (index, id) => {
-			var res = [...this.state.ls];
-			res[index]=id;
-			this.setState({
-				ls:res
-			});
-			var len=this.state.TTQuest.length;
-			if (index<len)
-			{
-				for (let i=index+1;i<len;i++)
-				{
-					if (!(this.state.ls[i]>=0 &&this.state.ls[i]<=3) )
-					{
-						this.getquestwithid(i);
-						this.refs.scrollView.scrollToOffset({offset: 60*i, animated: true});
-						return;
-					}
-
-				}
-				for (let i=0;i<len;i++)
-					{
-						if (!(this.state.ls[i]>=0 &&this.state.ls[i]<=3))
-						{
-							this.getquestwithid(i);
-							this.refs.scrollView.scrollToOffset({offset: 60*i, animated: true});
-							return;
-						}
-					}
-				}
+	changeAw = ( id) => {
+        if (this.state.TTQuest[this.state.currentid].Answer==id.toString())
+        {
+            if (this.state.currentid<this.state.TTQuest.length)
+            {
+                var next=this.state.TTQuest[this.state.currentid+1].Level*10;
+                this.setState({
+                    currentid:this.state.currentid+1,
+                    Time_Left:next,
+                    timeleft:next
+                })
+            }
+            else
+            {
+                this.setState({
+                    stop: false
+                });
+                Alert.alert(
+                    'Thông báo',
+                    'Bạn đã hoàn thành hết tất cả câu');
+                this.getPoint();
+            }
+        }
+        else
+        {
+            this.setState({
+                    stop: false
+                });
+            Alert.alert(
+                'Thông báo',
+                'Bạn đã thất bại tại câu hỏi này');
+            this.getPoint();
+        }
 	}
 	getPoint= ()=>
 	{
-		var point =0;
-		var time= 0;		
-		var time= this.state.Time_Left-this.state.timeleft+1;
-		var right=0;
-		var fail=0;
-		for (let i=0;i<this.state.TTQuest.length;i++)
-		{
-			console.log(this.state.ls[i]+" "+this.state.ojbQuest[this.state.TTQuest[i].Id].Answer);
-			if (this.state.ls[i].toString()==this.state.ojbQuest[this.state.TTQuest[i].Id].Answer)
-			{
-				right++;
-			}
-			else
-			if (this.state.ls[i]!=-1)
-			{
-				fail++;
-			}
-		}
-		point=Math.round(parseFloat(this.state.Max_Point * right / this.state.TTQuest.length) * 100) / 100;
+		var point =this.state.currentid;
 		this.props.navigation.dispatch(
 			StackActions.reset({
 				index: 0,
@@ -162,8 +127,8 @@ export default class MathComponent extends Component {
 					NavigationActions.navigate({
 						routeName: 'result',
 						params: {
-							res_quest: right+ "|" + fail+ "|" + this.state.TTQuest.length + "|" + point +"|"+time,
-							Id_Con  : this.state.Id_Con
+							res_quest: point,
+							Id_Con  : '-MDSV6A4mCgLzdFeyUPf'
 						}
 					})
 				]
@@ -181,9 +146,8 @@ export default class MathComponent extends Component {
 					onPress: () => {
 						this.setState(
 							{
-								stop: false
-							}
-						)
+                                stop: false
+                            })
 						this.getPoint();
 					}
 			
@@ -209,76 +173,18 @@ export default class MathComponent extends Component {
 			{ cancelable: true }
 		);
 	};
-	getInclude = async () => {
-		var arr = [];
-		await inc.orderByChild('Id_Con').equalTo(this.state.Id_Con).once('value', async (childSnapshot) => {
-			if (childSnapshot.exists())
-			{
-			childSnapshot.forEach(async (doc) => {
-				arr.push({
-				Id:	doc.toJSON().Id_Ques,
-				Order:doc.toJSON().Order
-				});			
-			});
-			arr.reduce((a,b)=>a.Order>b.Order?1:a.Order<b.Order?-1:0);
-			var ls=[];
-			for(var i = 0; i < arr.length; i++) {
-				ls.push(-1);
-			}
-			this.setState(
-				{ 
-					TTQuest: arr,
-					stop:true,
-					loading:false,
-					currentid: 0,
-					ls:ls
-				});
-			}
-			else
-			{
-				this.setState(
-				{ 
-					loading:false,
-				});			
-			}
-		});
-	}
-	getquestwithid = async (index) => {
-		if (this.state.TTQuest.length > 0) {
-			await this.setState({
-				currentid: index,
-			});
-		
-		}
-	
-	}
 	getValue = (key)=>
 	{
 		var content='';
 		try
 		{
-			content=this.state.ojbQuest[this.state.TTQuest[this.state.currentid].Id][key];
+			content=this.state.TTQuest[this.state.currentid][key];
 		}
 		catch{
 			content='';
 		};
 		return content;
 	}
-	_handleScroll = (event) => {
-		var newXOffset = event.nativeEvent.contentOffset.x
-		this.setState({currentXOffset:newXOffset})
-	  }
-	leftArrow = () => {
-	var	eachItemOffset = 60; 
-	var	_currentXOffset =  this.state.currentXOffset - eachItemOffset;
-		this.refs.scrollView.scrollToOffset({offset: _currentXOffset, animated: true});
-	  }
-	
-	  rightArrow = () => {
-		var eachItemOffset = 60;
-		var	_currentXOffset =  this.state.currentXOffset + eachItemOffset;
-		this.refs.scrollView.scrollToOffset({offset: _currentXOffset, animated: true})
-	  }
 	async componentDidMount() {
 
 		await setItemToAsyncStorage('currentScreen', math);
@@ -337,11 +243,10 @@ export default class MathComponent extends Component {
 								size={15}
 								onChange={(value)=>this.setState({timeleft:value})}
 								onFinish={() => {
-									Alert.alert(
-										'Thông báo',
-										'Hết giờ làm bài'
-									);
-									this.getPoint();
+                                    Alert.alert(
+                                        'Thông báo',
+                                        'Bạn đã thất bại ở câu này');
+                                    this.getPoint();
 								}
 								}
 								digitStyle={{ backgroundColor: '#1E90FF' }}
@@ -353,67 +258,6 @@ export default class MathComponent extends Component {
 							/>: null}
 						</View>
 					<Text></Text>
-					</View>
-					<View
-						style={{
-							 flexDirection:'row', 
-							justifyContent:'center'
-						}}
-					>
-						<TouchableHighlight
-						style={{ justifyContent:'center',marginHorizontal:10,}}
-						onPress={this.leftArrow}>
-							<Image
-								source={require('thitracnghiem/icons/icons8-left-24.png')}
-								style={{ width: 20, height: 20, tintColor: 'white'}}
-							/>
-					</TouchableHighlight>
-						<FlatList
-						    contentContainerStyle={{flexGrow: 1, justifyContent: 'space-between'}}
-							horizontal={true}
-							ref={'scrollView'}
-							onContentSizeChange={(w, h) => this.setState({scrollViewWidth:w})}
-							scrollEventThrottle={16}
-							onScroll={this._handleScroll}
-							data={this.state.TTQuest}
-							keyExtractor={item => item.Id}
-							renderItem={({ item, index }) => {
-								return (
-									<View>
-											<Button
-												containerStyle={{
-													width: 50,
-													height: 50,
-													backgroundColor: this.state.ls[index] >= 0 && this.state.ls[index] <= 3?'gray':'#1E90FF',
-													borderRadius: 50,
-													justifyContent: 'center',
-													alignItems: 'center',
-													margin: 5
-												}}
-												onPress={async () => {
-													this.getquestwithid(index);
-												}}
-												style={{
-													fontSize: 13,
-													color: 'white'
-												}}
-											>
-												{index + 1}
-											</Button>
-									</View>
-								);
-							}}
-
-						/>
-				<TouchableHighlight
-						style={{ justifyContent:'center',marginHorizontal:10,}}
-						onPress={this.rightArrow}>
-							<Image
-								source={require('thitracnghiem/icons/icons8-right-24.png')}
-								style={{ width: 20, height: 20, tintColor: 'white'}}
-							/>
-					</TouchableHighlight>
-
 					</View>
 
 					<ScrollView style={{backgroundColor: 'rgba(255,255,255,0.5)'}}>
@@ -489,10 +333,11 @@ export default class MathComponent extends Component {
 									<Button
 										containerStyle={[
 											styles.stylerepButton,
-											{margin:5,backgroundColor: this.state.ls[this.state.currentid] === 0 ? '#1E90FF': null  , borderColor: 'white' }
+                                            {margin:5,
+                                               borderColor: 'white' }
 										]}
-										style={[styles.repButton, {color: this.state.ls[this.state.currentid] === 0 ? 'white':'black'   }]}
-										onPress={() => this.changeAw(this.state.currentid, 0)}
+										style={[styles.repButton, {color:  'black' }]}
+										onPress={() => this.changeAw(0)}
 									>
 										A 
 								</Button>
@@ -501,7 +346,7 @@ export default class MathComponent extends Component {
 									flex:1,
 									justifyContent:'center',
 								}}
-								onPress={() => this.changeAw(this.state.currentid, 0)}>
+								onPress={() => this.changeAw(0)}>
 									<Text>
 											{this.getValue('Answer1')}
 									</Text>
@@ -511,22 +356,22 @@ export default class MathComponent extends Component {
 
 								<View style={{ flexDirection: 'row',  width: '95%',	borderColor: 'grey',
 								borderWidth: 2,marginBottom:10 }}>
-									<Button
+										<Button
 										containerStyle={[
 											styles.stylerepButton,
-											{ margin:5,backgroundColor: this.state.ls[this.state.currentid] === 1 ? '#1E90FF': null  , borderColor: 'white' }
+											{margin:5, borderColor: 'white' }
 										]}
-										style={[styles.repButton, { color:this.state.ls[this.state.currentid] === 1 ? 'white':'black'   }]}
-										onPress={() => this.changeAw(this.state.currentid, 1)}
+										style={[styles.repButton, {color:  'black' }]}
+										onPress={() => this.changeAw( 1)}
 									>
-										B
+										B 
 								</Button>
 								<Button 
 								containerStyle={{
 									flex:1,
 									justifyContent:'center',
 								}}
-								onPress={() => this.changeAw(this.state.currentid, 1)}>
+								onPress={() => this.changeAw( 1)}>
 									<Text>
 											{this.getValue('Answer2')}
 									</Text>
@@ -539,10 +384,10 @@ export default class MathComponent extends Component {
 									<Button
 										containerStyle={[
 											styles.stylerepButton,
-											{margin:5, backgroundColor: this.state.ls[this.state.currentid] === 2 ? '#1E90FF': null  , borderColor: 'white' }
+											{margin:5, borderColor: 'white' }
 										]}
-										style={[styles.repButton, { color: this.state.ls[this.state.currentid] === 2 ? 'white':'black'   }]}
-										onPress={() => this.changeAw(this.state.currentid, 2)}
+										style={[styles.repButton, {color:  'black' }]}
+										onPress={() => this.changeAw( 2)}
 									>
 										C 
 								</Button>
@@ -551,7 +396,7 @@ export default class MathComponent extends Component {
 									flex:1,
 									justifyContent:'center',
 								}}
-								onPress={() => this.changeAw(this.state.currentid, 2)}>
+								onPress={() => this.changeAw( 2)}>
 									<Text>
 											{this.getValue('Answer3')}
 									</Text>
@@ -564,19 +409,19 @@ export default class MathComponent extends Component {
 									<Button
 										containerStyle={[
 											styles.stylerepButton,
-											{ margin:5,backgroundColor: this.state.ls[this.state.currentid] === 3 ? '#1E90FF': null  , borderColor: 'white' }
+											{margin:5, borderColor: 'white' }
 										]}
-										style={[styles.repButton, { color: this.state.ls[this.state.currentid]=== 3 ? 'white':'black'   }]}
-										onPress={() => this.changeAw(this.state.currentid, 3)}
+										style={[styles.repButton, {color:  'black' }]}
+										onPress={() => this.changeAw( 3)}
 									>
-										D
+										D 
 								</Button>
 								<Button 
 								containerStyle={{
 									flex:1,
 									justifyContent:'center',
 								}}
-								onPress={() => this.changeAw(this.state.currentid, 3)}>
+								onPress={() => this.changeAw( 3)}>
 									<Text>
 											{this.getValue('Answer4')}
 									</Text>

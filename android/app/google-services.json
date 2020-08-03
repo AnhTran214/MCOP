@@ -44,6 +44,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "509042484961-6fhdod0rol741vgh0hmqg6f063r2tfh8.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.thitracnghiem",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
           "client_id": "509042484961-h6ftn7g3qbkhun7j1caiqf9ga5pt326e.apps.googleusercontent.com",
           "client_type": 3
         }

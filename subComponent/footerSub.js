@@ -24,7 +24,6 @@ export default class FooterSub extends Component {
       
     }
     render() {
-        const { currentUser } = this.state;
         return (
             <View>
                 <View

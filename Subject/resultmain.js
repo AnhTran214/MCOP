@@ -15,56 +15,66 @@ export default class Resultmain extends Component {
             fail: 0,
             point: 0,
             total: 0,
-            time: 0
+            time: 0,
+            Id_Con:''
         };
+    }
+    changeTime = (time) => {
+        var min = parseInt(time / 60);
+        var sec = time % 60;
+        if (min < 10 && min > 0) min = '0' + min;
+        if (sec < 10 && sec > 0) sec = '0' + sec;
+        return min + ' phút ' + sec + ' giây';
     }
     async componentDidMount() {
         var value = await this.props.navigation.getParam('res_quest', null);
-        if (value != null) {
-            const res = value.split('|');
-            this.setState({
-                succ: res[0],
-                fail: res[1],
-                total: res[2],
-                point: res[3],
-                time: res[4]
-            });
-            var Id_Con = await this.props.navigation.getParam('Id_Con', null);
-            var user = await getItemFromAsyncStorage('userData');
-            var key_user = '';
-            var date = new Date().toISOString().substr(0, 10);
-            for (var key in JSON.parse(user)) {
-                key_user = key;
-            }
-
-            await firebase.database().ref('Result').push({
-                Id_Cus: key_user,
-                Id_Con: Id_Con,
-                TimeLeft_Res: parseInt(this.state.time),
-                Point: parseFloat(this.state.point),
-                Date_Res: date
-            });
-        }
-        this.backButton = BackHandler.addEventListener('hardwareBackPress', () => {
-            Alert.alert(
-                'Thông báo',
-                'Bạn có muốn thoát ứng dụng',
-                [
-                    { text: 'Không', onPress: () => console.log('Cancel Pressed'), style: 'cancel' },
-                    {
-                        text: 'Có',
-                        onPress: async () => {
-                            BackHandler.exitApp();
-                        }
-                    }
-                ],
-                { cancelable: true }
-            );
-            return true;
+        var Id_Con = await this.props.navigation.getParam('Id_Con', null);
+        var key_user='';
+        await AsyncStorage.getItem('userData').then((value) => {
+            const userData = JSON.parse(value);
+             key_user=userData.Id;
         });
-    }
-    componentWillUnmount() {
-        this.backButton.remove();
+        var date = new Date().toISOString().substr(0, 10);
+        if (value != null) {
+            if (Id_Con!='-MDSV6A4mCgLzdFeyUPf')
+            {
+                const res = value.split('|');
+                var succ=parseInt(res[0]);
+                var fail=parseInt(res[1]);
+                var total=parseInt(res[2]);
+                var point=parseInt(res[3]);
+                var time=parseInt(res[4]);
+                this.setState({
+                    Id_Con:Id_Con,
+                    succ:succ,
+                    fail: fail,
+                    total: total,
+                    point: point,
+                    time: time
+                });
+                await firebase.database().ref('Result').push({
+                    Id_Cus: key_user,
+                    Id_Con: Id_Con,
+                    TimeLeft_Res: time,
+                    Point: point,
+                    Date_Res: date
+                });
+             }
+             else
+             {
+                this.setState({
+                    Id_Con:Id_Con,
+                    point: value
+                });
+                await firebase.database().ref('Result').push({
+                    Id_Cus: key_user,
+                    Id_Con: Id_Con,
+                    TimeLeft_Res: 0,
+                    Point:value,
+                    Date_Res: date
+                });
+             }
+         }
     }
     render() {
         return (
@@ -129,6 +139,10 @@ export default class Resultmain extends Component {
                         >
                             {this.state.point}
                         </Text>
+                        {
+                        this.state.Id_Con!='-MDSV6A4mCgLzdFeyUPf'?
+                        (
+                            <View>
                         <Text
                             style={{
                                 color: 'white',
@@ -137,6 +151,16 @@ export default class Resultmain extends Component {
                             }}
                         >
                             {this.state.succ}/{this.state.total}
+                        </Text>
+                        <Text
+                            style={{
+                                color: 'white',
+                                fontSize: 16,
+                                margin: '5%'
+                            }}
+                        >
+                            Thời gian trả lời:{' '}
+                            {this.changeTime(this.state.time)}
                         </Text>
                         <Text
                             style={{
@@ -164,8 +188,10 @@ export default class Resultmain extends Component {
                             }}
                         >
                             Số câu không trả lời:{' '}
-                            {parseInt(this.state.total) - (parseInt(this.state.succ) + parseInt(this.state.fail))}
+                            {this.state.total - (this.state.succ+ this.state.fail)}
                         </Text>
+                        </View>
+                        ):null}
                         <LinearGradient
                             start={{ x: 0, y: 0 }}
                             end={{ x: 1, y: 0 }}

@@ -6,13 +6,10 @@ import {
     StyleSheet,
     Alert,
     ImageBackground,
-    StatusBar,
     Image,
-    ActivityIndicator,
-    BackHandler
 } from 'react-native';
 import Button from 'react-native-button';
-import { Home, math } from 'thitracnghiem/Navigation/screenName';
+import { Home, math,dtt } from 'thitracnghiem/Navigation/screenName';
 import firebase from 'react-native-firebase';
 import { setItemToAsyncStorage } from 'thitracnghiem/Function/function';
 /* import OfflineNotice from 'PhanAnh/miniComponent/OfflineNotice';*/
@@ -56,7 +53,7 @@ export default class homeComponent extends Component {
             });
         });
     }
-    async setTopicId(id) {
+    async setTopicId(item) {
         Alert.alert(
             'Thông báo',
             'Bạn đã sẵn sàng làm bài?',
@@ -64,8 +61,16 @@ export default class homeComponent extends Component {
                 { text: 'Để sau', onPress: () => console.log('Cancel Pressed'), style: 'cancel' },
                 {
                     text: 'Sẵn sàng',
-                    onPress: async () => {
-                        this.props.navigation.navigate(math, { Id_Top: id });
+                    onPress:  () => {
+                        if (item.Id!='-MDBLQgsR3ZDZTyrrf8_')
+                        {
+                            this.props.navigation.navigate(math, { Id_Top: item.Id,Name_Top: item.Name_Top });
+                        }
+                        else
+                        {
+                            this.props.navigation.navigate(dtt, { Id_Top: item.Id,Name_Top: item.Name_Top });
+                        }
+                      
                     }
                 }
             ],
@@ -77,28 +82,8 @@ export default class homeComponent extends Component {
         await this.getdataTopic().then(() => {
             this.gettopic();
         });
+    }
 
-        this.backButton = BackHandler.addEventListener('hardwareBackPress', () => {
-            Alert.alert(
-                'Thông báo',
-                'Bạn có muốn thoát ứng dụng',
-                [
-                    { text: 'Không', onPress: () => console.log('Cancel Pressed'), style: 'cancel' },
-                    {
-                        text: 'Có',
-                        onPress: async () => {
-                            BackHandler.exitApp();
-                        }
-                    }
-                ],
-                { cancelable: true }
-            );
-            return true;
-        });
-    }
-    componentWillUnmount() {
-        this.backButton.remove();
-    }
     gettopic = () => {
         var arr = [];
         this.state.arrayTopic.forEach((item, index) => {
@@ -149,7 +134,7 @@ export default class homeComponent extends Component {
                                 color: 'white'
                             }}
                             onPress={() => {
-                                this.setTopicId(item.Id);
+                                this.setTopicId(item);
                             }}
                         >
                             Thi ngay
@@ -170,14 +155,14 @@ export default class homeComponent extends Component {
                     style={{ width: '100%', height: '100%' }}
                 >
                     {/*<OfflineNotice/>*/}
-                    <Header {...this.props} />
+                    <Header {...this.props} title={'Trang chủ'} />
                     <ScrollView>
                         <Text
                             style={{
                                 fontSize: 22,
                                 fontWeight: 'bold',
                                 textAlign: 'center',
-                                color: '#1E90FF',
+                                color: 'white',
                                 marginTop: '1%',
                                 fontStyle: 'italic'
                             }}
@@ -189,7 +174,7 @@ export default class homeComponent extends Component {
                                 fontSize: 16,
                                 fontWeight: 'bold',
                                 textAlign: 'center',
-                                color: '#1E90FF',
+                                color: 'white',
                                 margin: '1%',
                                 fontStyle: 'italic'
                             }}

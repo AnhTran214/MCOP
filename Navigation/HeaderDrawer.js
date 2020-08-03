@@ -15,29 +15,15 @@ export default class HeaderDrawer extends Component {
             key: ''
         };
     }
-    getUser = async()=>
-    {
-        await firebase.database().ref('Customer/'+this.state.key).on("value",(value)=>
-        {
-        
-           if (value.exists())
-           {
-            this.setState({
-                userData:  value.toJSON()
-            }); 
-             
-           }
-        }) 
-    }
     async componentDidMount() {
         await setItemToAsyncStorage('currentScreen', Home);
-       var key= await AsyncStorage.getItem('key');
-        this.setState(
-            {
-                key:key
-            }
-        )
-            await this.getUser();
+      await AsyncStorage.getItem('userData').then((value) => {
+        const userData = JSON.parse(value);
+            this.setState({
+                key: userData.Id,
+                userData: userData
+            });
+    });
     }
     render() {
         return (
@@ -53,26 +39,20 @@ export default class HeaderDrawer extends Component {
                 }}
             >
                 {
-                    this.state.userData &&  this.state.userData.Image!=''?
+                    this.state.userData &&  this.state.userData.Image!=null && this.state.userData.Image!=''?
                         <Image
-                            style={{ width: 50, height: 50 }}
+                            style={{ width: 80, height: 80 }}
                             source = {{uri: this.state.userData.Image}}
                          
                         /> :
                         <Image
-                            style={{ width: 50, height: 50, tintColor: 'white'}}
+                            style={{ width: 80, height: 80, tintColor: 'white'}}
                             source={require('thitracnghiem/icons/user.png')}
                         />
 
                 }
-                  {
-                    this.state.userData ?
-                <Text style={{ color: 'white' }}>{this.state.userData.Username}</Text> : null
-                  }
-                    {
-                    this.state.userData ?
-                <Text style={{ color: 'white' }}>{this.state.userData.Fullname}</Text>  : null
-                    }
+                <Text style={{ color: 'white',marginTop:10,fontWeight:'bold' }}>Tài Khoản: { this.state.userData ? this.state.userData.Username:''}</Text> 
+                <Text style={{ color: 'white' }}>Tên: {this.state.userData ?this.state.userData.Fullname:''}</Text>  
             </LinearGradient>
         );
     }

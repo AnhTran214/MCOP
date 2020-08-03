@@ -6,17 +6,15 @@ import {
     ScrollView,
     FlatList,
     StyleSheet,
-    ImageBackground
+    ImageBackground,
+    TouchableHighlight
 } from 'react-native';
 import Button from 'react-native-button';
 import AsyncStorage from '@react-native-community/async-storage';
 import firebase from 'react-native-firebase';
-import { setItemToAsyncStorage, getItemFromAsyncStorage } from 'thitracnghiem/Function/function';
 import Header from 'thitracnghiem/subComponent/Header';
 import Footer from 'thitracnghiem/subComponent/footer';
 import LinearGradient from 'react-native-linear-gradient';
-import { validate, nullLiteral } from '@babel/types';
-
 export default class chartsComponent extends Component {
     static navigationOptions = ({ navigation }) => {
         let drawerLabel = 'Xếp hạng';
@@ -32,8 +30,6 @@ export default class chartsComponent extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            sen: 50,
-            point: 100,
             objTop: {},
             objCon: {},
             objCus: {},
@@ -42,7 +38,9 @@ export default class chartsComponent extends Component {
             Id_Top: '',
             key: '',
             index: 0,
-            point: 0
+            point: 0,
+            scrollViewWidth:0,
+			currentXOffset:0
         };
     }
     getCus = async () => {
@@ -53,10 +51,9 @@ export default class chartsComponent extends Component {
         })
     }
     getCon = async () => {
-        await firebase.database().ref("Contest").on("value", (value) => {
+        await firebase.database().ref("Contest").once("value", (value) => {
             if (value.exists()) {
                 this.setState({ objCon: value.val() });
-                this.getRes();
             }
         })
     }
@@ -65,59 +62,30 @@ export default class chartsComponent extends Component {
         var sec = time % 60;
         if (min < 10 && min > 0) min = '0' + min;
         if (sec < 10 && sec > 0) sec = '0' + sec;
-        return min + ' phút ' + sec + ' s'
+        return min + ' phút ' + sec + ' giây';
     }
     getRes = async () => {
-        await firebase.database().ref("Result").orderByChild('Point').on("value", (value) => {
+        await firebase.database().ref("Result").orderByChild('Point').once("value", (value) => {
             if (value.exists()) {
                 var arr = [];
-                var index = 0;
-                var point = 0;
-                var _index = 0;
-                var tt_index = 0;
                 value.forEach((element) => {
-                    if (this.state.objCon.hasOwnProperty(element.toJSON().Id_Con) && this.state.objCon[element.toJSON().Id_Con].Id_Top == this.state.Id_Top) {
                         arr.push(
                             element.toJSON()
                         );
-                        index++;
-                        if (element.toJSON().Id_Cus == this.state.key) {
-                            _index = index;
-                            point = element.toJSON().Point;
-                        }
-                    }
                 });
-
                 arr.sort(function (a, b) { return b.Point - a.Point || (b.Point == a.Point && a.TimeLeft_Res > b.TimeLeft_Res) });
-                var _index = 0;
-                _index=arr.findIndex(x => x.Id_Cus == this.state.key);
-                if (_index >= 0) {
-                    this.setState({
-                        listRes: arr,
-                        point: arr[_index].Point,
-                        index: _index+1
-                    })
-                }
-                else {
                     this.setState({
                         listRes: arr
                     })
                 }
-            }
         })
     }
 
     getTop = async () => {
-        await firebase.database().ref("Topic").orderByChild("Status").equalTo(1).on("value", (value) => {
+        await firebase.database().ref("Topic").orderByChild("Status").equalTo(1).once("value", (value) => {
             if (value.exists()) {
-                this.setState({ objTop: value.val() });
                 var arr = [];
-                var free = 1;
                 value.forEach((element) => {
-                    if (free) {
-                        this.setState({ Id_Top: element.key });
-                        free = 0;
-                    }
                     arr.push(
                         {
                             Id: element.key,
@@ -126,42 +94,127 @@ export default class chartsComponent extends Component {
                         });
                 })
                 this.setState({
-                    listTop: arr
+                    objTop: value.val(),
+                    listTop: arr,
+                    Id_Top: arr[0].Id 
                 })
-                this.getCon();
             }
         })
     }
     async componentDidMount() {
         await AsyncStorage.getItem('userData').then((value) => {
             const userData = JSON.parse(value);
-            for (var key in userData) {
-                this.setState({
-                    key: key,
-                });
-                return;
-            }
+            this.setState({
+                key: userData.Id,
+            });
         });
         await this.getTop();
+        await this.getCon();
+        await this.getRes();
         await this.getCus();
     }
+    _handleScroll = (event) => {
+		var newXOffset = event.nativeEvent.contentOffset.x
+		this.setState({currentXOffset:newXOffset})
+	  }
+	leftArrow = () => {
+	var	eachItemOffset = 120; 
+	var	_currentXOffset =  this.state.currentXOffset - eachItemOffset;
+		this.refs.scrollView.scrollToOffset({offset: _currentXOffset, animated: true});
+	  }
+	
+	  rightArrow = () => {
+		var eachItemOffset = 120;
+		var	_currentXOffset =  this.state.currentXOffset + eachItemOffset;
+		this.refs.scrollView.scrollToOffset({offset: _currentXOffset, animated: true})
+	  }
     setIdTop = async (id) => {
         this.setState({
             Id_Top: id
         });
-        this.getRes();
+    }
+    getCur = ()=>
+    {
+        var cus=[];
+        var user=null;
+        var index=-1;
+        this.state.listRes.forEach(async(element)=>{
+            if (this.state.objCus.hasOwnProperty(element.Id_Cus) 
+            && !cus.includes(element.Id_Cus) && this.state.objCon[element.Id_Con].Id_Top==this.state.Id_Top)
+            {
+                cus.push(element.Id_Cus);
+                if (element.Id_Cus==this.state.key)
+                {
+                    index++;
+                    user=element;
+                    return;
+                }
+                else
+                {
+                    index++;
+                }
+            }
+        });
+         index=cus.indexOf(this.state.key);
+        return (
+            <View style={{ flexGrow: 1 }}>
+            <LinearGradient
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                colors={['rgb(86, 123, 248)', 'rgb(95,192,255)']}
+                style={{
+                    width: '95%',
+                    paddingVertical:20,
+                    backgroundColor: 'white',
+                    alignSelf: 'center',
+                }}
+            >
+                <Text
+                    style={{
+                        color: 'white',
+                        alignSelf: 'center',
+                        fontSize: 18
+                    }}
+                >
+                    Hạng của tôi
+            </Text>
+                <View
+                    style={{
+                        flexDirection: 'row',
+                        justifyContent: 'space-between',
+                        margin: '2%'
+                    }}
+                >
+                    <Text
+                        style={{
+                            color: 'white'
+                        }}
+                    >
+                        {cus.length>0?user.Point:'0'} điểm
+                    </Text>
+                    <Text
+                        style={{
+                            color: 'white'
+                        }}
+                    >
+                        Hạng  {index>=-1?(index+1):'∞'}
+                    </Text>
+
+
+                </View>
+            </LinearGradient>
+        </View>
+        )
     }
     getTopRes = () => {
         var arr = [];
-        var last = -1;
-        for (let index = 0; index < this.state.listRes.length; index++) {
-
-            if (index == 10) break;
-            last = index;
-            var element = this.state.listRes[index];
-
-            if (this.state.objCus.hasOwnProperty(element.Id_Cus)) {
-                if (index == 0) {
+        var index = 0;
+        var cus=[];
+        for (let i = 0; i < this.state.listRes.length; i++) {
+            var element = this.state.listRes[i];          
+            if (this.state.objCus.hasOwnProperty(element.Id_Cus) 
+            && !cus.includes(element.Id_Cus) && this.state.objCon[element.Id_Con].Id_Top==this.state.Id_Top) {
+               cus.push(element.Id_Cus);
                     arr.push(
                         <View
                             key={index}
@@ -171,260 +224,75 @@ export default class chartsComponent extends Component {
                                 flexDirection: 'row',
                                 borderWidth: 2,
                                 borderColor: '#1E90FF',
-                                margin: '2%',
                                 alignSelf: 'center',
-
+                                marginBottom:10
                             }}
                         >
-                            <View style={{ alignSelf: 'center' }}>
+                            <View style={{ flexDirection: 'column',justifyContent:'center',marginRight:10}}>
                                 <Image
                                     style={{
                                         width: 50,
                                         height: 50,
-                                        alignContent: 'center'
+                                        justifyContent: 'center',
+                                        alignSelf: 'center',
+                                    
                                     }}
-                                    source={require('thitracnghiem/icons/icons8-trophy-96.png')}
+                                    source={index==0?require('thitracnghiem/icons/icons8-trophy-96.png'):index==1?require('thitracnghiem/icons/icons8-medal-second-place-80.png'):
+                                    index==2?require('thitracnghiem/icons/icons8-medal-third-place-80.png'):require('thitracnghiem/icons/icons8-star-64.png')
+                                    }
                                 />
                             </View>
-                            <View style={{ flexDirection: 'column', margin: '1%' }}>
-                                <Text style={{ color: 'white' }}>Hạng 1</Text>
+                            <View style={{ flexDirection: 'column',justifyContent:'center'}}>
+                                <Text style={{ color: 'white' }}>Hạng {index+1}</Text>
                                 <Text style={{ color: 'white' }}>Tài khoản : {this.state.objCus[element.Id_Cus].Username}</Text>
                                 <Text style={{ color: 'white' }}>{element.Point} điểm</Text>
-                                <Text style={{ color: 'white' }}>{this.changeTime(element.TimeLeft_Res)}</Text>
+                                {this.state.Id_Top!='-MDBLQgsR3ZDZTyrrf8_'?<Text style={{ color: 'white' }}>{this.changeTime(element.TimeLeft_Res)}</Text>:null}
                             </View>
                         </View>
-                    )
-                }
-                else
-                    if (index == 1) {
-                        arr.push(
-                            <View
-                                key={index}
-                                style={{
-                                    width: '85%',
-                                    padding: 5,
-                                    flexDirection: 'row',
-                                    borderWidth: 2,
-                                    borderColor: '#1E90FF',
-                                    margin: '2%',
-                                    alignSelf: 'center'
-                                }}
-                            >
-                                <Image
-                                    style={{
-                                        width: 50,
-                                        height: 50
-                                    }}
-                                    source={require('thitracnghiem/icons/icons8-medal-second-place-80.png')}
-                                />
-                                <View style={{ flexDirection: 'column', margin: '1%' }}>
-                                    <Text style={{ color: 'white' }}>Hạng 2</Text>
-                                    <Text style={{ color: 'white' }}>Tài khoản : {this.state.objCus[element.Id_Cus].Username}</Text>
-                                    <Text style={{ color: 'white' }}>{element.Point} điểm</Text>
-                                    <Text style={{ color: 'white' }}>{this.changeTime(element.TimeLeft_Res)}</Text>
-                                </View>
-                            </View>)
-                    }
-                    else
-                        if (index == 2) {
-                            arr.push(
-                                <View
-                                    key={index}
-                                    style={{
-                                        width: '85%',
-                                        padding: 5,
-                                        flexDirection: 'row',
-                                        borderWidth: 2,
-                                        borderColor: '#1E90FF',
-                                        margin: '2%',
-                                        alignSelf: 'center'
-                                    }}
-                                >
-                                    <Image
-                                        style={{
-                                            width: 50,
-                                            height: 50
-                                        }}
-                                        source={require('thitracnghiem/icons/icons8-medal-third-place-80.png')}
-                                    />
-                                    <View style={{ flexDirection: 'column', margin: '1%' }}>
-                                        <Text style={{ color: 'white' }}>Hạng 3</Text>
-                                        <Text style={{ color: 'white' }}>Tài khoản : {this.state.objCus[element.Id_Cus].Username}</Text>
-                                        <Text style={{ color: 'white' }}>{element.Point} điểm</Text>
-                                        <Text style={{ color: 'white' }}>{this.changeTime(element.TimeLeft_Res)}</Text>
-                                    </View>
-                                </View>)
-                        }
-                        else {
-                            arr.push(
-                                <View
-                                    key={index}
-                                    style={{
-                                        width: '85%',
-                                        padding: 5,
-                                        flexDirection: 'row',
-                                        borderWidth: 2,
-                                        borderColor: '#1E90FF',
-                                        margin: '2%',
-                                        alignSelf: 'center'
-                                    }}
-                                >
-                                    <View style={{
-                                        width: 50,
-                                        height: 50,
-                                        alignItems: 'center'
-                                    }}>
-                                        <Image
-                                            style={{
-                                                width: 40,
-                                                height: 40
-                                            }}
-                                            source={require('thitracnghiem/icons/icons8-star-64.png')}
-                                        />
-                                    </View>
-
-                                    <View style={{ flexDirection: 'column', margin: '1%' }}>
-                                        <Text style={{ color: 'white' }}>Hạng {index + 1}</Text>
-                                        <Text style={{ color: 'white' }}>Tài khoản : {this.state.objCus[element.Id_Cus].Username}</Text>
-                                        <Text style={{ color: 'white' }}>{element.Point} điểm</Text>
-                                        <Text style={{ color: 'white' }}>{this.changeTime(element.TimeLeft_Res)}</Text>
-                                    </View>
-                                </View>
-                            )
+                    );
+                        index++;
+                        if (index==10)
+                        {
+                            break;
                         }
             }
         }
-        for (let index = last + 1; index < 10; index++) {
-            if (index == 0) {
-                arr.push(
-                    <View
-                        key={index}
-                        style={{
-                            width: '85%',
-                            padding: 5,
-                            flexDirection: 'row',
-                            borderWidth: 2,
-                            borderColor: '#1E90FF',
-                            margin: '2%',
-                            alignSelf: 'center',
-
-                        }}
-                    >
-                        <View style={{ alignSelf: 'center' }}>
-                            <Image
-                                style={{
-                                    width: 50,
-                                    height: 50,
-                                    alignContent: 'center'
-                                }}
-                                source={require('thitracnghiem/icons/icons8-trophy-96.png')}
-                            />
-                        </View>
-                        <View style={{ flexDirection: 'column', margin: '1%' }}>
-                            <Text style={{ color: 'white' }}>Hạng 1</Text>
-                            <Text style={{ color: 'white' }}>Tài khoản : Không có</Text>
-                            <Text style={{ color: 'white' }}>0 điểm</Text>
-                            <Text style={{ color: 'white' }}>0 s</Text>
-                        </View>
-                    </View>
-                )
-            }
-            else
-                if (index == 1) {
-                    arr.push(
-                        <View
-                            key={index}
+        for (let i = index ; i < 10; i++) {
+            arr.push(
+                <View
+                    key={i}
+                    style={{
+                        width: '85%',
+                        padding: 5,
+                        flexDirection: 'row',
+                        borderWidth: 2,
+                        borderColor: '#1E90FF',
+                        alignSelf: 'center',
+                        marginBottom:10
+                    }}
+                >
+                    <View style={{ flexDirection: 'column',justifyContent:'center',marginRight:10}}>
+                        <Image
                             style={{
-                                width: '85%',
-                                padding: 5,
-                                flexDirection: 'row',
-                                borderWidth: 2,
-                                borderColor: '#1E90FF',
-                                margin: '2%',
-                                alignSelf: 'center'
+                                width: 50,
+                                height: 50,
+                                justifyContent: 'center',
+                                alignSelf: 'center',
+                            
                             }}
-                        >
-                            <Image
-                                style={{
-                                    width: 50,
-                                    height: 50
-                                }}
-                                source={require('thitracnghiem/icons/icons8-medal-second-place-80.png')}
-                            />
-                            <View style={{ flexDirection: 'column', margin: '1%' }}>
-                                <Text style={{ color: 'white' }}>Hạng 2</Text>
-                                <Text style={{ color: 'white' }}>Tài khoản : Không có</Text>
-                                <Text style={{ color: 'white' }}>0 điểm</Text>
-                                <Text style={{ color: 'white' }}>0 s</Text>
-                            </View>
-                        </View>)
-                }
-                else
-                    if (index == 2) {
-                        arr.push(
-                            <View
-                                key={index}
-                                style={{
-                                    width: '85%',
-                                    padding: 5,
-                                    flexDirection: 'row',
-                                    borderWidth: 2,
-                                    borderColor: '#1E90FF',
-                                    margin: '2%',
-                                    alignSelf: 'center'
-                                }}
-                            >
-                                <Image
-                                    style={{
-                                        width: 50,
-                                        height: 50
-                                    }}
-                                    source={require('thitracnghiem/icons/icons8-medal-third-place-80.png')}
-                                />
-                                <View style={{ flexDirection: 'column', margin: '1%' }}>
-                                    <Text style={{ color: 'white' }}>Hạng 3</Text>
-                                    <Text style={{ color: 'white' }}>Tài khoản : Không có</Text>
-                                    <Text style={{ color: 'white' }}>0 điểm</Text>
-                                    <Text style={{ color: 'white' }}>0 s</Text>
-                                </View>
-                            </View>)
-                    }
-                    else {
-                        arr.push(
-                            <View
-                                key={index}
-                                style={{
-                                    width: '85%',
-                                    padding: 5,
-                                    flexDirection: 'row',
-                                    borderWidth: 2,
-                                    borderColor: '#1E90FF',
-                                    margin: '2%',
-                                    alignSelf: 'center'
-                                }}
-                            >
-                                <View style={{
-                                    width: 50,
-                                    height: 50,
-                                    alignItems: 'center'
-                                }}>
-                                    <Image
-                                        style={{
-                                            width: 40,
-                                            height: 40
-                                        }}
-                                        source={require('thitracnghiem/icons/icons8-star-64.png')}
-                                    />
-                                </View>
-                                <View style={{ flexDirection: 'column', margin: '1%' }}>
-                                    <Text style={{ color: 'white' }}>Hạng {index + 1}</Text>
-                                    <Text style={{ color: 'white' }}>Tài khoản : Không có</Text>
-                                    <Text style={{ color: 'white' }}>0 điểm</Text>
-                                    <Text style={{ color: 'white' }}>0 s</Text>
-                                </View>
-                            </View>
-                        )
-                    }
+                            source={i==0?require('thitracnghiem/icons/icons8-trophy-96.png'):i==1?require('thitracnghiem/icons/icons8-medal-second-place-80.png'):
+                            i==2?require('thitracnghiem/icons/icons8-medal-third-place-80.png'):require('thitracnghiem/icons/icons8-star-64.png')
+                            }
+                        />
+                    </View>
+                    <View style={{ flexDirection: 'column',justifyContent:'center'}}>
+                        <Text style={{ color: 'white' }}>Hạng ∞</Text>
+                        <Text style={{ color: 'white' }}>Tài khoản : Không có</Text>
+                        <Text style={{ color: 'white' }}>0 điểm</Text>
+                        {this.state.Id_Top!='-MDBLQgsR3ZDZTyrrf8_'?<Text style={{ color: 'white' }}>{this.changeTime(0)}</Text>:null}
+                    </View>
+                </View>
+            );
         }
         if (arr.length == 0) return null
         else
@@ -442,54 +310,58 @@ export default class chartsComponent extends Component {
                     source={require('thitracnghiem/img/70331284_752704455184910_2392173157533351936_n.jpg')}
                     style={{ width: '100%', height: '100%' }}
                 >
-                    <Header {...this.props} />
-                    <Text
-                        style={{
-                            fontSize: 22,
-                            fontWeight: 'bold',
-                            textAlign: 'center',
-                            color: '#1E90FF',
-                            marginTop: '1%',
-                            fontStyle: 'italic',
-                            marginBottom: '5%'
-                        }}
-                    >
-                        Bảng xếp hạng
-                    </Text>
+                    <Header {...this.props} title={'Bảng Xếp Hạng'} />
+                    <View
+						style={{
+							 flexDirection:'row', 
+							justifyContent:'center'
+						}}
+					>
+						<TouchableHighlight
+						style={{ justifyContent:'center',marginHorizontal:10,}}
+						onPress={this.leftArrow}>
+							<Image
+								source={require('thitracnghiem/icons/icons8-left-24.png')}
+								style={{ width: 20, height: 20, tintColor: 'white'}}
+							/>
+					</TouchableHighlight>
                     <FlatList
                         horizontal={true}
+                        ref={'scrollView'}
+                        onContentSizeChange={(w, h) => this.setState({scrollViewWidth:w})}
+                        scrollEventThrottle={16}
+                        onScroll={this._handleScroll}
                         data={this.state.listTop}
                         keyExtractor={item => item.id}
-                        contentContainerStyle={{ flexGrow: 1, justifyContent: 'space-between', paddingHorizontal: '3%' }}
+                        contentContainerStyle={{flexGrow: 1, justifyContent: 'space-between'}}
                         renderItem={({ item, index }) => {
                             return (
-                                <View
-                                    key={index}>
+                                <View>
                                     <LinearGradient
                                         start={{ x: 0, y: 0 }}
                                         end={{ x: 1, y: 0 }}
-                                        colors={this.state.Id_Top == item.Id ? ['gray', 'gray'] : ['rgb(86, 123, 248)', 'rgb(95,192,255)']}
-                                        style={{
+                                        colors={this.state.Id_Top == item.Id ? ['gray', 'gray'] : ['rgb(86, 123, 248)', 'rgb(95,192,255)']}    
+                                        style={
+                                            {
                                             width: 100,
-                                            height: 50,
-                                            marginBottom: 70,
-                                            backgroundColor: 'white',
-                                            borderRadius: 10
-                                        }}
+                                            height: 40,               
+                                            borderRadius: 40,
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
+                                            margin: 5
+                                        }
+                                        }
                                     >
                                         <Button
                                             containerStyle={{
-                                                width: 100,
-                                                height: 50,
                                                 justifyContent: 'center'
-
                                             }}
                                             onPress={async () => {
                                                 this.setIdTop(item.Id);
                                             }}
                                             style={{ alignSelf: 'center', color: 'white' }}
                                         >
-                                            {item.Name_Top}
+                                            {item.Id=='-MDBLQgsR3ZDZTyrrf8_'?'ĐTT':item.Name_Top.length>20?(item.Name_Top.substr(27)+'...'):item.Name_Top}
                                         </Button>
                                     </LinearGradient>
                                 </View>
@@ -497,56 +369,19 @@ export default class chartsComponent extends Component {
                         }}
 
                     />
+				<TouchableHighlight
+						style={{ justifyContent:'center',marginHorizontal:10,}}
+						onPress={this.rightArrow}>
+							<Image
+								source={require('thitracnghiem/icons/icons8-right-24.png')}
+								style={{ width: 20, height: 20, tintColor: 'white'}}
+							/>
+					</TouchableHighlight>
+					</View>
+                    {this.getCur()}
+                 
 
-                    <View style={{ flexGrow: 1 }}>
-                        <LinearGradient
-                            start={{ x: 0, y: 0 }}
-                            end={{ x: 1, y: 0 }}
-                            colors={['rgb(86, 123, 248)', 'rgb(95,192,255)']}
-                            style={{
-                                width: '95%',
-                                height: 120,
-                                backgroundColor: 'white',
-                                alignSelf: 'center',
-                            }}
-                        >
-                            <Text
-                                style={{
-                                    color: 'white',
-                                    alignSelf: 'center',
-                                    fontSize: 18
-                                }}
-                            >
-                                Hạng của tôi
-                        </Text>
-                            <View
-                                style={{
-                                    flexDirection: 'row',
-                                    justifyContent: 'space-between',
-                                    margin: '2%'
-                                }}
-                            >
-                                <Text
-                                    style={{
-                                        color: 'white'
-                                    }}
-                                >
-                                    {this.state.point} điểm
-                                </Text>
-                                <Text
-                                    style={{
-                                        color: 'white'
-                                    }}
-                                >
-                                    Hạng  {this.state.index}
-                                </Text>
-
-
-                            </View>
-                        </LinearGradient>
-                    </View>
-
-                    <ScrollView>
+                    <ScrollView  style={{marginVertical:10}}>
 
                         <View>
                             {this.getTopRes()}

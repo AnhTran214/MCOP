@@ -194,6 +194,8 @@ dependencies {
     implementation "com.google.firebase:firebase-database:17.0.0"
     implementation "com.google.firebase:firebase-storage:17.0.0"
     implementation project(':react-native-smtp-mailer')
+    compile 'com.android.support:multidex:1.0.1'
+    implementation project(':react-native-fbsdk')
     if (enableHermes) {
         def hermesPath = "../../node_modules/hermes-engine/android/";
         debugImplementation files(hermesPath + "hermes-debug.aar")

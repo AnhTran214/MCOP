@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
-import { ActivityIndicator, StyleSheet, View, ImageBackground, Text,Dimensions } from 'react-native';
+import { ActivityIndicator, StyleSheet, View, ImageBackground, Text,Image } from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
-    import global from 'thitracnghiem/Function/global.js';
 export default class AuthLoadingScreen extends Component {
     constructor(props) {
         super(props);
@@ -9,8 +8,6 @@ export default class AuthLoadingScreen extends Component {
     }
 
     getEmail = async () => {
-      global.height =Dimensions.get('window').height;
-      global.width =Dimensions.get('window').width;
         await AsyncStorage.getItem('userData').then((value) => {
             const userData = JSON.parse(value);
             this.props.navigation.navigate(userData ? 'App' : 'Auth');
@@ -24,6 +21,13 @@ export default class AuthLoadingScreen extends Component {
                 style={{ width: '100%', height: '100%' }}
             >
                 <View style={styles.container}>
+                <Image
+                                source={require('thitracnghiem/img/imageedit_18_6287752576.png')}
+                                style={{
+                                    width: 200,
+                                    height: 200,
+                                }}
+                            />
                     <Text style={{ fontSize: 44, color: 'white', fontWeight: 'bold', fontStyle: 'italic' }}>
                         M.C.O.P
                     </Text>

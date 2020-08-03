@@ -4,6 +4,7 @@ const Home = 'Home';
 const AuthLoading = 'AuthLoading';
 const info = 'info';
 const math = 'math';
+const dtt = 'dtt';
 const listques = 'listques';
 const charts = 'charts';
 const changePass = 'changePass';
@@ -18,6 +19,7 @@ export {
     AuthLoading,
     info,
     math,
+    dtt,
     fopass,
     takepass,
     listques,

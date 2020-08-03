@@ -9,7 +9,8 @@ import {
     ImageBackground,
     Image,
     StatusBar,
-    ActivityIndicator
+    ActivityIndicator,
+    BackHandler
 } from 'react-native';
 import firebase from 'react-native-firebase';
 import Button from 'react-native-button';
@@ -24,21 +25,10 @@ export default class TakepassCom extends Component {
         super(props);
         this.unsubcriber = null;
         this.state = {
-            typeRepass: '',
-            typePassword: '',
+            rePassword: '',
+            Password: '',
             showhidenPass: true,
             loading: false,
-            userData: {},
-            pickerDisplayed: false,
-            key: '',
-            Username: '',
-            Fullname: '',
-            Phone: '',
-            Email: '',
-            Address: '',
-            Birthday: '',
-            Password: '',
-            Status: 1,
             key: ''
         };
     }
@@ -55,16 +45,48 @@ export default class TakepassCom extends Component {
         this.setState({
             key: key
         });
+        this.backButton = BackHandler.addEventListener('hardwareBackPress', () => {
+            Alert.alert(
+                'Thông báo',
+                'Bạn có muốn thoát ứng dụng',
+                [
+                    { text: 'Không', onPress: () => console.log('Cancel Pressed'), style: 'cancel' },
+                    {
+                        text: 'Có',
+                        onPress: async () => {
+                            BackHandler.exitApp();
+                        }
+                    }
+                ],
+                { cancelable: true }
+            );
+            return true;
+        });
     }
 
     checkValue = () => {
         return (
-            this.state.typeRepass === '' ||
-            this.state.typePassword === '' ||
-            this.state.typeRepass !== this.state.typePassword
+            this.state.Password === '' ||
+            this.state.rePassword === '' 
         );
     };
     update = () => {
+        if (this.state.Password === '' ||
+        this.state.rePassword === '')
+        {
+            Alert.alert('Thông báo','Mật khẩu và mật khẩu nhập lại không được để trống');
+			return;
+        }
+        if (this.state.Password.length<6)
+		{
+			Alert.alert('Thông báo','Mật khẩu phải từ 6 kí tự trở lên');
+			return;
+		}
+        if (this.state.Password!=this.state.rePassword)
+        {
+            Alert.alert('Thông báo','Mật khẩu và mật khẩu nhập lại trùng khớp');
+			return;
+        }
         this.setState({
             loading: true
         });
@@ -72,7 +94,7 @@ export default class TakepassCom extends Component {
             .database()
             .ref('Customer/' + this.state.key)
             .update({
-                Password: md5(this.state.typePassword)
+                Password: md5(this.state.Password)
             })
             .then(() => {
                 this.setState({
@@ -91,186 +113,150 @@ export default class TakepassCom extends Component {
     render() {
         return (
             <View style={styles.contain}>
-                <StatusBar backgroundColor='#1E90FF' barStyle='light-content' />
-                <ImageBackground
-                    source={require('thitracnghiem/img/70331284_752704455184910_2392173157533351936_n.jpg')}
-                    style={{ width: '100%', height: '100%' }}
+            <StatusBar backgroundColor='#1E90FF' barStyle='light-content' />
+            <ImageBackground
+                source={require('thitracnghiem/img/70331284_752704455184910_2392173157533351936_n.jpg')}
+                style={{ width: '100%', height: '100%' }}
+                pointerEvents={this.state.loading?'none':'auto'}
+            >
+                <OfflineNotice />
+                <ScrollView  contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}>
+                <View
+                style = {{
+                    position:'absolute',
+                    left:0,
+                    top:0
+                }}
                 >
-                    <OfflineNotice />
-                    <ScrollView>
-                        <View
+                    <Button
+                    containerStyle = {{
+                        padding:10,
+                    }}
+                    style = {{
+                        color:'white',
+                    }}
+                    onPress = {() => {
+                        this.props.navigation.navigate(Login);
+                    }}>
+                    <Image 
+                    style = {{width:30, height:30, tintColor: 'white'}}
+                    source = {require('thitracnghiem/icons/back.png')}/>
+                </Button>
+                </View>
+    
+                    <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+                        <Image
+                            source={require('thitracnghiem/img/imageedit_18_6287752576.png')}
                             style={{
-                                flexDirection: 'row',
-                                justifyContent: 'flex-start',
-                                marginLeft: '5%',
-                                marginRight: '5%',
-                                justifyContent: 'space-between',
-                                width: '90%'
-                                /* backgroundColor: 'red' */
+                                width: 200,
+                                height: 200,
+                                marginTop: '5%'
+                            }}
+                        />
+                        <View style={[ styles.propertyValueRowView ]}>
+                            <TextInput
+                                style={[ styles.multilineBox,{paddingRight:50} ]}
+                                keyboardType='default'
+                                placeholderTextColor='white'
+                                underlineColorAndroid='transparent'
+                                autoCapitalize='none'
+                                secureTextEntry={this.state.showhidenPass} 
+                                placeholder='Mật khẩu *'
+                                editable={true}
+                                maxLength={100}
+                                onChangeText={(text) => {
+                                    this.setState({ Password: text });
+                                }}
+                                ref={'Password'}
+                                onSubmitEditing={()=>this.refs.rePassword.focus()}
+                            />
+                            <Button
+                                containerStyle={{
+                                    position: 'absolute',
+                                    right:'10%',
+                                    height:'100%',
+                                    justifyContent:'center'
+                                }}
+                                onPress={this.showhidenPassword.bind(this.state.showhidenPass)}
+                            >
+                                {this.state.showhidenPass === true ? (
+                                    <Image
+                                        style={{ width: 30, height: 30, tintColor: 'white' }}
+                                        source={require('thitracnghiem/icons/2d4e09879b6f017f74ffaee0b0011c0a-eye-icon-by-vexels.png')}
+                                    />
+                                ) : (
+                                    <Image
+                                        style={{ width: 30, height: 30, tintColor: 'white' }}
+                                        source={require('thitracnghiem/icons/mob32px045-512.png')}
+                                    />
+                                )}
+                            </Button>
+                        </View>
+                        <View style={[ styles.propertyValueRowView ]}>
+                            <TextInput
+                                style={[ styles.multilineBox,{paddingRight:50} ]}
+                                keyboardType='default'
+                                placeholderTextColor='white'
+                                underlineColorAndroid='transparent'
+                                autoCapitalize='none'
+                                secureTextEntry={this.state.showhidenPass} 
+                                placeholder='Mật khẩu Nhập Lại *'
+                                editable={true}
+                                maxLength={100}
+                                onChangeText={(text) => {
+                                    this.setState({ rePassword: text });
+                                }}
+                                ref={'rePassword'}
+                                onSubmitEditing={()=>this.checkValue() || this.state.loading?null:this.update()}
+                            />
+                        </View>
+                        <LinearGradient
+                            start={{ x: 0, y: 0 }}
+                            end={{ x: 1, y: 0 }}
+                            colors={
+                                this.checkValue() || this.state.loading?  (
+                                    [ 'grey', 'grey' ]
+                                ) : (
+                                    [ 'rgb(86, 123, 248)', 'rgb(95,192,255)' ]
+                                )
+                            }
+                            style={{
+                                margin: 10,
+                                padding: '3%',
+                                borderRadius: 20,
+                                width: 250
                             }}
                         >
                             <Button
-                                containerStyle={{
-                                    padding: 10
-                                    /* backgroundColor:'white', */
-                                }}
+                                disabled={this.checkValue() || this.state.loading? true : false}
                                 style={{
-                                    color: 'white',
-                                    marginBottom: '20%'
+                                    fontSize: 16,
+                                    color: 'white'
                                 }}
-                                onPress={() => {
-                                    const { navigate } = this.props.navigation; //chu y
-                                    navigate(Login);
-                                }}
+                                onPress={this.update}
                             >
-                                <Image
-                                    style={{ width: 30, height: 30, tintColor: 'white' }}
-                                    source={require('thitracnghiem/icons/back.png')}
-                                />
+                                THAY ĐỔI
                             </Button>
-                        </View>
-                        <View style={{ alignItems: 'center', justifyContent: 'center' }}>
-                            <Image
-                                source={require('thitracnghiem/img/imageedit_18_6287752576.png')}
+                        </LinearGradient>
+                    </View>
+                </ScrollView>
+            </ImageBackground>
+            {this.state.loading ? (
+                            <View
                                 style={{
-                                    width: 200,
-                                    height: 200,
-                                    marginTop: '5%'
-                                }}
-                            />
-                            <View style={[ styles.propertyValueRowView ]}>
-                                <Image
-                                    style={{
-                                        width: 30,
-                                        height: 30,
-                                        tintColor: 'white',
-                                        position: 'absolute',
-                                        top: '40%'
-                                    }}
-                                    source={require('thitracnghiem/icons/56255.png')}
-                                />
-                                <TextInput
-                                    style={styles.multilineBox1}
-                                    underlineColorAndroid='transparent'
-                                    placeholderTextColor='white'
-                                    keyboardType='default'
-                                    autoCapitalize='none'
-                                    placeholder='Mật khẩu mới'
-                                    editable={true}
-                                    secureTextEntry={this.state.showhidenPass}
-                                    maxLength={100}
-                                    onChangeText={(text) => {
-                                        this.setState({ typePassword: text });
-                                    }}
-                                />
-                                <Button
-                                    containerStyle={{
-                                        position: 'absolute',
-                                        right: '5%',
-                                        top: '40%'
-                                    }}
-                                    onPress={this.showhidenPassword.bind(this.state.showhidenPass)}
-                                >
-                                    {this.state.showhidenPass === true ? (
-                                        <Image
-                                            style={{ width: 30, height: 30, tintColor: 'white' }}
-                                            source={require('thitracnghiem/icons/2d4e09879b6f017f74ffaee0b0011c0a-eye-icon-by-vexels.png')}
-                                        />
-                                    ) : (
-                                        <Image
-                                            style={{ width: 30, height: 30, tintColor: 'white' }}
-                                            source={require('thitracnghiem/icons/mob32px045-512.png')}
-                                        />
-                                    )}
-                                </Button>
-                            </View>
-                            <View style={[ styles.propertyValueRowView, { marginBottom: '5%' } ]}>
-                                <Image
-                                    style={{
-                                        width: 30,
-                                        height: 30,
-                                        tintColor: 'white',
-                                        position: 'absolute',
-                                        top: '40%'
-                                    }}
-                                    source={require('thitracnghiem/icons/lock.png')}
-                                />
-                                <TextInput
-                                    style={[ styles.multilineBox ]}
-                                    keyboardType='default'
-                                    placeholderTextColor='white'
-                                    underlineColorAndroid='transparent'
-                                    autoCapitalize='none'
-                                    secureTextEntry={this.state.showhidenPass} // ko dung dc khi multiline = {true}
-                                    placeholder='Nhập lại mật khẩu'
-                                    /* multiline={true} */
-                                    editable={true}
-                                    maxLength={100}
-                                    onChangeText={(text) => {
-                                        this.setState({ typeRepass: text });
-                                    }}
-                                />
-                            </View>
-                            {this.state.typeRepass.trim().length > 0 &&
-                            this.state.typeRepass != this.state.typePassword ? (
-                                <Text style={{ color: 'red', textAlign: 'center' }}>
-                                    Mật khẩu nhập lại không trùng khớp
-                                </Text>
-                            ) : null}
-                            <LinearGradient
-                                start={{ x: 0, y: 0 }}
-                                end={{ x: 1, y: 0 }}
-                                colors={
-                                    this.checkValue() ? [ 'grey', 'grey' ] : [ 'rgb(86, 123, 248)', 'rgb(95,192,255)' ]
-                                }
-                                style={{
-                                    margin: '2%',
-                                    padding: '3%',
-                                    borderRadius: 20,
-                                    width: 250
+                                    position: 'absolute',
+                                    left: 0,
+                                    right: 0,
+                                    top: 0,
+                                    bottom: 0,
+                                    alignItems: 'center',
+                                    justifyContent: 'center'
                                 }}
                             >
-                                <Button
-                                    disabled={this.checkValue() ? true : false}
-                                    style={{
-                                        fontSize: 16,
-                                        color: 'white'
-                                    }}
-                                    onPress={/* this.onLogin */ () => {
-                                        this.update();
-                                    }}
-                                >
-                                    XÁC NHẬN
-                                </Button>
-                            </LinearGradient>
-                            {this.state.loading ? (
-                                <View
-                                    style={{
-                                        position: 'absolute',
-                                        left: 0,
-                                        right: 0,
-                                        top: 0,
-                                        bottom: 0,
-                                        alignItems: 'center',
-                                        justifyContent: 'center'
-                                    }}
-                                >
-                                    <ActivityIndicator size={70} />
-                                </View>
-                            ) : null}
-                            <Text
-                                style={{
-                                    fontSize: 22,
-                                    fontWeight: 'bold',
-                                    textAlign: 'center',
-                                    color: 'white',
-                                    marginBottom: '5%'
-                                }}
-                            />
-                        </View>
-                    </ScrollView>
-                </ImageBackground>
-            </View>
+                                <ActivityIndicator size={70} />
+                            </View>
+                        ) : null}
+        </View>
         );
     }
 }
@@ -280,35 +266,25 @@ const styles = StyleSheet.create({
         backgroundColor: '#00008B'
     },
     multilineBox: {
-        width: '80%',
-        height: 50,
-        marginTop: 20,
+        width: '90%',
         borderColor: 'rgba(255,255,255,0.7)',
         borderBottomWidth: 1,
-        textAlignVertical: 'top',
-        marginLeft: '10%',
-        marginRight: '2%',
+        justifyContent:'center',
         borderRadius: 5,
-        color: 'white'
-    },
-    multilineBox1: {
-        width: '80%',
-        height: 50,
-        marginTop: 20,
-        borderColor: 'rgba(255,255,255,0.7)',
-        borderBottomWidth: 1,
-        textAlignVertical: 'top',
-        marginLeft: '10%',
-        marginRight: '2%',
-        paddingRight: 50,
-        borderRadius: 5,
-        color: 'white'
+        color: 'white',
+        paddingVertical:15
     },
     propertyValueRowView: {
         flexDirection: 'row',
-        justifyContent: 'flex-start',
-        marginTop: 0,
-        marginBottom: 0,
+        justifyContent: 'center',
+        marginBottom:0,
         width: '90%'
-    }
-});
+    },
+  dropdownView: {
+    width: '100%',
+    height: 25,
+    fontSize: 13,
+    marginBottom: '1%',
+    marginTop: '2%',
+},
+})

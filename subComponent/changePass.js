@@ -9,7 +9,8 @@ import {
     TextInput,
     ScrollView,
     ImageBackground,
-    ActivityIndicator
+    ActivityIndicator,
+    BackHandler
 } from 'react-native';
 import firebase from 'react-native-firebase';
 import Button from 'react-native-button';
@@ -20,29 +21,13 @@ import Header from 'thitracnghiem/subComponent/Header';
 import Footer from 'thitracnghiem/subComponent/footer';
 import LinearGradient from 'react-native-linear-gradient';
 import md5 from 'md5';
-//tham chieu den root
 const LearnAppUser = firebase.database().ref('Customer');
 export default class changePassComponent extends Component {
     constructor(props) {
         super(props);
         this.state = {
             loading: false,
-            email: '',
-            currentItemId: '',
-            itemData: {},
-            typedEmail: '',
-            shortEmail: '',
-            userData: {},
-            pickerDisplayed: false,
-            key: "",
-            Username: '',
-            Fullname: '',
-            Phone: '',
-            Email: '',
-            Address: '',
-            Birthday: '',
-            Password: '',
-            Status: 1,
+            key:'',
             password:'',
             newpassword: '',
             renewpassword: '',
@@ -54,22 +39,27 @@ export default class changePassComponent extends Component {
         await setItemToAsyncStorage('currentScreen', changePass);
         await AsyncStorage.getItem('userData').then((value) => {
             const userData = JSON.parse(value);
-            for (var key in userData) {
                 this.setState({
-                    key: key,
-                    userData: userData[key],
-                    itemData: userData,
-                    Username: userData[key].Username,
-                    Fullname: userData[key].Fullname,
-                    Phone: userData[key].Phone,
-                    Email: userData[key].Email,
-                    Address: userData[key].Address,
-                    Birthday: userData[key].Birthday,
-                    Password: userData[key].Password,
-                    Status: userData[key].Status,
-                    Image: userData[key].Image
+                    key: userData.Id,
+                    userData: userData
                 });
-            }
+        });
+        this.backButton = BackHandler.addEventListener('hardwareBackPress', () => {
+            Alert.alert(
+                'Thông báo',
+                'Bạn có muốn thoát ứng dụng',
+                [
+                    { text: 'Không', onPress: () => console.log('Cancel Pressed'), style: 'cancel' },
+                    {
+                        text: 'Có',
+                        onPress: async () => {
+                            BackHandler.exitApp();
+                        }
+                    }
+                ],
+                { cancelable: true }
+            );
+            return true;
         });
     }
     showhidenPassword = () => {
@@ -96,26 +86,30 @@ export default class changePassComponent extends Component {
             Alert.alert("Thông Báo","Mật Khẩu Nhập Lại Không Được Để Trống");
             return;
         }
+        if (this.state.newpassword.length<6)
+        {
+            Alert.alert("Thông Báo","Mật Khẩu Mới Phải Từ 6 Kí Tự Trở Lên");
+            return;
+        }
         if (this.state.newpassword!=this.state.renewpassword)
         {
             Alert.alert("Thông Báo","Mật Khẩu Nhập Lại Không Trùng Khớp");
             return;
         }
-        if (md5(this.state.password)!=this.state.Password)
+        var pass=md5(this.state.password);
+        if (pass!=this.state.userData.Password)
         {
-            console.log(this.state.Password);
             Alert.alert("Thông Báo","Mật Khẩu Cũ Không Đúng");
             return;
         }
         this.setState({loading:true});
         LearnAppUser.child(this.state.key)
         .update({
-            Password: md5(this.state.newpassword)
+            Password: pass
         })
         .then(async () => {
-            this.state.userData.Password=md5(this.state.newpassword);
-            setItemToAsyncStorage('userData', 
-            this.state.itemData);
+            this.state.userData.Password=pass;
+           await setItemToAsyncStorage('userData', this.state.userData);
             this.setState({loading:false});
             Alert.alert('Thông báo', 'Cập nhật thành công!');
             this.props.navigation.navigate(Home);
@@ -147,33 +141,8 @@ export default class changePassComponent extends Component {
                     source={require('thitracnghiem/img/70331284_752704455184910_2392173157533351936_n.jpg')}
                     style={{ width: '100%', height: '100%' }}
                 >
-                    <Header {...this.props} />
-                    <ScrollView>
-                        <View
-                            style={{
-                                backgroundColor: '#1E90FF',
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                                height: 64,
-                                marginLeft: '1%',
-                                marginRight: '1%',
-                                borderTopLeftRadius: 5,
-                                borderTopRightRadius: 5,
-                                marginTop: '1%'
-                            }}
-                        >
-                            <Text
-                                style={{
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                    color: 'white',
-                                    fontWeight: 'bold',
-                                    fontSize: 13
-                                }}
-                            >
-                                Mật khẩu
-                            </Text>
-                        </View>
+                    <Header {...this.props} title={'Thay đổi mật khẩu'}/>
+                    <ScrollView style={{marginVertical:10}}>
                         <View
                             style={{
                                 borderLeftWidth: 2,
@@ -182,10 +151,10 @@ export default class changePassComponent extends Component {
                                 borderColor: '#1E90FF',
                                 marginLeft: '1%',
                                 marginRight: '1%',
-                                marginBottom: '2%',
                                 borderBottomLeftRadius: 5,
                                 borderBottomRightRadius: 5,
-                                backgroundColor: 'rgba(241,241,241,0.7)'
+                                backgroundColor: 'rgba(241,241,241,0.7)',
+                                paddingVertical:10
                             }}
                         >
                             <View
@@ -206,7 +175,7 @@ export default class changePassComponent extends Component {
                                 </Text>
                                 <View style={[ styles.propertyValueRowView ]}>
                                     <TextInput
-                                        style={styles.multilineBox1}
+                                        style={styles.multilineBox}
                                         keyboardType='default'
                                         underlineColorAndroid='transparent'
                                         placeholderTextColor='grey'
@@ -224,7 +193,6 @@ export default class changePassComponent extends Component {
                                     containerStyle={{
                                         position: 'absolute',
                                         right:'5%',
-                                        top: '30%'
                                     }}
                                     onPress={this.showhidenPassword.bind(this.state.showhidenPass)}
                                 >
@@ -307,7 +275,7 @@ export default class changePassComponent extends Component {
                                     <ActivityIndicator size={70} />
                                 </View>
                             ) : null}
-                        <LinearGradient
+                                                <LinearGradient
                             start={{ x: 0, y: 0 }}
                             end={{ x: 1, y: 0 }}
                             colors={[ 'rgb(86, 123, 248)', 'rgb(95,192,255)' ]}
@@ -328,14 +296,15 @@ export default class changePassComponent extends Component {
                                     fontSize: 16,
                                     color: 'white',
                                     textAlign: 'center',
-                                    textAlignVertical: 'center'
+                                    textAlignVertical: 'center',
                                 }}
                                 onPress={this.AlertUpdate}
                             >
                                 ĐỔI MẬT KHẨU
                             </Button>
                         </LinearGradient>
-                    </ScrollView>
+                         </ScrollView>
+             
                     <Footer {...this.props} />
                 </ImageBackground>
             </View>
@@ -350,27 +319,11 @@ const styles = StyleSheet.create({
     multilineBox: {
         width: '96%',
         height: 50,
-        marginTop: '2%',
         borderColor: '#1E90FF',
         borderBottomWidth: 2,
         textAlignVertical: 'top',
         marginLeft: '2%',
         marginRight: '2%',
-        borderRadius: 5,
-        marginBottom: '2%'
-    },
-    multilineBox1: {
-        width: '96%',
-        height: 50,
-        marginTop: '2%',
-        borderColor: '#1E90FF',
-        borderBottomWidth: 2,
-        textAlignVertical: 'top',
-        marginLeft: '2%',
-        marginRight: '2%',
-        borderRadius: 5,
-        paddingRight:50,
-        marginBottom: '2%'
     },
     propertyValueRowView: {
         flexDirection: 'row',

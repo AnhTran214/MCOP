@@ -8,13 +8,15 @@ import {
 	TextInput,
 	Platform,
 	ImageBackground,
-	ScrollView,StatusBar,ActivityIndicator
+    ScrollView,
+    StatusBar,
+    ActivityIndicator,
+    BackHandler
 } from 'react-native';
  import firebase from 'react-native-firebase';
 import Button from 'react-native-button';
 import {Login} from 'thitracnghiem/Navigation/screenName';
- import AsyncStorage from '@react-native-community/async-storage';
-import {setItemToAsyncStorage,setItemToAsyncStorage1} from 'thitracnghiem/Function/function';
+import {setItemToAsyncStorage} from 'thitracnghiem/Function/function';
 import LinearGradient from 'react-native-linear-gradient';
 import md5 from 'md5';
 import OfflineNotice from 'thitracnghiem/Navigation/OfflineNotice.js'
@@ -27,7 +29,9 @@ export default class signupComponent extends Component {
 			Username: '',
 			Password: '',
             Fullname: '',
-			rePassword:'' ,
+            rePassword:'',
+            FacebookID : '',
+            GoogleID:'',
 			loading: false,
 			showhidenPass: true,
 		};
@@ -75,7 +79,9 @@ export default class signupComponent extends Component {
 					Email:  '',
 					Address: '',
 					Birthday: '',
-					Password: md5(this.state.Password),
+                    Password: md5(this.state.Password),
+                    Facebook: this.state.FacebookID,
+                    Google: this.state.GoogleID,
 					Status: 1,
 					Image:'',
 				};
@@ -107,7 +113,27 @@ export default class signupComponent extends Component {
 	  {
 		return this.state.Username.trim() ==='' || this.state.Fullname.trim() ==='' || this.state.Password ==='' || this.state.rePassword === '';
 	  }
-
+      componentDidMount() {
+        this.state.FacebookID = this.props.navigation.getParam('facebook', '');
+        this.state.GoogleID = this.props.navigation.getParam('google', '');
+        this.backButton = BackHandler.addEventListener('hardwareBackPress', () => {
+            Alert.alert(
+                'Thông báo',
+                'Bạn có muốn thoát ứng dụng',
+                [
+                    { text: 'Không', onPress: () => console.log('Cancel Pressed'), style: 'cancel' },
+                    {
+                        text: 'Có',
+                        onPress: async () => {
+                            BackHandler.exitApp();
+                        }
+                    }
+                ],
+                { cancelable: true }
+            );
+            return true;
+        });
+    }
 	render() {
 		return (
             <View style={styles.contain}>

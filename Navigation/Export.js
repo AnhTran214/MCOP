@@ -10,6 +10,7 @@ import homeComponent from 'thitracnghiem/Main/Home';
 import AuthLoadingScreen from 'thitracnghiem/subComponent/Loading';
 import infoAccComponent from 'thitracnghiem/Main/infoAcc';
 import MathComponent from 'thitracnghiem/Subject/Math';
+import DttComponent from 'thitracnghiem/Subject/Dtt';
 import ListquesComponent from 'thitracnghiem/subComponent/Listques';
 import HeaderDrawer from 'thitracnghiem/Navigation/HeaderDrawer';
 import chartsComponent from 'thitracnghiem/Main/Charts';
@@ -18,7 +19,6 @@ import Resultmain from 'thitracnghiem/Subject/resultmain';
 import HistoryCom from 'thitracnghiem/Main/History';
 import FopassCom from 'thitracnghiem/LoginSignUp/fopassword';
 import TakepassCom from 'thitracnghiem/LoginSignUp/takepass';
-//---------------------------------------------------------------
 import {
     Login,
     SignUp,
@@ -34,24 +34,33 @@ import {
     fopass,
     takepass
 } from 'thitracnghiem/Navigation/screenName';
-//---------------------------------------------------------------
-
-//---------------------------------------------------------------
 const AuthStack = createStackNavigator(
     { Login: loginComponent, SignUp: signupComponent, fopass: FopassCom, takepass: TakepassCom },
     { headerMode: 'none' }
 );
 const HomeStack = createStackNavigator(
     {
-        //'Home': homeComponent
         Home: homeComponent,
         listques: ListquesComponent
+    },
+    { headerMode: 'none' }
+);
+const HisStack = createStackNavigator(
+    {
+        his: HistoryCom,
+    },
+    { headerMode: 'none' }
+);
+const ResStack = createStackNavigator(
+    {
+        res: chartsComponent
     },
     { headerMode: 'none' }
 );
 const MathStack = createStackNavigator(
     {
         math: MathComponent,
+        dtt: DttComponent,
         result: Resultmain
     },
     { headerMode: 'none' }
@@ -82,7 +91,7 @@ let routeConfig = {
             drawerIcon: (
                 <Image
                     source={require('thitracnghiem/icons/icons8-home-480.png')}
-                    style={{ width: 26, height: 26, tintColor: '#1E90FF' }}
+                    style={{ width: 26, height: 26, tintColor: 'white' }}
                 />
             )
         }
@@ -94,20 +103,41 @@ let routeConfig = {
             drawerIcon: (
                 <Image
                     source={require('thitracnghiem/icons/icons8-user-male-512.png')}
-                    style={{ width: 26, height: 26, tintColor: '#1E90FF' }}
+                    style={{ width: 26, height: 26, tintColor: 'white' }}
                 />
             )
         }
     },
-    histo: HistoryCom,
-    charts: chartsComponent
+    histo: {
+        screen: HisStack,
+        navigationOptions: {
+            drawerLabel: 'Lịch sử thi',
+            drawerIcon: (
+                <Image
+                    source={require('thitracnghiem/icons/icons8-time-machine-100.png')}
+                    style={{ width: 26, height: 26, tintColor: 'white' }}
+                />
+            )
+        }
+    },
+    charts: {
+        screen: ResStack ,
+        navigationOptions: {
+            drawerLabel: 'Xếp hạng',
+            drawerIcon: (
+                <Image
+                    source={require('thitracnghiem/icons/icons8-crown-480.png')}
+                    style={{ width: 26, height: 26, tintColor: 'white' }}
+                />
+            )
+        }
+    },
 };
 let drawerNavConfig = {
     unmountInactiveRoutes: true,
-    //drawerWidth : screenWidth /2,
     drawerPosition: 'left',
     contentOptions: {
-        activeTintColor: 'crimson'
+        activeTintColor: 'white'
     },
     contentComponent: DrawerContent
 };

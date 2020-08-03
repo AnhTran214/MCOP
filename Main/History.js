@@ -55,7 +55,6 @@ export default class HistoryCom extends Component {
             if (value.exists()) {
                 var his = [];
                 value.forEach((element) => {
-
                     his.push(element.toJSON());
                 })
                 his.reverse();
@@ -80,12 +79,9 @@ export default class HistoryCom extends Component {
     async  componentDidMount() {
         await AsyncStorage.getItem('userData').then((value) => {
             const userData = JSON.parse(value);
-            for (var key in userData) {
-                this.setState({
-                    key: key,
-                });
-                return;
-            }
+            this.setState({
+                key: userData.Id,
+            });
         });
         await this.getHis();
         await this.getCon();
@@ -93,15 +89,18 @@ export default class HistoryCom extends Component {
 
     }
     changDate = (date) => {
-        var d = new Date(date);
-        return d.getDate() + "/" + d.getMonth() + "/" + d.getFullYear();
+        var date = new Date(date);
+        var d=date.getDate();
+        var m=date.getMonth()+1;
+        var y=date.getFullYear();
+        return (d<10?('0'+d):d) + "/" + (m<10?('0'+m):m) + "/" + y;
     }
     changeTime = (time) => {
         var min = parseInt(time / 60);
         var sec = time % 60;
         if (min < 10 && min > 0) min = '0' + min;
         if (sec < 10 && sec > 0) sec = '0' + sec;
-        return min + ' phút ' + sec + ' s'
+        return min + ' phút ' + sec + ' giây';
     }
     showHis = () => {
         var show_his = [];
@@ -123,7 +122,7 @@ export default class HistoryCom extends Component {
                     }}
                 >
                     <View style={{ justifyContent: 'center', width: '25%' }}>
-                        <Text style={{ color: 'white', fontSize: 15, opacity: 0.7, textAlign: 'center' }}>{this.state.objCon.hasOwnProperty(element.Id_Con) && this.state.objTop.hasOwnProperty(this.state.objCon[element.Id_Con].Id_Top) ? this.state.objTop[this.state.objCon[element.Id_Con].Id_Top].Name_Top : "NULL"}</Text>
+                        <Text style={{ color: 'white', fontSize: 15,  textAlign: 'center' }}>{this.state.objCon.hasOwnProperty(element.Id_Con) && this.state.objTop.hasOwnProperty(this.state.objCon[element.Id_Con].Id_Top) ? this.state.objTop[this.state.objCon[element.Id_Con].Id_Top].Name_Top : "NULL"}</Text>
                     </View>
                     <View style={{ flexDirection: 'column', margin: '3%', width: '75%' }}>
                         <Text style={{ color: 'white' }}>Ngày: {this.changDate(element.Date_Res)}</Text>
@@ -149,25 +148,11 @@ export default class HistoryCom extends Component {
                     source={require('thitracnghiem/img/70331284_752704455184910_2392173157533351936_n.jpg')}
                     style={{ width: '100%', height: '100%' }}
                 >
-                    <Header {...this.props} />
-                    <Text
-                        style={{
-                            fontSize: 22,
-                            fontWeight: 'bold',
-                            textAlign: 'center',
-                            color: '#1E90FF',
-                            marginTop: '1%',
-                            fontStyle: 'italic',
-                            marginBottom: '5%'
-                        }}
-                    >
-                        Lịch sử thi
-                    </Text>
-                    <ScrollView>
-                        <View>
+                    <Header {...this.props} title={'Lịch sử thi'} />
+                    <ScrollView  contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}>
+                        <View style={{justifyContent:'center',alignSelf:'center'}}>
                             {this.showHis()}
                         </View>
-                        <View />
                     </ScrollView>
                     <Footer {...this.props} />
                 </ImageBackground>
