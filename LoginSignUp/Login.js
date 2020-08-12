@@ -56,7 +56,7 @@ export default class loginComponent extends Component {
         this.setState({
             loading: true
         });
-        var user=this.state.Username.trim();
+        var user=this.state.Username.trim().toLowerCase();
         firebase.database().ref('Customer').orderByChild('Username').limitToFirst(1).equalTo(user).once(
             'value',
             (value) => {

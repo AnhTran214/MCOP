@@ -62,7 +62,7 @@ export default class signupComponent extends Component {
 		this.setState({
 			loading: true
 		});
-		var username= this.state.Username.trim();
+		var username= this.state.Username.trim().toLowerCase();
 		var fullname= this.state.Fullname.trim();
 		LearnAppRefUsers.orderByChild("Username").equalTo(username).limitToFirst(1).once('value', async(value) => {
 			if (value.exists()) {

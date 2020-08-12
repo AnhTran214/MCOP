@@ -34,7 +34,7 @@ export default class FopassCom extends Component {
     }
     makeEmall = async () => {
         var email=this.state.Email.trim();
-        var username=this.state.Username.trim();
+        var username=this.state.Username.trim().toLowerCase();
         if (email.length == 0 || username.length == 0) {
             Alert.alert('Thông báo', 'Vui lòng nhập Email và Tài Khoản trước');
             return;
